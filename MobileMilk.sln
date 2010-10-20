@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk", "MobileMilk\MobileMilk.csproj", "{54D535A1-B547-40DF-8C85-9CC95F56500B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Data", "MobileMilk.Data\MobileMilk.Data.csproj", "{3EA34A4F-34BA-4999-B1E1-E2353852930C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54D535A1-B547-40DF-8C85-9CC95F56500B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
