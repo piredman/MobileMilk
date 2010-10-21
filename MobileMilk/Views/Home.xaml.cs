@@ -11,13 +11,18 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 
-namespace MobileMilk.View
+namespace MobileMilk.Views
 {
     public partial class Home : PhoneApplicationPage
     {
         public Home()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

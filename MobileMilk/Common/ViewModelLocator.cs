@@ -51,10 +51,7 @@ namespace MobileMilk.Common
 
         public HomeViewModel HomeViewModel
         {
-            get
-            {
-                return this.containerLocator.Container.Resolve<HomeViewModel>();
-            }
+            get { return this.containerLocator.Container.Resolve<HomeViewModel>(); }
         }
 
         #endregion Properties

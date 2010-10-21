@@ -1,4 +1,4 @@
-﻿namespace MobileMilk.View
+﻿namespace MobileMilk.Views
 {
     public partial class AppSettingsView
     {

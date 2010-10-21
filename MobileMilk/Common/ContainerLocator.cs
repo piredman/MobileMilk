@@ -72,6 +72,11 @@ namespace MobileMilk.Common
             // View Models
             this.Container.Register(
                 c => new HomeViewModel(c.Resolve<INavigationService>()));
+            this.Container.Register(
+                c => new AppSettingsViewModel(
+                         c.Resolve<ISettingsStore>(),
+                         c.Resolve<INavigationService>()))
+                .ReusedWithin(ReuseScope.None);
 
             // The ONLY_PHONE symbol is only defined in the "OnlyPhone" configuration to run the phone project standalone
             #if ONLY_PHONE
