@@ -4,6 +4,7 @@ using Funq;
 using MobileMilk.Service;
 using MobileMilk.Store;
 using MobileMilk.ViewModels;
+using MobileMilk.Data;
 
 namespace MobileMilk.Common
 {
@@ -59,6 +60,7 @@ namespace MobileMilk.Common
             //example: this.Container.Register("ServiceUri", new Uri("http://127.0.0.1:8080/Survey/"));
 
             this.Container.Register<ISettingsStore>(c => new SettingsStore());
+            this.Container.Register<IRtmAuthorizationService>(c => new RtmAuthorizationService());
             this.Container.Register<INavigationService>(_ =>
                 new ApplicationFrameNavigationService(((App)Application.Current).RootFrame));
 
@@ -71,11 +73,20 @@ namespace MobileMilk.Common
 
             // View Models
             this.Container.Register(
-                c => new HomeViewModel(c.Resolve<INavigationService>()));
+                c => new HomeViewModel(
+                    c.Resolve<ISettingsStore>(),
+                    c.Resolve<INavigationService>(),
+                    c.Resolve<IRtmAuthorizationService>()));
             this.Container.Register(
                 c => new AppSettingsViewModel(
                          c.Resolve<ISettingsStore>(),
                          c.Resolve<INavigationService>()))
+                .ReusedWithin(ReuseScope.None);
+            this.Container.Register(
+                c => new AuthorizeViewModel(
+                         c.Resolve<ISettingsStore>(),
+                         c.Resolve<INavigationService>(),
+                         c.Resolve<IRtmAuthorizationService>()))
                 .ReusedWithin(ReuseScope.None);
 
             // The ONLY_PHONE symbol is only defined in the "OnlyPhone" configuration to run the phone project standalone

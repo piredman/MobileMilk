@@ -6,6 +6,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="clr-namespace:MobileMilk.Common"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -35,17 +36,19 @@
                 <RowDefinition Height="80" />
             </Grid.RowDefinitions>
 
-            <phone:WebBrowser Name="authorizationBrowser" Grid.Row="0" />
+            <phone:WebBrowser Grid.Row="0" Name="authorizationBrowser"
+                              common:WebBrowserHelper.Html="{Binding RtmAuthorizationURL, Mode=OneWay}" />
 
-            <ProgressBar Grid.Row="0" IsIndeterminate="{Binding IsLoading}" Visibility="{Binding IsLoading, Converter={StaticResource VisibilityConverter}}"  
-                         Style="{StaticResource PerformanceProgressBar}"/>
+            <ProgressBar Grid.Row="1" />
+                         <!--IsIndeterminate="{Binding IsLoading}" Style="{StaticResource PerformanceProgressBar}"
+                         Visibility="{Binding IsLoading, Converter={StaticResource VisibilityConverter}}"/>-->
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Name="btnDone">Done</Button>
+                <Button Name="btnDone" Content="Done" IsEnabled="True" />
             </Grid>
         </Grid>        
         

@@ -41,17 +41,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronCow">
-      <HintPath>..\~Reference\IronCow\IronCow.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Authorization.cs" />
+    <Compile Include="Authentication.cs" />
+    <Compile Include="AuthenticationPermissions.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="MD5.cs" />
+    <Compile Include="RtmRequestBuilder.cs" />
+    <Compile Include="RtmAuthorizationService.cs" />
+    <Compile Include="IRtmAuthorizationService.cs" />
+    <Compile Include="RtmManager.cs" />
+    <Compile Include="RtmUser.cs" />
     <Compile Include="TaskManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

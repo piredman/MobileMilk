@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="Common\ContainerLocator.cs" />
     <Compile Include="Common\Tombstoning.cs" />
+    <Compile Include="Common\WebBrowserHelper.cs" />
     <Compile Include="Resources\Converters\VisibilityConverter.cs" />
     <Compile Include="Resources\ThemedResourceLocator.cs" />
     <Compile Include="Service\ApplicationFrameNavigationService.cs" />

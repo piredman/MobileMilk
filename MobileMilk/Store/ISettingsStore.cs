@@ -15,6 +15,10 @@ namespace MobileMilk.Store
     {
         string UserName { get; set; }
         string Password { get; set; }
+
+        string AuthorizationFrob { get; set; }
+        string AuthorizationToken { get; set; }
+        
         bool LocationServiceAllowed { get; set; }
         bool SubscribeToPushNotifications { get; set; }
     }

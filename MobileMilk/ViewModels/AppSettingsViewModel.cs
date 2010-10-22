@@ -23,12 +23,14 @@ namespace MobileMilk.ViewModels
 
         private readonly ISettingsStore settingsStore;
         private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
+        
         private bool canSubmit;
         private bool isSyncing;
-        private bool locationServiceAllowed;
-        private string password;
-        private bool subscribeToPushNotifications;
+
         private string userName;
+        private string password;
+        private bool locationServiceAllowed;
+        private bool subscribeToPushNotifications;
 
         #endregion Members
 
@@ -39,13 +41,13 @@ namespace MobileMilk.ViewModels
         {
             this.settingsStore = settingsStore;
             this.submitErrorInteractionRequest = new InteractionRequest<Notification>();
-            this.CancelCommand = new DelegateCommand(this.Cancel);
 
+            this.CancelCommand = new DelegateCommand(this.Cancel);
             this.SubmitCommand = new DelegateCommand(this.Submit, () => this.CanSubmit);
 
-            this.LocationServiceAllowed = settingsStore.LocationServiceAllowed;
             this.UserName = settingsStore.UserName;
             this.Password = settingsStore.Password;
+            this.LocationServiceAllowed = settingsStore.LocationServiceAllowed;
             this.SubscribeToPushNotifications = settingsStore.SubscribeToPushNotifications;
 
             this.IsBeingActivated();
@@ -143,20 +145,10 @@ namespace MobileMilk.ViewModels
 
         public override sealed void IsBeingActivated()
         {
-            var tombstonedLocation = Tombstoning.Load<bool?>("LocationServiceAllowed");
-            var tombstonedSubscribe = Tombstoning.Load<bool?>("SettingsSubscribe");
             var tombstonedUsername = Tombstoning.Load<string>("SettingsUsername");
             var tombstonedPassword = Tombstoning.Load<string>("SettingsPassword");
-
-            if (tombstonedLocation.HasValue)
-            {
-                this.LocationServiceAllowed = tombstonedLocation.Value;
-            }
-
-            if (tombstonedSubscribe.HasValue)
-            {
-                this.SubscribeToPushNotifications = tombstonedSubscribe.Value;
-            }
+            var tombstonedLocation = Tombstoning.Load<bool?>("LocationServiceAllowed");
+            var tombstonedSubscribe = Tombstoning.Load<bool?>("SettingsSubscribe");
 
             if (tombstonedUsername != null)
             {
@@ -166,6 +158,16 @@ namespace MobileMilk.ViewModels
             if (tombstonedPassword != null)
             {
                 this.Password = tombstonedPassword;
+            }
+
+            if (tombstonedLocation.HasValue)
+            {
+                this.LocationServiceAllowed = tombstonedLocation.Value;
+            }
+
+            if (tombstonedSubscribe.HasValue)
+            {
+                this.SubscribeToPushNotifications = tombstonedSubscribe.Value;
             }
         }
 

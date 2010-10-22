@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
+using MobileMilk.ViewModels;
 
 namespace MobileMilk.Views
 {
@@ -20,9 +21,15 @@ namespace MobileMilk.Views
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
+            base.OnNavigatedTo(e);
 
+            var viewModel = this.DataContext as HomeViewModel;
+            if (viewModel == null)
+                return;
+
+            viewModel.NavigateIfNotAuthorized();
         }
     }
 }

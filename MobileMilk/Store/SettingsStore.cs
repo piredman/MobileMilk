@@ -13,6 +13,11 @@ namespace MobileMilk.Store
         private const string PasswordSettingDefault = "";
         private const string PasswordSettingKeyName = "PasswordSetting";
 
+        private const string AuthorizationFrobSettingDefault = "";
+        private const string AuthorizationFrobSettingKeyName = "AuthorizationFrobSetting";
+        private const string AuthorizationTokenSettingDefault = "";
+        private const string AuthorizationTokenSettingKeyName = "AuthorizationTokenSetting";
+
         private const bool LocationServiceSettingDefault = false;
         private const string LocationServiceSettingKeyName = "LocationService";
         private const bool PushNotificationSettingDefault = false;
@@ -43,6 +48,18 @@ namespace MobileMilk.Store
         {
             get { return this.GetValueOrDefault(PasswordSettingKeyName, PasswordSettingDefault); }
             set { this.AddOrUpdateValue(PasswordSettingKeyName, value); }
+        }
+
+        public string AuthorizationFrob
+        {
+            get { return this.GetValueOrDefault(AuthorizationFrobSettingKeyName, AuthorizationFrobSettingDefault); }
+            set { this.AddOrUpdateValue(AuthorizationFrobSettingKeyName, value); }
+        }
+
+        public string AuthorizationToken
+        {
+            get { return this.GetValueOrDefault(AuthorizationTokenSettingKeyName, AuthorizationTokenSettingDefault); }
+            set { this.AddOrUpdateValue(AuthorizationTokenSettingKeyName, value); }
         }
 
         public bool LocationServiceAllowed
