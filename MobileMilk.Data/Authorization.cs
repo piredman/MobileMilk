@@ -16,18 +16,22 @@ namespace MobileMilk.Data
         private const string ApiKey = "f2b852927319553de9c694d1debe96d6";
         private const string SharedSecret = "ae078deb376100d7";
 
-        public void Authorize()
+        public string GetFrob()
         {
             IronCow.Rtm rtm = new IronCow.Rtm(ApiKey, SharedSecret);
-            string frob = rtm.GetFrob();
-            
-            //TODO: Figure this out
-            //System.Diagnostics.Process.Start(rtm.GetAuthenticationUrl(frob, IronCow.AuthenticationPermissions.Write));   // Run the default browser to open the "authenticate" page on RTM's website.
-            Console.WriteLine("Press enter to continue after you have authenticated in the browser...");
-            Console.ReadLine();
-            
-            rtm.AuthToken = rtm.GetToken(frob);    // Get the auth-token with the same frob we got earlier.
-            Console.WriteLine("Successfully authenticated! Got token: " + rtm.AuthToken);
+            return rtm.GetFrob();
+        }
+
+        public string GetAuthorizationPageUrl(string frob)
+        {
+            IronCow.Rtm rtm = new IronCow.Rtm(ApiKey, SharedSecret);
+            return rtm.GetAuthenticationUrl(frob, IronCow.AuthenticationPermissions.Write);
+        }
+
+        public string GetAuthorizationToken(string frob)
+        {
+            IronCow.Rtm rtm = new IronCow.Rtm(ApiKey, SharedSecret);
+            return rtm.GetToken(frob);
         }
     }
 }
