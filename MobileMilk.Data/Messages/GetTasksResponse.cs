@@ -47,27 +47,30 @@ namespace MobileMilk.Data.Messages
 
         //TODO: These three lists are not loading properly
         [XmlArray("tags")]
-        public List<RtmTagsResponse> Tags { get; set; }
+        [XmlArrayItem("tag", typeof(string))]
+        public List<string> Tags { get; set; }
         [XmlArray("participants")]
-        public List<RtmParticipantsResponse> Participants { get; set; }
+        [XmlArrayItem("contact", typeof(RtmContactResponse))]
+        public List<RtmContactResponse> Participants { get; set; }
         [XmlArray("notes")]
-        public List<RtmNotesResponse> Notes { get; set; }
+        [XmlArrayItem("note", typeof(RtmNoteResponse))]
+        public List<RtmNoteResponse> Notes { get; set; }
 
         [XmlElement("task")]
         public RtmTaskResponse Task { get; set; }
     }
     
-    public class RtmTagsResponse
-    {
-        [XmlElement("tag")]
-        public string Tag { get; set; }
-    }
+    //public class RtmTagsResponse
+    //{
+    //    [XmlElement("tag")]
+    //    public string Tag { get; set; }
+    //}
 
-    public class RtmParticipantsResponse
-    {
-        [XmlElement("contact")]
-        public RtmContactResponse Contact { get; set; }
-    }
+    //public class RtmParticipantsResponse
+    //{
+    //    [XmlElement("contact")]
+    //    public RtmContactResponse Contact { get; set; }
+    //}
 
     public class RtmContactResponse
     {
@@ -79,11 +82,11 @@ namespace MobileMilk.Data.Messages
         public string UserName { get; set; }
     }
 
-    public class RtmNotesResponse
-    {
-        [XmlElement("note")]
-        public RtmNoteResponse Note { get; set; }
-    }
+    //public class RtmNotesResponse
+    //{
+    //    [XmlElement("note")]
+    //    public RtmNoteResponse Note { get; set; }
+    //}
 
     public class RtmNoteResponse
     {

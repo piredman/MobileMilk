@@ -281,7 +281,8 @@ namespace MobileMilk.Data
                         var tags = new List<string>();
                         if (null != series.Tags) {
                             foreach (var tag in series.Tags) {
-                                tags.Add(tag.Tag);
+                                //tags.Add(tag.Tag);
+                                tags.Add(tag);
                             }
                         }
 
@@ -289,9 +290,9 @@ namespace MobileMilk.Data
                         if (null != series.Participants) {
                             foreach (var participant in series.Participants) {
                                 participants.Add(new RtmUser {
-                                    Id = participant.Contact.Id,
-                                    UserName = participant.Contact.UserName,
-                                    FullName = participant.Contact.FullName
+                                    Id = participant.Id,
+                                    UserName = participant.UserName,
+                                    FullName = participant.FullName
                                 });
                             }
                         }
@@ -299,14 +300,14 @@ namespace MobileMilk.Data
                         var notes = new List<RtmNote>();
                         if (null != series.Notes) {
                             foreach (var note in series.Notes) {
-                                var dateNoteCreated = DateTimeHelper.AsDateTime(note.Note.Created);
-                                var dateNoteModified = DateTimeHelper.AsDateTime(note.Note.Modified);
+                                var dateNoteCreated = DateTimeHelper.AsDateTime(note.Created);
+                                var dateNoteModified = DateTimeHelper.AsDateTime(note.Modified);
 
                                 notes.Add(new RtmNote {
-                                    Id = note.Note.Id,
+                                    Id = note.Id,
                                     Created = dateNoteCreated,
                                     Modified = dateNoteModified,
-                                    Title = note.Note.Title
+                                    Title = note.Title
                                 });
                             }
                         }
