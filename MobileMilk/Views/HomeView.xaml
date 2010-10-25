@@ -5,6 +5,7 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
@@ -18,12 +19,21 @@
     DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}"
     SupportedOrientations="Portrait"  Orientation="Portrait" shell:SystemTray.IsVisible="True" >
 
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="tasksTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" />
+            </StackPanel>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+    
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
         <controls:Pivot Title="MobileMilk">
             <controls:PivotItem Header="Today">
                 <Grid>
+                    <ListBox Name="todaysTasks" ItemsSource="{Binding Path=Tasks}" ItemTemplate="{StaticResource tasksTemplate}" />
                 </Grid>
             </controls:PivotItem>
             <controls:PivotItem Header="Tomorrow">

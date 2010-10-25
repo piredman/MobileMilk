@@ -5,6 +5,7 @@ using MobileMilk.Data;
 using MobileMilk.Data.Entities;
 using MobileMilk.Store;
 using System.Windows;
+using System.Collections.Generic;
 
 namespace MobileMilk.ViewModels
 {
@@ -22,12 +23,13 @@ namespace MobileMilk.ViewModels
         private readonly ISettingsStore _settingsStore;        
         private readonly IRtmManager _rtmManager;
 
-        private RtmAuthorization _rtmAuthorization;
         private string _authorizationToken;
         private string _permissions;
         private string _userId;
         private string _userName;
         private string _fullName;
+
+        private List<RtmTaskSeries> _tasks;
 
         private bool _isSyncing;
 
@@ -41,12 +43,13 @@ namespace MobileMilk.ViewModels
         {
             this._settingsStore = settingsStore;
             this._rtmManager = rtmManager;
-            this._rtmAuthorization = null;
+            this._tasks = new List<RtmTaskSeries>();
 
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSynchronizing);
 
+            this.GetTasks();
             this.IsBeingActivated();
         }
 
@@ -101,6 +104,16 @@ namespace MobileMilk.ViewModels
             {
                 this._fullName = value;
                 this.RaisePropertyChanged(() => this.FullName);
+            }
+        }
+
+        public List<RtmTaskSeries> Tasks
+        {
+            get { return _tasks; }
+            set
+            {
+                this._tasks = value;
+                this.RaisePropertyChanged(() => this.Tasks);
             }
         }
 
@@ -169,12 +182,23 @@ namespace MobileMilk.ViewModels
             _settingsStore.UserName = authorization.User.UserName;
             _settingsStore.FullName = authorization.User.FullName;
 
-            _rtmManager.GetTimeline(GetTimelineComplete);
+            _rtmManager.CreateTimeline(GetTimelineComplete);
         }
 
         public void GetTimelineComplete(string timeline)
         {
             //TODO: Anything to do with the timeline?
+        }
+
+        public void GetTasks()
+        {
+            _rtmManager.Token = _settingsStore.AuthorizationToken;
+            _rtmManager.GetTasksList(GetTasksListComplete);
+        }
+
+        public void GetTasksListComplete(List<RtmTaskSeries> taskSeriesList)
+        {
+            Tasks = taskSeriesList;
         }
 
         #endregion Methods

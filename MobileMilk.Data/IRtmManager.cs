@@ -19,6 +19,7 @@ namespace MobileMilk.Data
         void GetAuthorizationUrl(GetUrlDelegate callback);
         void GetAuthorizationToken(GetTokenDelegate callback);
         void GetAuthorization(GetAuthorizationDelegate callback);
-        void GetTimeline(GetTimelineDelegate callback);
+        void CreateTimeline(GetTimelineDelegate callback);
+        void GetTasksList(GetTasksDelegate callback);
     }
 }

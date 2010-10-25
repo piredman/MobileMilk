@@ -15,6 +15,7 @@ namespace MobileMilk.Data
     public delegate void GetTokenDelegate(string token);
     public delegate void GetAuthorizationDelegate(RtmAuthorization authorization);
     public delegate void GetTimelineDelegate(string timeline);
+    public delegate void GetTasksDelegate(List<RtmTaskSeries> taskSeriesList);
 
     public class RtmManager : IRtmManager
     {
@@ -35,6 +36,8 @@ namespace MobileMilk.Data
         #endregion Properties
 
         #region Methods
+
+        #region Authorization
 
         public void GetAuthorizationUrl(GetUrlDelegate callback)
         {
@@ -66,15 +69,35 @@ namespace MobileMilk.Data
             ));
         }
 
-        public void GetTimeline(GetTimelineDelegate callback)
+        #endregion Authorization
+
+        #region Timelines
+
+        public void CreateTimeline(GetTimelineDelegate callback)
         {
             var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
             var url = rtmRequestBuilder.GetTimelineRequest();
 
             this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                GetTimelineRequestComplete(sender, e, callback)
+                CreateTimelineRequestComplete(sender, e, callback)
             ));
         }
+
+        #endregion Timelines
+
+        #region Tasks
+
+        public void GetTasksList(GetTasksDelegate callback)
+        {
+            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
+            var url = rtmRequestBuilder.GetTasksRequest(_token);
+
+            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
+                GetTasksRequestComplete(sender, e, callback)
+            ));
+        }
+
+        #endregion Tasks
 
         #region Private Methods
 
@@ -141,7 +164,7 @@ namespace MobileMilk.Data
             }
         }
 
-        private void GetTimelineRequestComplete(object sender, DownloadStringCompletedEventArgs e,
+        private void CreateTimelineRequestComplete(object sender, DownloadStringCompletedEventArgs e,
             GetTimelineDelegate callback)
         {
             try
@@ -216,6 +239,112 @@ namespace MobileMilk.Data
             finally
             {
                 callback(authorization);
+            }
+        }
+
+        private void GetTasksRequestComplete(object sender, DownloadStringCompletedEventArgs e,
+            GetTasksDelegate callback)
+        {
+            List<RtmTaskSeries> taskSeriesList = null;
+
+            try
+            {
+                if (e.Error != null)
+                    return;
+
+                var responseXml = XElement.Parse(e.Result);
+                var reader = new StringReader(responseXml.ToString());
+
+                var serializer = new XmlSerializer(typeof(RtmGetTasksResponse));
+                var response = serializer.Deserialize(reader) as RtmGetTasksResponse;
+                if (null == response)
+                    return;
+
+                taskSeriesList = new List<RtmTaskSeries>();
+                foreach (var list in response.Tasks.List)
+                {
+                    if (null == list.TaskSeries)
+                        continue;
+
+                    foreach (var series in list.TaskSeries)
+                    {
+                        var dateCreated = DateTimeHelper.AsDateTime(series.Created);
+                        var dateModified = DateTimeHelper.AsDateTime(series.Modified);
+                        var dateTaskDue = DateTimeHelper.AsDateTime(series.Task.Due);
+                        var hasDueTime = BooleanHelper.AsBoolean(series.Task.HasDueTime);
+                        var dateTaskAdded = DateTimeHelper.AsDateTime(series.Task.Added);
+                        var dateTaskCompleted = DateTimeHelper.AsDateTime(series.Task.Completed);
+                        var dateTaskDeleted = DateTimeHelper.AsDateTime(series.Task.Deleted);
+                        var taskPostponed = IntHelper.AsInt(series.Task.Postponed);
+                        var dateTaskEstimated = DateTimeHelper.AsDateTime(series.Task.Estimate);
+                        
+                        var tags = new List<string>();
+                        if (null != series.Tags) {
+                            foreach (var tag in series.Tags) {
+                                tags.Add(tag.Tag);
+                            }
+                        }
+
+                        var participants = new List<RtmUser>();
+                        if (null != series.Participants) {
+                            foreach (var participant in series.Participants) {
+                                participants.Add(new RtmUser {
+                                    Id = participant.Contact.Id,
+                                    UserName = participant.Contact.UserName,
+                                    FullName = participant.Contact.FullName
+                                });
+                            }
+                        }
+
+                        var notes = new List<RtmNote>();
+                        if (null != series.Notes) {
+                            foreach (var note in series.Notes) {
+                                var dateNoteCreated = DateTimeHelper.AsDateTime(note.Note.Created);
+                                var dateNoteModified = DateTimeHelper.AsDateTime(note.Note.Modified);
+
+                                notes.Add(new RtmNote {
+                                    Id = note.Note.Id,
+                                    Created = dateNoteCreated,
+                                    Modified = dateNoteModified,
+                                    Title = note.Note.Title
+                                });
+                            }
+                        }
+
+                        taskSeriesList.Add(new RtmTaskSeries {
+                            Id = series.Id,
+                            Created = (DateTime.MinValue != dateCreated) ? (DateTime?) dateCreated : null,
+                            Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
+                            Name = series.Name,
+                            Source = series.Source,
+                            Url = series.Url,
+                            LocationId = series.LocationId,
+                            Tags = tags,
+                            Participants = participants,
+                            Notes = notes,
+                            Task = new RtmTask {
+                                Id = series.Task.Id,
+                                Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
+                                HasDueTime = hasDueTime,
+                                Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
+                                Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
+                                Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
+                                Priority = series.Task.Priority,
+                                Postponed = taskPostponed,
+                                Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
+                            }
+                        });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //TODO: Error handling
+                throw;
+            }
+            finally
+            {
+                callback(taskSeriesList);
             }
         }
 

@@ -35,13 +35,15 @@ namespace MobileMilk.Data
 
         #region Methods
 
+        #region Authorization
+
         public string GetFrobRequest()
         {
             string frob = null;
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
             parameters.Add("method", "rtm.auth.getFrob");
-            return GetRequest(parameters);
+            return BuildRequest(parameters);
         }
 
         public string GetAuthenticationUrl(string frob, RtmPermissions rtmPermissions)
@@ -50,7 +52,7 @@ namespace MobileMilk.Data
             authParams.Add("api_key", _apiKey);
             authParams.Add("perms", "delete");
             authParams.Add("frob", frob);
-            authParams.Add("api_sig", SignParameters(authParams));
+            authParams.Add("api_sig", SignArguments(authParams));
 
             return CreateUrl(Constants.AuthorizationUrl, authParams);
         }
@@ -63,7 +65,7 @@ namespace MobileMilk.Data
             parameters.Add("method", "rtm.auth.getToken");
             parameters.Add("frob", frob);
 
-            return GetRequest(parameters);
+            return BuildRequest(parameters);
         }
 
         public string GetCheckTokenRequest(string token)
@@ -73,8 +75,12 @@ namespace MobileMilk.Data
             var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.auth.checkToken");
 
-            return GetRequest(token, parameters);
+            return BuildRequest(token, parameters);
         }
+
+        #endregion Authorization
+
+        #region Timelines
 
         public string GetTimelineRequest()
         {
@@ -83,38 +89,52 @@ namespace MobileMilk.Data
             var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.timelines.create");
 
-            return GetRequest(parameters);
+            return BuildRequest(parameters);
         }
+
+        #endregion Timelines
+
+        #region Tasks
+
+        public string GetTasksRequest(string token)
+        {
+            string timeline = null;
+
+            var parameters = new Dictionary<string, string>();
+            parameters.Add("method", "rtm.tasks.getList");
+
+            return BuildRequest(token, parameters);
+        }
+
+        #endregion Tasks
 
         #region Private Methods
 
-        public string GetRequest(Dictionary<string, string> parameters)
+        public string BuildRequest(Dictionary<string, string> parameters)
         {
-            return GetRequest(null, parameters);
+            return BuildRequest(null, parameters);
         }
 
-        public string GetRequest(string token, Dictionary<string, string> parameters)
+        public string BuildRequest(string token, Dictionary<string, string> parameters)
         {
             parameters.Add("api_key", _apiKey);
             if (token != null) parameters.Add("auth_token", token);
-            parameters.Add("api_sig", SignParameters(parameters));
+            parameters.Add("api_sig", SignArguments(parameters));
 
             return CreateUrl(Constants.RequestUrl, parameters);
         }
 
-        public string SignParameters(Dictionary<string, string> parameters)
+        public string SignArguments(Dictionary<string, string> parameters)
         {
             string sum = String.Empty;
 
-            List<KeyValuePair<string, string>> paramList = new List<KeyValuePair<string, string>>(parameters);
-            paramList.Sort((KeyValuePair<string, string> x, KeyValuePair<string, string> y) =>
-            {
+            var paramList = new List<KeyValuePair<string, string>>(parameters);
+            paramList.Sort((KeyValuePair<string, string> x, KeyValuePair<string, string> y) => {
                 return x.Key.CompareTo(y.Key);
             });
 
             sum += _sharedSecret;
-            foreach (KeyValuePair<string, string> pair in paramList)
-            {
+            foreach (KeyValuePair<string, string> pair in paramList) {
                 sum += pair.Key;
                 sum += pair.Value;
             }

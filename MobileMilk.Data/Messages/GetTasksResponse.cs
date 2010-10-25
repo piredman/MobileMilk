@@ -1,0 +1,121 @@
+﻿using System.Xml.Serialization;
+using System.Collections.Generic;
+
+namespace MobileMilk.Data.Messages
+{
+    [XmlRoot("rsp")]
+    public class RtmGetTasksResponse
+    {
+        [XmlAttribute("stat")]
+        public string Status { get; set; }
+
+        [XmlElement("tasks")]
+        public RtmTasksResponse Tasks { get; set; }
+    }
+
+    public class RtmTasksResponse
+    {
+        [XmlElement("list")]
+        public List<RtmTaskListResponse> List { get; set; }
+    }
+
+    public class RtmTaskListResponse
+    {
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+
+        [XmlElement("taskseries")]
+        public List<RtmTaskSeriesResponse> TaskSeries { get; set; }
+    }
+
+    public class RtmTaskSeriesResponse
+    {
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+        [XmlAttribute("created")]
+        public string Created { get; set; }
+        [XmlAttribute("modified")]
+        public string Modified { get; set; }
+        [XmlAttribute("name")]
+        public string Name { get; set; }
+        [XmlAttribute("source")]
+        public string Source { get; set; }
+        [XmlAttribute("url")]
+        public string Url { get; set; }
+        [XmlAttribute("location_id")]
+        public string LocationId { get; set; }
+
+        //TODO: These three lists are not loading properly
+        [XmlArray("tags")]
+        public List<RtmTagsResponse> Tags { get; set; }
+        [XmlArray("participants")]
+        public List<RtmParticipantsResponse> Participants { get; set; }
+        [XmlArray("notes")]
+        public List<RtmNotesResponse> Notes { get; set; }
+
+        [XmlElement("task")]
+        public RtmTaskResponse Task { get; set; }
+    }
+    
+    public class RtmTagsResponse
+    {
+        [XmlElement("tag")]
+        public string Tag { get; set; }
+    }
+
+    public class RtmParticipantsResponse
+    {
+        [XmlElement("contact")]
+        public RtmContactResponse Contact { get; set; }
+    }
+
+    public class RtmContactResponse
+    {
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+        [XmlAttribute("fullname")]
+        public string FullName { get; set; }
+        [XmlAttribute("username")]
+        public string UserName { get; set; }
+    }
+
+    public class RtmNotesResponse
+    {
+        [XmlElement("note")]
+        public RtmNoteResponse Note { get; set; }
+    }
+
+    public class RtmNoteResponse
+    {
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+        [XmlAttribute("created")]
+        public string Created { get; set; }
+        [XmlAttribute("modified")]
+        public string Modified { get; set; }
+        [XmlAttribute("title")]
+        public string Title { get; set; }
+    }
+
+    public class RtmTaskResponse
+    {
+        [XmlAttribute("id")]
+        public string Id { get; set; }
+        [XmlAttribute("due")]
+        public string Due { get; set; }
+        [XmlAttribute("has_due_time")]
+        public string HasDueTime { get; set; }
+        [XmlAttribute("added")]
+        public string Added { get; set; }
+        [XmlAttribute("completed")]
+        public string Completed { get; set; }
+        [XmlAttribute("deleted")]
+        public string Deleted { get; set; }
+        [XmlAttribute("priority")]
+        public string Priority { get; set; }
+        [XmlAttribute("postponed")]
+        public string Postponed { get; set; }
+        [XmlAttribute("estimate")]
+        public string Estimate { get; set; }
+    }
+}

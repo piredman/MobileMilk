@@ -50,11 +50,19 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\BooleanHelper.cs" />
+    <Compile Include="Common\IntHelper.cs" />
+    <Compile Include="Common\DateTimeHelper.cs" />
+    <Compile Include="Entities\RtmNote.cs" />
+    <Compile Include="Entities\RtmTaskSeries.cs" />
+    <Compile Include="Entities\RtmList.cs" />
     <Compile Include="Entities\RtmAuthentication.cs" />
     <Compile Include="Entities\RtmPermissions.cs" />
     <Compile Include="Common\Constants.cs" />
+    <Compile Include="Entities\RtmTask.cs" />
     <Compile Include="IRtmManager.cs" />
     <Compile Include="Common\MD5.cs" />
+    <Compile Include="Messages\GetTasksResponse.cs" />
     <Compile Include="Messages\GetFrobResponse.cs" />
     <Compile Include="Messages\GetTokenResponse.cs" />
     <Compile Include="Messages\GetTimelineResponse.cs" />
