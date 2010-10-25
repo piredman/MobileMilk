@@ -47,17 +47,20 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Net" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Authentication.cs" />
-    <Compile Include="AuthenticationPermissions.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="MD5.cs" />
+    <Compile Include="Entities\RtmAuthentication.cs" />
+    <Compile Include="Entities\RtmPermissions.cs" />
+    <Compile Include="Common\Constants.cs" />
+    <Compile Include="IRtmManager.cs" />
+    <Compile Include="Common\MD5.cs" />
+    <Compile Include="Messages\GetFrobResponse.cs" />
+    <Compile Include="Messages\GetTokenResponse.cs" />
+    <Compile Include="Messages\GetTimelineResponse.cs" />
     <Compile Include="RtmRequestBuilder.cs" />
-    <Compile Include="RtmAuthorizationService.cs" />
-    <Compile Include="IRtmAuthorizationService.cs" />
     <Compile Include="RtmManager.cs" />
-    <Compile Include="RtmUser.cs" />
+    <Compile Include="Entities\RtmUser.cs" />
     <Compile Include="TaskManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

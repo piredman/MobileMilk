@@ -2,6 +2,7 @@
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Data;
+using MobileMilk.Data.Entities;
 using MobileMilk.Store;
 using System.Windows;
 
@@ -18,21 +19,29 @@ namespace MobileMilk.ViewModels
         
         #region Members
 
-        private readonly ISettingsStore settingsStore;
-        private readonly IRtmAuthorizationService rtmAuthorizationService;
+        private readonly ISettingsStore _settingsStore;        
+        private readonly IRtmManager _rtmManager;
 
-        private bool isSyncing;
+        private RtmAuthorization _rtmAuthorization;
+        private string _authorizationToken;
+        private string _permissions;
+        private string _userId;
+        private string _userName;
+        private string _fullName;
+
+        private bool _isSyncing;
 
         #endregion Members
 
-        #region Constructor(s)        
+        #region Constructor(s)
 
-        public HomeViewModel(ISettingsStore settingsStore, INavigationService navigationService, 
-            IRtmAuthorizationService rtmAuthorizationService)
+        public HomeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
+            IRtmManager rtmManager)
             : base(navigationService)
         {
-            this.settingsStore = settingsStore;
-            this.rtmAuthorizationService = rtmAuthorizationService;
+            this._settingsStore = settingsStore;
+            this._rtmManager = rtmManager;
+            this._rtmAuthorization = null;
 
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
@@ -42,6 +51,70 @@ namespace MobileMilk.ViewModels
         }
 
         #endregion Constructor(s)
+
+        #region Properties
+
+        public string AuthorizationToken
+        {
+            get { return _authorizationToken; }
+            set
+            {
+                this._authorizationToken = value;
+                this.RaisePropertyChanged(() => this.AuthorizationToken);
+            }
+        }
+
+        public string Permissions
+        {
+            get { return _permissions; }
+            set
+            {
+                this._permissions = value;
+                this.RaisePropertyChanged(() => this.Permissions);
+            }
+        }
+
+        public string UserId
+        {
+            get { return _userId; }
+            set
+            {
+                this._userId = value;
+                this.RaisePropertyChanged(() => this.UserId);
+            }
+        }
+
+        public string UserName
+        {
+            get { return _userName; }
+            set
+            {
+                this._userName = value;
+                this.RaisePropertyChanged(() => this.UserName);
+            }
+        }
+
+        public string FullName
+        {
+            get { return _fullName; }
+            set
+            {
+                this._fullName = value;
+                this.RaisePropertyChanged(() => this.FullName);
+            }
+        }
+
+        public bool IsSynchronizing
+        {
+            get { return this._isSyncing; }
+            set
+            {
+                this._isSyncing = value;
+                this.RaisePropertyChanged(() => this.IsSynchronizing);
+            }
+        }
+
+        #endregion Properties
 
         #region Methods
 
@@ -72,29 +145,36 @@ namespace MobileMilk.ViewModels
             //}
         }
 
-        public void NavigateIfNotAuthorized()
+        public void CheckAuthorization()
         {
-            if (!IsAuthorized())
+            if (string.IsNullOrEmpty(_settingsStore.AuthorizationToken))
                 this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
-        }
-
-        public bool IsAuthorized()
-        {
-            var authorized = !string.IsNullOrEmpty(settingsStore.AuthorizationToken);
-            if (authorized)
-                authorized = rtmAuthorizationService.CheckAuthorizationToken(settingsStore.AuthorizationToken);
-
-            return authorized;
-        }
-
-        public bool IsSynchronizing
-        {
-            get { return this.isSyncing; }
-            set
+            else
             {
-                this.isSyncing = value;
-                this.RaisePropertyChanged(() => this.IsSynchronizing);
+                _rtmManager.Token = _settingsStore.AuthorizationToken;
+                _rtmManager.GetAuthorization(CheckAuthorizationComplete);
             }
+        }
+
+        public void CheckAuthorizationComplete(RtmAuthorization authorization)
+        {
+            if (null == authorization) {
+                this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
+                return;
+            }
+            
+            _settingsStore.AuthorizationToken = authorization.Token;
+            _settingsStore.AuthorizationPermissions = authorization.Permissions;
+            _settingsStore.UserId = authorization.User.Id;
+            _settingsStore.UserName = authorization.User.UserName;
+            _settingsStore.FullName = authorization.User.FullName;
+
+            _rtmManager.GetTimeline(GetTimelineComplete);
+        }
+
+        public void GetTimelineComplete(string timeline)
+        {
+            //TODO: Anything to do with the timeline?
         }
 
         #endregion Methods

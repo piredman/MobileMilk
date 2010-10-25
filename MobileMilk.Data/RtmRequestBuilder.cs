@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using System.Net;
-using System.Threading;
+using MobileMilk.Data.Common;
+using MobileMilk.Data.Entities;
 
 namespace MobileMilk.Data
 {
@@ -15,17 +13,27 @@ namespace MobileMilk.Data
 
     public class RtmRequestBuilder
     {
+        #region Members
+
         private string _apiKey;
         private string _sharedSecret;
         private string _timeline;
 
         private string _frob;
 
+        #endregion Members
+
+        #region Constructor(s)
+
         public RtmRequestBuilder(string apiKey, string sharedSecret)
         {
             _apiKey = apiKey;
             _sharedSecret = sharedSecret;
         }
+
+        #endregion Constructor(s)
+
+        #region Methods
 
         public string GetFrobRequest()
         {
@@ -36,9 +44,9 @@ namespace MobileMilk.Data
             return GetRequest(parameters);
         }
 
-        public string GetAuthenticationUrl(string frob, AuthenticationPermissions authenticationPermissions)
+        public string GetAuthenticationUrl(string frob, RtmPermissions rtmPermissions)
         {
-            Dictionary<string, string> authParams = new Dictionary<string, string>();
+            var authParams = new Dictionary<string, string>();
             authParams.Add("api_key", _apiKey);
             authParams.Add("perms", "delete");
             authParams.Add("frob", frob);
@@ -51,18 +59,18 @@ namespace MobileMilk.Data
         {
             string token = null;
 
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.auth.getToken");
             parameters.Add("frob", frob);
 
             return GetRequest(parameters);
         }
-        
+
         public string GetCheckTokenRequest(string token)
         {
             string validatedToken = null;
 
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.auth.checkToken");
 
             return GetRequest(token, parameters);
@@ -72,7 +80,7 @@ namespace MobileMilk.Data
         {
             string timeline = null;
 
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.timelines.create");
 
             return GetRequest(parameters);
@@ -99,7 +107,8 @@ namespace MobileMilk.Data
             string sum = String.Empty;
 
             List<KeyValuePair<string, string>> paramList = new List<KeyValuePair<string, string>>(parameters);
-            paramList.Sort((KeyValuePair<string, string> x, KeyValuePair<string, string> y) => {
+            paramList.Sort((KeyValuePair<string, string> x, KeyValuePair<string, string> y) =>
+            {
                 return x.Key.CompareTo(y.Key);
             });
 
@@ -129,5 +138,7 @@ namespace MobileMilk.Data
         }
 
         #endregion Private Methods
+
+        #endregion Methods
     }
 }

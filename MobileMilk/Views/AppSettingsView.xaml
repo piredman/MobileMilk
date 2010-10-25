@@ -46,30 +46,24 @@
 
         <ScrollViewer Grid.Row="1">
             <!--Content Grid-->
-            <Grid x:Name="ContentGrid">
-                <TextBlock Height="Auto" HorizontalAlignment="Left" Margin="12,6,0,0" Name="userNameTextBlock" Text="Username" VerticalAlignment="Top" Width="Auto" />
-                <TextBox Height="Auto" HorizontalAlignment="Stretch" Margin="0,28,0,0" Name="textBoxUsername"  VerticalAlignment="Top" Width="Auto" Text="{Binding UserName, Mode=TwoWay}" Padding="0" BorderThickness="3">
-                    <i:Interaction.Behaviors>
-                        <prismInteractivity:UpdateTextBindingOnPropertyChanged/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-                <TextBlock Height="Auto" HorizontalAlignment="Left" Margin="12,102,0,0" Name="passwordTextBlock" Text="Password" VerticalAlignment="Top" Width="Auto" />
-                <PasswordBox Height="Auto" HorizontalAlignment="Stretch" Margin="0,124,0,0" Name="passwordBoxPassword" VerticalAlignment="Top" Width="Auto" Password="{Binding Password, Mode=TwoWay}">
-                    <i:Interaction.Behaviors>
-                        <prismInteractivity:UpdatePasswordBindingOnPropertyChanged/>
-                    </i:Interaction.Behaviors>
-                </PasswordBox>
-                <toolkit:ToggleSwitch Header="Subscribe to Push Notifications"  Margin="0,202,0,0" 
-                                  IsChecked="{Binding SubscribeToPushNotifications, Mode=TwoWay}" />
-                <toolkit:ToggleSwitch Header="Allow Tailspin to access your location"  Margin="0,298,0,0" 
-                                  IsChecked="{Binding LocationServiceAllowed, Mode=TwoWay}" />
-
-                <ProgressBar Height="4" 
-                         HorizontalAlignment="Stretch"
-                         Name="progressBar" 
-                         VerticalAlignment="Bottom"
-                         IsIndeterminate="{Binding IsSyncing}"/>
-            </Grid>
+            <StackPanel x:Name="ContentPanel" Margin="12,24,0,12">
+                <ProgressBar Height="4" HorizontalAlignment="Stretch" Name="progressBar" VerticalAlignment="Top" IsIndeterminate="{Binding IsSyncing}"/>
+                
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="authTokenLabel" Text="Authorization Token" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="authTokenTextBlock" Text="{Binding AuthorizationToken, Mode=OneTime}" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="authPermissionsLabel" Text="Authorization Permissions" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left"  Name="authPermissionsTextBlock" Text="{Binding AuthorizationPermissions, Mode=OneTime}" VerticalAlignment="Top" Width="Auto" />
+                
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="userIdLabel" Text="User Id" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="userIdTextBlock" Text="{Binding UserId, Mode=OneTime}" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="userNameLabel" Text="User Name" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="userNameTextBlock" Text="{Binding UserName, Mode=OneTime}" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="fullNameLabel" Text="Full Name" VerticalAlignment="Top" Width="Auto" />
+                <TextBlock Height="Auto" HorizontalAlignment="Left" Name="fullNameTextBlock" Text="{Binding FullName, Mode=OneTime}" VerticalAlignment="Top" Width="Auto" />
+                
+                <toolkit:ToggleSwitch Header="Subscribe to Push Notifications" IsChecked="{Binding SubscribeToPushNotifications, Mode=TwoWay}" />
+                <toolkit:ToggleSwitch Header="Allow MobileMilk to access your location" IsChecked="{Binding LocationServiceAllowed, Mode=TwoWay}" />
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 

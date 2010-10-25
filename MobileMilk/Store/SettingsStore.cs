@@ -1,29 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
+using MobileMilk.Data.Entities;
 
 namespace MobileMilk.Store
 {
     public class SettingsStore : ISettingsStore
     {
         #region Members
-
-        private const string UserNameSettingDefault = "";
-        private const string UserNameSettingKeyName = "UserNameSetting";
-        private const string PasswordSettingDefault = "";
-        private const string PasswordSettingKeyName = "PasswordSetting";
-
+        
         private const string AuthorizationFrobSettingDefault = "";
         private const string AuthorizationFrobSettingKeyName = "AuthorizationFrobSetting";
         private const string AuthorizationTokenSettingDefault = "";
         private const string AuthorizationTokenSettingKeyName = "AuthorizationTokenSetting";
+        private const string AuthorizationPermissionsSettingDefault = "";
+        private const string AuthorizationPermissionsSettingKeyName = "AuthorizationPermissionsSetting";
+        
+        private const string UserIdSettingDefault = "";
+        private const string UserIdSettingKeyName = "UserIdSetting";
+        private const string UserNameSettingDefault = "";
+        private const string UserNameSettingKeyName = "UserNameSetting";
+        private const string FullNameSettingDefault = "";
+        private const string FullNameSettingKeyName = "FullNameSetting";
 
         private const bool LocationServiceSettingDefault = false;
         private const string LocationServiceSettingKeyName = "LocationService";
         private const bool PushNotificationSettingDefault = false;
         private const string PushNotificationSettingKeyName = "PushNotification";
                 
-        private readonly IsolatedStorageSettings isolatedStore;
+        private readonly IsolatedStorageSettings _isolatedStore;
 
         #endregion Members
 
@@ -31,24 +36,12 @@ namespace MobileMilk.Store
 
         public SettingsStore()
         {
-            this.isolatedStore = IsolatedStorageSettings.ApplicationSettings;
+            this._isolatedStore = IsolatedStorageSettings.ApplicationSettings;
         }
 
         #endregion Constructor(s)
 
         #region Properties
-
-        public string UserName
-        {
-            get { return this.GetValueOrDefault(UserNameSettingKeyName, UserNameSettingDefault); }
-            set { this.AddOrUpdateValue(UserNameSettingKeyName, value); }
-        }
-
-        public string Password
-        {
-            get { return this.GetValueOrDefault(PasswordSettingKeyName, PasswordSettingDefault); }
-            set { this.AddOrUpdateValue(PasswordSettingKeyName, value); }
-        }
 
         public string AuthorizationFrob
         {
@@ -60,6 +53,51 @@ namespace MobileMilk.Store
         {
             get { return this.GetValueOrDefault(AuthorizationTokenSettingKeyName, AuthorizationTokenSettingDefault); }
             set { this.AddOrUpdateValue(AuthorizationTokenSettingKeyName, value); }
+        }
+
+        public RtmPermissions AuthorizationPermissions
+        {
+            get
+            {
+                var storedPermissions = this.GetValueOrDefault(AuthorizationPermissionsSettingKeyName, AuthorizationPermissionsSettingDefault);
+
+                var permissions = RtmPermissions.none;
+                if (Enum.IsDefined(typeof(RtmPermissions), storedPermissions))
+                    permissions = (RtmPermissions)Enum.Parse(typeof(RtmPermissions), storedPermissions, true);
+
+                return permissions;
+            }
+            set
+            {
+                var rtmPermissions = Enum.GetName(typeof(RtmPermissions), value);
+                this.AddOrUpdateValue(AuthorizationPermissionsSettingKeyName, rtmPermissions);
+            }
+        }
+
+        public string AuthorizationPermissionsAsString
+        {
+            get
+            {
+                return this.GetValueOrDefault(AuthorizationPermissionsSettingKeyName, AuthorizationPermissionsSettingDefault);
+            }
+        }
+
+        public string UserId
+        {
+            get { return this.GetValueOrDefault(UserIdSettingKeyName, UserIdSettingDefault); }
+            set { this.AddOrUpdateValue(UserIdSettingKeyName, value); }
+        }
+
+        public string UserName
+        {
+            get { return this.GetValueOrDefault(UserNameSettingKeyName, UserNameSettingDefault); }
+            set { this.AddOrUpdateValue(UserNameSettingKeyName, value); }
+        }
+
+        public string FullName
+        {
+            get { return this.GetValueOrDefault(FullNameSettingKeyName, FullNameSettingDefault); }
+            set { this.AddOrUpdateValue(FullNameSettingKeyName, value); }
         }
 
         public bool LocationServiceAllowed
@@ -85,20 +123,20 @@ namespace MobileMilk.Store
             try
             {
                 // if new value is different, set the new value.
-                if (this.isolatedStore[key] != value)
+                if (this._isolatedStore[key] != value)
                 {
-                    this.isolatedStore[key] = value;
+                    this._isolatedStore[key] = value;
                     valueChanged = true;
                 }
             }
             catch (KeyNotFoundException)
             {
-                this.isolatedStore.Add(key, value);
+                this._isolatedStore.Add(key, value);
                 valueChanged = true;
             }
             catch (ArgumentException)
             {
-                this.isolatedStore.Add(key, value);
+                this._isolatedStore.Add(key, value);
                 valueChanged = true;
             }
 
@@ -114,7 +152,7 @@ namespace MobileMilk.Store
 
             try
             {
-                value = (T)this.isolatedStore[key];
+                value = (T)this._isolatedStore[key];
             }
             catch (KeyNotFoundException)
             {
@@ -130,7 +168,7 @@ namespace MobileMilk.Store
 
         private void Save()
         {
-            this.isolatedStore.Save();
+            this._isolatedStore.Save();
         }
 
         #endregion Methods

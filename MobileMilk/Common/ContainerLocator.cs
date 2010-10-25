@@ -60,7 +60,7 @@ namespace MobileMilk.Common
             //example: this.Container.Register("ServiceUri", new Uri("http://127.0.0.1:8080/Survey/"));
 
             this.Container.Register<ISettingsStore>(c => new SettingsStore());
-            this.Container.Register<IRtmAuthorizationService>(c => new RtmAuthorizationService());
+            this.Container.Register<IRtmManager>(c => new RtmManager());
             this.Container.Register<INavigationService>(_ =>
                 new ApplicationFrameNavigationService(((App)Application.Current).RootFrame));
 
@@ -76,7 +76,7 @@ namespace MobileMilk.Common
                 c => new HomeViewModel(
                     c.Resolve<ISettingsStore>(),
                     c.Resolve<INavigationService>(),
-                    c.Resolve<IRtmAuthorizationService>()));
+                    c.Resolve<IRtmManager>()));
             this.Container.Register(
                 c => new AppSettingsViewModel(
                          c.Resolve<ISettingsStore>(),
@@ -86,7 +86,7 @@ namespace MobileMilk.Common
                 c => new AuthorizeViewModel(
                          c.Resolve<ISettingsStore>(),
                          c.Resolve<INavigationService>(),
-                         c.Resolve<IRtmAuthorizationService>()))
+                         c.Resolve<IRtmManager>()))
                 .ReusedWithin(ReuseScope.None);
 
             // The ONLY_PHONE symbol is only defined in the "OnlyPhone" configuration to run the phone project standalone

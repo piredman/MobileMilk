@@ -18,22 +18,24 @@ namespace MobileMilk.ViewModels
         #region Members
 
         private readonly ISettingsStore settingsStore;
-        private readonly IRtmAuthorizationService rtmAuthorizationService;
+        private readonly IRtmManager rtmManager;
 
         private string rtmAuthorizationFrob;
         private string rtmAuthorizationToken;
-        private string rtmAuthorizationURL;        
+        private string rtmAuthorizationURL;
+
+        private bool isSyncing;
 
         #endregion Members
 
         #region Constructor(s)
         
         public AuthorizeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
-            IRtmAuthorizationService rtmAuthorizationService)
+            IRtmManager rtmManager)
             : base(navigationService)
         {
             this.settingsStore = settingsStore;
-            this.rtmAuthorizationService = rtmAuthorizationService;
+            this.rtmManager = rtmManager;
 
             this.DoneCommand = new DelegateCommand(this.Done);
 
@@ -86,6 +88,16 @@ namespace MobileMilk.ViewModels
             }
         }
 
+        public bool IsSynchronizing
+        {
+            get { return this.isSyncing; }
+            set
+            {
+                this.isSyncing = value;
+                this.RaisePropertyChanged(() => this.IsSynchronizing);
+            }
+        }
+
         #endregion Properties
 
         #region Methods
@@ -117,29 +129,30 @@ namespace MobileMilk.ViewModels
 
         public void GetRtmAuthorizationPage()
         {
-            //this.RtmAuthorizationFrob = rtmAuthorizationService.GetAuthorizationFrob();
-            //this.RtmAuthorizationURL = rtmAuthorizationService.GetAuthorizationPageUrl(this.RtmAuthorizationFrob);
-
-            var rtmManager = new RtmManager();
             rtmManager.GetAuthorizationUrl((string url) => {
-                DisplayRtmAuthorizationPage(url);
+                if (string.IsNullOrEmpty(url))
+                    return;
+
+                this.RtmAuthorizationURL = url;
             });
-        }
-
-        public void DisplayRtmAuthorizationPage(string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                return;
-
-            this.RtmAuthorizationURL = url;
         }
 
         public void Done()
         {
-            this.RtmAuthorizationToken = rtmAuthorizationService.GetAuthorizationToken(this.RtmAuthorizationFrob);
+            IsSynchronizing = true;
 
-            settingsStore.AuthorizationFrob = this.RtmAuthorizationFrob;
-            settingsStore.AuthorizationToken = this.RtmAuthorizationToken;
+            rtmManager.GetAuthorizationToken((string token) => {
+                if (string.IsNullOrEmpty(token))
+                    return;
+
+                this.RtmAuthorizationToken = token;
+
+                settingsStore.AuthorizationFrob = this.RtmAuthorizationFrob;
+                settingsStore.AuthorizationToken = this.RtmAuthorizationToken;
+
+                IsSynchronizing = false;
+                this.NavigationService.GoBack();
+            });
         }
 
         #endregion Methods

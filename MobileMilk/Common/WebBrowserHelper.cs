@@ -35,7 +35,7 @@ namespace MobileMilk.Common
                 return;
 
             var html = e.NewValue.ToString();
-            browser.NavigateToString(html);
+            browser.Navigate(new Uri(html));
         }
     }
 }

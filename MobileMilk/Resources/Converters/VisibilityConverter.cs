@@ -1,23 +1,10 @@
-﻿//===============================================================================
-// Microsoft patterns & practices
-// Windows Phone 7 Developer Guide
-//===============================================================================
-// Copyright © Microsoft Corporation.  All rights reserved.
-// This code released under the terms of the 
-// Microsoft patterns & practices license (http://wp7guide.codeplex.com/license)
-//===============================================================================
+﻿using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 
-
-namespace TailSpin.PhoneClient.Resources.Converters
+namespace MobileMilk.Resources.Converters
 {
-    using System;
-    using System.Globalization;
-    using System.Windows;
-    using System.Windows.Data;
-
-    /// <summary>  
-    /// A type converter for visibility and boolean values.  
-    /// </summary>  
     public class VisibilityConverter : IValueConverter
     {
         public bool Negative { get; set; }

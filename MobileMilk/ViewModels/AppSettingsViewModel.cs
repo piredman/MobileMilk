@@ -1,12 +1,8 @@
-﻿using System.Net;
-using Microsoft.Phone.Net.NetworkInformation;
+﻿using Microsoft.Phone.Net.NetworkInformation;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Interactivity.InteractionRequest;
-using Observable = Microsoft.Phone.Reactive.Observable;
-using ObservableExtensions = Microsoft.Phone.Reactive.ObservableExtensions;
 using MobileMilk.Common;
 using MobileMilk.Store;
-using MobileMilk.Service;
 
 namespace MobileMilk.ViewModels
 {    
@@ -21,16 +17,21 @@ namespace MobileMilk.ViewModels
 
         #region Members
 
-        private readonly ISettingsStore settingsStore;
-        private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
+        private readonly ISettingsStore _settingsStore;
+        private readonly InteractionRequest<Notification> _submitErrorInteractionRequest;
         
-        private bool canSubmit;
-        private bool isSyncing;
+        private bool _canSubmit;
+        private bool _isSyncing;
 
-        private string userName;
-        private string password;
-        private bool locationServiceAllowed;
-        private bool subscribeToPushNotifications;
+        private string _authorizationToken;
+        private string _authorizationPermissions;
+
+        private string _userId;
+        private string _userName;
+        private string _fullName;
+
+        private bool _locationServiceAllowed;
+        private bool _subscribeToPushNotifications;
 
         #endregion Members
 
@@ -39,14 +40,19 @@ namespace MobileMilk.ViewModels
         public AppSettingsViewModel(ISettingsStore settingsStore, INavigationService navigationService)
             : base(navigationService)
         {
-            this.settingsStore = settingsStore;
-            this.submitErrorInteractionRequest = new InteractionRequest<Notification>();
+            this._settingsStore = settingsStore;
+            this._submitErrorInteractionRequest = new InteractionRequest<Notification>();
 
             this.CancelCommand = new DelegateCommand(this.Cancel);
             this.SubmitCommand = new DelegateCommand(this.Submit, () => this.CanSubmit);
 
+            this.AuthorizationToken = settingsStore.AuthorizationToken;
+            this.AuthorizationPermissions = settingsStore.AuthorizationPermissionsAsString;
+
+            this.UserId = settingsStore.UserId;
             this.UserName = settingsStore.UserName;
-            this.Password = settingsStore.Password;
+            this.FullName = settingsStore.FullName;
+
             this.LocationServiceAllowed = settingsStore.LocationServiceAllowed;
             this.SubscribeToPushNotifications = settingsStore.SubscribeToPushNotifications;
 
@@ -57,14 +63,84 @@ namespace MobileMilk.ViewModels
 
         #region Properties
 
-        public bool CanSubmit
+        public string AuthorizationToken
         {
-            get { return this.canSubmit; }
+            get { return this._authorizationToken; }
             set
             {
-                if (!value.Equals(this.canSubmit))
+                if (!string.Equals(value, this._authorizationToken))
                 {
-                    this.canSubmit = value;
+                    this._authorizationToken = value;
+                    this.RaisePropertyChanged(() => this.AuthorizationToken);
+                    this.CheckCanSubmit();
+                }
+            }
+        }
+
+        public string AuthorizationPermissions
+        {
+            get { return this._authorizationPermissions; }
+            set
+            {
+                if (!string.Equals(value, this._authorizationPermissions))
+                {
+                    this._authorizationPermissions = value;
+                    this.RaisePropertyChanged(() => this.AuthorizationPermissions);
+                    this.CheckCanSubmit();
+                }
+            }
+        }
+
+        public string UserId
+        {
+            get { return this._userId; }
+            set
+            {
+                if (!string.Equals(value, this._userId))
+                {
+                    this._userId = value;
+                    this.RaisePropertyChanged(() => this.UserId);
+                    this.CheckCanSubmit();
+                }
+            }
+        }
+
+        public string UserName
+        {
+            get { return this._userName; }
+            set
+            {
+                if (!string.Equals(value, this._userName))
+                {
+                    this._userName = value;
+                    this.RaisePropertyChanged(() => this.UserName);
+                    this.CheckCanSubmit();
+                }
+            }
+        }
+
+        public string FullName
+        {
+            get { return this._fullName; }
+            set
+            {
+                if (!string.Equals(value, this._fullName))
+                {
+                    this._fullName = value;
+                    this.RaisePropertyChanged(() => this.FullName);
+                    this.CheckCanSubmit();
+                }
+            }
+        }
+
+        public bool CanSubmit
+        {
+            get { return this._canSubmit; }
+            set
+            {
+                if (!value.Equals(this._canSubmit))
+                {
+                    this._canSubmit = value;
                     this.RaisePropertyChanged(() => this.CanSubmit);
                     this.SubmitCommand.RaiseCanExecuteChanged();
                 }
@@ -73,20 +149,20 @@ namespace MobileMilk.ViewModels
         
         public bool IsSyncing
         {
-            get { return this.isSyncing; }
+            get { return this._isSyncing; }
             set
             {
-                this.isSyncing = value;
+                this._isSyncing = value;
                 this.RaisePropertyChanged(() => this.IsSyncing);
             }
         }
 
         public bool LocationServiceAllowed
         {
-            get { return this.locationServiceAllowed; }
+            get { return this._locationServiceAllowed; }
             set
             {
-                this.locationServiceAllowed = value;
+                this._locationServiceAllowed = value;
                 this.RaisePropertyChanged(() => this.LocationServiceAllowed);
             }
         }
@@ -96,46 +172,18 @@ namespace MobileMilk.ViewModels
             get { return NetworkInterface.NetworkInterfaceType != NetworkInterfaceType.None; }
         }
 
-        public string Password
-        {
-            get { return this.password; }
-            set
-            {
-                if (!string.Equals(value, this.password))
-                {
-                    this.password = value;
-                    this.RaisePropertyChanged(() => this.Password);
-                    this.CheckCanSubmit();
-                }
-            }
-        }
-
         public IInteractionRequest SubmitErrorInteractionRequest
         {
-            get { return this.submitErrorInteractionRequest; }
+            get { return this._submitErrorInteractionRequest; }
         }
 
         public bool SubscribeToPushNotifications
         {
-            get { return this.subscribeToPushNotifications; }
+            get { return this._subscribeToPushNotifications; }
             set
             {
-                this.subscribeToPushNotifications = value;
+                this._subscribeToPushNotifications = value;
                 this.RaisePropertyChanged(() => this.SubscribeToPushNotifications);
-            }
-        }
-
-        public string UserName
-        {
-            get { return this.userName; }
-            set
-            {
-                if (!string.Equals(value, this.userName))
-                {
-                    this.userName = value;
-                    this.RaisePropertyChanged(() => this.UserName);
-                    this.CheckCanSubmit();
-                }
             }
         }
 
@@ -145,21 +193,9 @@ namespace MobileMilk.ViewModels
 
         public override sealed void IsBeingActivated()
         {
-            var tombstonedUsername = Tombstoning.Load<string>("SettingsUsername");
-            var tombstonedPassword = Tombstoning.Load<string>("SettingsPassword");
             var tombstonedLocation = Tombstoning.Load<bool?>("LocationServiceAllowed");
             var tombstonedSubscribe = Tombstoning.Load<bool?>("SettingsSubscribe");
-
-            if (tombstonedUsername != null)
-            {
-                this.UserName = tombstonedUsername;
-            }
-
-            if (tombstonedPassword != null)
-            {
-                this.Password = tombstonedPassword;
-            }
-
+            
             if (tombstonedLocation.HasValue)
             {
                 this.LocationServiceAllowed = tombstonedLocation.Value;
@@ -173,21 +209,18 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingDeactivated()
         {
-            if (this.SubscribeToPushNotifications != this.settingsStore.SubscribeToPushNotifications)
+            if (this.SubscribeToPushNotifications != this._settingsStore.SubscribeToPushNotifications)
             {
-                bool? saveVal = this.subscribeToPushNotifications;
+                bool? saveVal = this._subscribeToPushNotifications;
                 Tombstoning.Save("SettingsSubscribe", saveVal);
             }
 
-            if (this.LocationServiceAllowed != this.settingsStore.LocationServiceAllowed)
+            if (this.LocationServiceAllowed != this._settingsStore.LocationServiceAllowed)
             {
-                bool? saveVal = this.locationServiceAllowed;
+                bool? saveVal = this._locationServiceAllowed;
                 Tombstoning.Save("LocationServiceAllowed", saveVal);
             }
-
-            Tombstoning.Save("SettingsUsername", this.UserName);
-            Tombstoning.Save("SettingsPassword", this.Password);
-
+            
             base.IsBeingDeactivated();
         }
 
@@ -199,17 +232,16 @@ namespace MobileMilk.ViewModels
         public void Submit()
         {
             this.IsSyncing = true;
-            this.settingsStore.UserName = this.UserName;
-            this.settingsStore.Password = this.Password;
-            this.settingsStore.LocationServiceAllowed = this.LocationServiceAllowed;
+            this._settingsStore.LocationServiceAllowed = this.LocationServiceAllowed;
 
-            if (this.SubscribeToPushNotifications == this.settingsStore.SubscribeToPushNotifications)
+            if (this.SubscribeToPushNotifications == this._settingsStore.SubscribeToPushNotifications)
             {
                 this.IsSyncing = false;
                 this.NavigationService.GoBack();
                 return;
             }
 
+            this.IsSyncing = false;
             //ObservableExtensions.Subscribe(Observable.ObserveOnDispatcher(this.registrationServiceClient
             //                                                                  .UpdateReceiveNotifications(this.SubscribeToPushNotifications)), taskSummary =>
             //                                                                  {
@@ -266,7 +298,7 @@ namespace MobileMilk.ViewModels
 
         private void CheckCanSubmit()
         {
-            this.CanSubmit = !string.IsNullOrEmpty(this.userName) && !string.IsNullOrEmpty(this.password);
+            this.CanSubmit = !string.IsNullOrEmpty(this._authorizationToken);
         }
 
         #endregion Methods

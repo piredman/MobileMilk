@@ -6,8 +6,8 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:common="clr-namespace:MobileMilk.Common"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    xmlns:common="clr-namespace:MobileMilk.Common" 
+    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AuthorizeViewModel}"
@@ -15,6 +15,12 @@
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True">
 
+    <!--Resources-->
+    <phone:PhoneApplicationPage.Resources>
+        <converters:VisibilityConverter x:Key="VisibilityConverter"/>
+        <converters:VisibilityConverter x:Key="NegativeVisibilityConverter" Negative="True"/>
+    </phone:PhoneApplicationPage.Resources>
+    
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <Grid.RowDefinitions>
@@ -39,16 +45,28 @@
             <phone:WebBrowser Grid.Row="0" Name="authorizationBrowser"
                               common:WebBrowserHelper.Html="{Binding RtmAuthorizationURL, Mode=OneWay}" />
 
-            <ProgressBar Grid.Row="1" />
-                         <!--IsIndeterminate="{Binding IsLoading}" Style="{StaticResource PerformanceProgressBar}"
-                         Visibility="{Binding IsLoading, Converter={StaticResource VisibilityConverter}}"/>-->
+            <!--ProgressBar for showing synchronization activity-->
+            <StackPanel Grid.Row="1" Visibility="{Binding IsSynchronizing, Converter={StaticResource VisibilityConverter}}">
+                <ProgressBar Height="4" HorizontalAlignment="Center"
+                     Margin="10,0,10,5" 
+                     Name="syncProgressBar" 
+                     VerticalAlignment="Bottom"
+                     Width="460" 
+                     IsIndeterminate="{Binding IsSynchronizing}"/>
+            </StackPanel>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Name="btnDone" Content="Done" IsEnabled="True" />
+                <Button Name="btnDone" Content="Done" IsEnabled="True">
+                    <custom:Interaction.Triggers>
+                        <custom:EventTrigger EventName="Click">
+                            <mvvmLightCommand:EventToCommand Command="{Binding DoneCommand}" />
+                        </custom:EventTrigger>
+                    </custom:Interaction.Triggers>
+                </Button>
             </Grid>
         </Grid>        
         
