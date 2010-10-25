@@ -49,7 +49,6 @@ namespace MobileMilk.ViewModels
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSynchronizing);
 
-            this.GetTasks();
             this.IsBeingActivated();
         }
 
@@ -188,6 +187,7 @@ namespace MobileMilk.ViewModels
         public void GetTimelineComplete(string timeline)
         {
             //TODO: Anything to do with the timeline?
+            this.GetTasks();
         }
 
         public void GetTasks()
