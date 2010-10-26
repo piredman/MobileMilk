@@ -41,6 +41,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Phone.Reactive" />
+    <Reference Include="System.Observable" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
@@ -54,6 +57,8 @@
     <Compile Include="Common\IntHelper.cs" />
     <Compile Include="Common\DateTimeHelper.cs" />
     <Compile Include="Common\Constants.cs" />
+    <Compile Include="HttpClient.cs" />
+    <Compile Include="HttpWebRequestExtensions.cs" />
     <Compile Include="IRtmServiceClient.cs" />
     <Compile Include="Common\MD5.cs" />
     <Compile Include="Messages\GetTasksResponse.cs" />

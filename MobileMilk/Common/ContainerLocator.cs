@@ -70,8 +70,7 @@ namespace MobileMilk.Common
             // 2. Starts the service by trying to get the current location
             this.Container.Resolve<ILocationService>().TryToGetCurrentLocation();
 
-            this.Container.Register<IRtmServiceClient>(c => new RtmServiceClient(
-                    c.Resolve<ISettingsStore>()));
+            this.Container.Register<IRtmServiceClient>(c => new RtmServiceClient(c.Resolve<ISettingsStore>()));
 
             // View Models
             this.Container.Register(

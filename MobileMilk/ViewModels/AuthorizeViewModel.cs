@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Net;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Data;
 using MobileMilk.Store;
+using MobileMilk.Service;
 using System.Windows.Threading;
+using Microsoft.Phone.Reactive;
+using Microsoft.Practices.Prism.Interactivity.InteractionRequest;
+using Notification = Microsoft.Practices.Prism.Interactivity.InteractionRequest.Notification;
 
 namespace MobileMilk.ViewModels
 {
@@ -17,8 +22,10 @@ namespace MobileMilk.ViewModels
         
         #region Members
 
+        private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
+
         private readonly ISettingsStore settingsStore;
-        private readonly IRtmServiceClient rtmManager;
+        private readonly IRtmServiceClient rtmServiceClient;
 
         private string _authorizationFrob;
         private string _authorizationToken;
@@ -35,45 +42,15 @@ namespace MobileMilk.ViewModels
             : base(navigationService)
         {
             this.settingsStore = settingsStore;
-            this.rtmManager = rtmManager;
+            this.rtmServiceClient = rtmManager;
 
             this.DoneCommand = new DelegateCommand(this.Done);
-
-            this.AuthorizationFrob = settingsStore.AuthorizationFrob;
-            this.AuthorizationToken = settingsStore.AuthorizationToken;
-
             this.IsBeingActivated();
         }
                 
         #endregion Constructor(s)
 
         #region Properties
-
-        public string AuthorizationFrob
-        {
-            get { return this._authorizationFrob; }
-            set
-            {
-                if (!string.Equals(value, this._authorizationFrob))
-                {
-                    this._authorizationFrob = value;
-                    this.RaisePropertyChanged(() => this.AuthorizationFrob);
-                }
-            }
-        }
-
-        public string AuthorizationToken
-        {
-            get { return this._authorizationToken; }
-            set
-            {
-                if (!string.Equals(value, this._authorizationToken))
-                {
-                    this._authorizationToken = value;
-                    this.RaisePropertyChanged(() => this.AuthorizationToken);
-                }
-            }
-        }
 
         public string AuthorizationURL
         {
@@ -88,13 +65,13 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public bool IsSynchronizing
+        public bool IsSyncing
         {
             get { return this._isSyncing; }
             set
             {
                 this._isSyncing = value;
-                this.RaisePropertyChanged(() => this.IsSynchronizing);
+                this.RaisePropertyChanged(() => this.IsSyncing);
             }
         }
 
@@ -104,57 +81,80 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            var tombstonedFrob = Tombstoning.Load<string>("AuthorizationFrob");
-            var tombstonedToken = Tombstoning.Load<string>("AuthorizationToken");
-
-            if (!string.IsNullOrEmpty(tombstonedFrob))
-                this.AuthorizationFrob = tombstonedFrob;
-
-            if (!string.IsNullOrEmpty(tombstonedToken))
-                this.AuthorizationToken = tombstonedToken;
-
             this.GetAuthorizationPage();
         }
 
         public override void IsBeingDeactivated()
         {
-            if (this.AuthorizationFrob != settingsStore.AuthorizationFrob)
-                Tombstoning.Save("AuthorizationFrob", this.AuthorizationFrob);
-
-            if (this.AuthorizationToken != settingsStore.AuthorizationToken)
-                Tombstoning.Save("AuthorizationToken", this.AuthorizationToken);
-
             base.IsBeingDeactivated();
         }
 
         public void GetAuthorizationPage()
         {
-            rtmManager.GetAuthorizationUrl((string url) => {
-                if (string.IsNullOrEmpty(url))
-                    return;
-
-                this.AuthorizationURL = url;
-            });
+            this.rtmServiceClient
+                .GetAuthorizationUrl()
+                .ObserveOnDispatcher()
+                .Subscribe(
+                    url => {
+                        this.AuthorizationURL = url;
+                    },
+                    exception => {
+                        if (exception is WebException)
+                            this.HandleWebException(exception as WebException, () => this.NavigationService.GoBack());
+                        else if (exception is UnauthorizedAccessException)
+                            this.HandleUnauthorizedException(() => this.NavigationService.GoBack());
+                        else
+                            throw exception;
+                    });
         }
 
         public void Done()
         {
-            IsSynchronizing = true;
+            IsSyncing = true;
 
-            rtmManager.GetAuthorizationToken((string token) => {
-                if (string.IsNullOrEmpty(token))
-                    return;
-
-                this.AuthorizationToken = token;
-
-                settingsStore.AuthorizationFrob = this.AuthorizationFrob;
-                settingsStore.AuthorizationToken = this.AuthorizationToken;
-
-                IsSynchronizing = false;
-                this.NavigationService.GoBack();
-            });
+            this.rtmServiceClient
+                .GetAuthorizationToken()
+                .ObserveOnDispatcher()
+                .Subscribe(
+                    authorization => {
+                        IsSyncing = false;
+                        this.NavigationService.GoBack();
+                    },
+                    exception => {
+                        if (exception is WebException)
+                            this.HandleWebException(exception as WebException, () => this.NavigationService.GoBack());
+                        else if (exception is UnauthorizedAccessException)
+                            this.HandleUnauthorizedException(() => this.NavigationService.GoBack());
+                        else
+                            throw exception;
+                    });
         }
 
         #endregion Methods
+
+        #region Private Methods
+
+        private void HandleWebException(WebException webException, Action afterNotification)
+        {
+            var summary = ExceptionHandling.GetSummaryFromWebException(string.Empty, webException);
+            var errorText = TaskCompletedSummaryStrings.GetDescriptionForResult(summary.Result);
+            this.IsSyncing = false;
+            this.submitErrorInteractionRequest.Raise(
+                new Notification { Title = "Server error", Content = errorText },
+                n => afterNotification());
+        }
+
+        private void HandleUnauthorizedException(Action afterNotification)
+        {
+            this.IsSyncing = false;
+            this.submitErrorInteractionRequest.Raise(
+                new Notification { 
+                    Title = "Server error", 
+                    Content = TaskCompletedSummaryStrings.GetDescriptionForResult(TaskSummaryResult.AccessDenied) 
+                },
+                n => afterNotification());
+        }
+
+        #endregion Private Methods
     }
 }

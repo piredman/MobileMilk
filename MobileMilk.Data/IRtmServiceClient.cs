@@ -8,18 +8,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using MobileMilk.Model;
+using System.Collections.Generic;
 
 namespace MobileMilk.Data
 {
     public interface IRtmServiceClient
     {
-        string Frob { get; set; }
-        string Token { get; set; }
-
-        void GetAuthorizationUrl(GetUrlDelegate callback);
-        void GetAuthorizationToken(GetTokenDelegate callback);
-        void GetAuthorization(GetAuthorizationDelegate callback);
-        void CreateTimeline(GetTimelineDelegate callback);
-        void GetTasksList(GetTasksDelegate callback);
+        IObservable<string> GetAuthorizationUrl();
+        IObservable<Authorization> GetAuthorizationToken();
+        IObservable<Authorization> GetAuthorization();
+        IObservable<string> CreateTimeline();
+        IObservable<List<Task>> GetTasksList();
     }
 }

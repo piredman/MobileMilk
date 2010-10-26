@@ -9,7 +9,7 @@ using MobileMilk.Model;
 
 namespace MobileMilk.Service
 {
-    public class TaskSynchronizationService : ISurveysSynchronizationService
+    public class TaskSynchronizationService : ITaskSynchronizationService
     {
         public const string GetTasksTask = "GetNewTasks";
         public const string SaveTasksTask = "SaveTasks";
@@ -30,7 +30,6 @@ namespace MobileMilk.Service
             var surveyStore = this.taskStoreLocator.GetStore();
 
             //TODO: Complete sync service
-            rtmServiceClient.
             var getNewTasks = Observable.Return(new TaskCompletedSummary { Task = GetTasksTask, Result = TaskSummaryResult.AccessDenied });
             var saveTasks = Observable.Return(new TaskCompletedSummary { Task = SaveTasksTask, Result = TaskSummaryResult.AccessDenied });
             

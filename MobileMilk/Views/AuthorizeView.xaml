@@ -46,13 +46,13 @@
                               common:WebBrowserHelper.Html="{Binding AuthorizationURL, Mode=OneWay}" />
 
             <!--ProgressBar for showing synchronization activity-->
-            <StackPanel Grid.Row="1" Visibility="{Binding IsSynchronizing, Converter={StaticResource VisibilityConverter}}">
+            <StackPanel Grid.Row="1" Visibility="{Binding IsSyncing, Converter={StaticResource VisibilityConverter}}">
                 <ProgressBar Height="4" HorizontalAlignment="Center"
                      Margin="10,0,10,5" 
                      Name="syncProgressBar" 
                      VerticalAlignment="Bottom"
                      Width="460" 
-                     IsIndeterminate="{Binding IsSynchronizing}"/>
+                     IsIndeterminate="{Binding IsSyncing}"/>
             </StackPanel>
 
             <Grid Grid.Row="2">

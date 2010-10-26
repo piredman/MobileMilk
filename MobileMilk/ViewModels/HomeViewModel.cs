@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Net;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Data;
 using MobileMilk.Model;
 using MobileMilk.Store;
+using MobileMilk.Service;
 using System.Windows;
 using System.Collections.Generic;
+using Microsoft.Phone.Reactive;
+using Microsoft.Practices.Prism.Interactivity.InteractionRequest;
+using Notification = Microsoft.Practices.Prism.Interactivity.InteractionRequest.Notification;
 
 namespace MobileMilk.ViewModels
 {
@@ -20,8 +25,10 @@ namespace MobileMilk.ViewModels
         
         #region Members
 
+        private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
+
         private readonly ISettingsStore _settingsStore;        
-        private readonly IRtmServiceClient _rtmManager;
+        private readonly IRtmServiceClient _rtmServiceClient;
 
         private string _authorizationToken;
         private string _permissions;
@@ -38,16 +45,16 @@ namespace MobileMilk.ViewModels
         #region Constructor(s)
 
         public HomeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
-            IRtmServiceClient rtmManager)
+            IRtmServiceClient rtmServiceClient)
             : base(navigationService)
         {
             this._settingsStore = settingsStore;
-            this._rtmManager = rtmManager;
+            this._rtmServiceClient = rtmServiceClient;
             this._tasks = new List<Task>();
 
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
-                () => !this.IsSynchronizing);
+                () => !this.IsSyncing);
 
             this.IsBeingActivated();
         }
@@ -55,56 +62,6 @@ namespace MobileMilk.ViewModels
         #endregion Constructor(s)
 
         #region Properties
-
-        public string AuthorizationToken
-        {
-            get { return _authorizationToken; }
-            set
-            {
-                this._authorizationToken = value;
-                this.RaisePropertyChanged(() => this.AuthorizationToken);
-            }
-        }
-
-        public string Permissions
-        {
-            get { return _permissions; }
-            set
-            {
-                this._permissions = value;
-                this.RaisePropertyChanged(() => this.Permissions);
-            }
-        }
-
-        public string UserId
-        {
-            get { return _userId; }
-            set
-            {
-                this._userId = value;
-                this.RaisePropertyChanged(() => this.UserId);
-            }
-        }
-
-        public string UserName
-        {
-            get { return _userName; }
-            set
-            {
-                this._userName = value;
-                this.RaisePropertyChanged(() => this.UserName);
-            }
-        }
-
-        public string FullName
-        {
-            get { return _fullName; }
-            set
-            {
-                this._fullName = value;
-                this.RaisePropertyChanged(() => this.FullName);
-            }
-        }
 
         public List<Task> Tasks
         {
@@ -116,13 +73,13 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public bool IsSynchronizing
+        public bool IsSyncing
         {
             get { return this._isSyncing; }
             set
             {
                 this._isSyncing = value;
-                this.RaisePropertyChanged(() => this.IsSynchronizing);
+                this.RaisePropertyChanged(() => this.IsSyncing);
             }
         }
 
@@ -163,8 +120,21 @@ namespace MobileMilk.ViewModels
                 this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
             else
             {
-                _rtmManager.Token = _settingsStore.AuthorizationToken;
-                _rtmManager.GetAuthorization(CheckAuthorizationComplete);
+                this._rtmServiceClient
+                    .GetAuthorization()
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        authorization => {
+                            CheckAuthorizationComplete(authorization);
+                        },
+                        exception => {
+                            if (exception is WebException)
+                                this.HandleWebException(exception as WebException, () => this.NavigationService.GoBack());
+                            else if (exception is UnauthorizedAccessException)
+                                this.HandleUnauthorizedException(() => this.NavigationService.GoBack());
+                            else
+                                throw exception;
+                        });
             }
         }
 
@@ -181,26 +151,67 @@ namespace MobileMilk.ViewModels
             _settingsStore.UserName = authorization.User.UserName;
             _settingsStore.FullName = authorization.User.FullName;
 
-            _rtmManager.CreateTimeline(GetTimelineComplete);
-        }
-
-        public void GetTimelineComplete(string timeline)
-        {
-            //TODO: Anything to do with the timeline?
-            this.GetTasks();
+            this._rtmServiceClient
+                    .CreateTimeline()
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        timeline => {
+                            this.GetTasks();
+                        },
+                        exception => {
+                            if (exception is WebException)
+                                this.HandleWebException(exception as WebException, () => this.NavigationService.GoBack());
+                            else if (exception is UnauthorizedAccessException)
+                                this.HandleUnauthorizedException(() => this.NavigationService.GoBack());
+                            else
+                                throw exception;
+                        });
         }
 
         public void GetTasks()
         {
-            _rtmManager.Token = _settingsStore.AuthorizationToken;
-            _rtmManager.GetTasksList(GetTasksListComplete);
-        }
-
-        public void GetTasksListComplete(List<Task> taskSeriesList)
-        {
-            Tasks = taskSeriesList;
+            this._rtmServiceClient
+                    .GetTasksList()
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        tasks => {
+                            Tasks = tasks;
+                        },
+                        exception => {
+                            if (exception is WebException)
+                                this.HandleWebException(exception as WebException, () => this.NavigationService.GoBack());
+                            else if (exception is UnauthorizedAccessException)
+                                this.HandleUnauthorizedException(() => this.NavigationService.GoBack());
+                            else
+                                throw exception;
+                        });
         }
 
         #endregion Methods
+
+        #region Private Methods
+
+        private void HandleWebException(WebException webException, Action afterNotification)
+        {
+            var summary = ExceptionHandling.GetSummaryFromWebException(string.Empty, webException);
+            var errorText = TaskCompletedSummaryStrings.GetDescriptionForResult(summary.Result);
+            this.IsSyncing = false;
+            this.submitErrorInteractionRequest.Raise(
+                new Notification { Title = "Server error", Content = errorText },
+                n => afterNotification());
+        }
+
+        private void HandleUnauthorizedException(Action afterNotification)
+        {
+            this.IsSyncing = false;
+            this.submitErrorInteractionRequest.Raise(
+                new Notification {
+                    Title = "Server error",
+                    Content = TaskCompletedSummaryStrings.GetDescriptionForResult(TaskSummaryResult.AccessDenied)
+                },
+                n => afterNotification());
+        }
+
+        #endregion Private Methods
     }
 }

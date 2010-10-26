@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Microsoft.Phone.Reactive;
 using MobileMilk.Model;
 using MobileMilk.Data.Common;
 using MobileMilk.Data.Messages;
@@ -22,18 +23,13 @@ namespace MobileMilk.Data
     {
         #region Members
 
-        private string _frob;
-        private string _token;
         private string _timeline;
-
         private readonly ISettingsStore _settingsStore;
 
         #endregion Members
 
         #region Properties
 
-        public string Frob { get { return _frob; } set { _frob = value; } }
-        public string Token { get { return _token; } set { _token = value; } }
         public string Timeline { get { return _timeline; } set { _timeline = value; } }
 
         #endregion Properties
@@ -47,322 +43,217 @@ namespace MobileMilk.Data
 
         #region Authorization
 
-        public void GetAuthorizationUrl(GetUrlDelegate callback)
+        public IObservable<string> GetAuthorizationUrl()
         {
-            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-            var url = rtmRequestBuilder.GetFrobRequest();
+            var url = RtmRequestBuilder.GetFrobRequest(
+                Constants.ApiKey, Constants.SharedSecret);
 
-            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                GetUrlRequestComplete(sender, e, callback)
-            ));
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetFrobResponse>()
+                .Select(ToAuthorizationUrl);
         }
 
-        public void GetAuthorizationToken(GetTokenDelegate callback)
+        public IObservable<Authorization> GetAuthorizationToken()
         {
-            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-            var url = rtmRequestBuilder.GetTokenRequest(_frob);
+            var url = RtmRequestBuilder.GetTokenRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationFrob);
 
-            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                GetTokenRequestComplete(sender, e, callback)
-            ));
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetTokenResponse>()
+                .Select(ToAuthorization);
         }
 
-        public void GetAuthorization(GetAuthorizationDelegate callback)
+        public IObservable<Authorization> GetAuthorization()
         {
-            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-            var url = rtmRequestBuilder.GetCheckTokenRequest(_token);
+            var url = RtmRequestBuilder.GetCheckTokenRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
-            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                GetAuthorizationRequestComplete(sender, e, callback)
-            ));
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetTokenResponse>()
+                .Select(ToAuthorization);
         }
 
         #endregion Authorization
 
         #region Timelines
 
-        public void CreateTimeline(GetTimelineDelegate callback)
+        public IObservable<string> CreateTimeline()
         {
-            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-            var url = rtmRequestBuilder.GetTimelineRequest();
+            var url = RtmRequestBuilder.GetTimelineRequest(
+                Constants.ApiKey, Constants.SharedSecret);
 
-            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                CreateTimelineRequestComplete(sender, e, callback)
-            ));
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmCreateTimelineResponse>()
+                .Select(ToTimeline);
         }
 
         #endregion Timelines
 
         #region Tasks
 
-        public void GetTasksList(GetTasksDelegate callback)
+        public IObservable<List<Task>> GetTasksList()
         {
-            var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-            var url = rtmRequestBuilder.GetTasksRequest(_token);
+            var url = RtmRequestBuilder.GetTasksRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
-            this.GetRequest(url, ((object sender, DownloadStringCompletedEventArgs e) =>
-                GetTasksRequestComplete(sender, e, callback)
-            ));
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetTasksResponse>()
+                .Select(ToTaskList);
         }
 
         #endregion Tasks
 
+        #endregion Methods
+
         #region Private Methods
 
-        private void GetUrlRequestComplete(object sender, DownloadStringCompletedEventArgs e,
-            GetUrlDelegate callback)
+        private string ToAuthorizationUrl(RtmGetFrobResponse response)
         {
-            string authorizationUrl = null;
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
 
-            try
-            {
-                if (e.Error != null)
-                    return;
-
-                var responseXml = XElement.Parse(e.Result);
-                var reader = new StringReader(responseXml.ToString());
-
-                var serializer = new XmlSerializer(typeof(RtmGetFrobResponse));
-                var response = serializer.Deserialize(reader) as RtmGetFrobResponse;
-                if (null == response)
-                    return;
-
-                _frob = response.Frob;
-
-                var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-                authorizationUrl = rtmRequestBuilder.GetAuthenticationUrl(_frob, Permissions.delete);
-            }
-            catch (Exception)
-            {
-                //TODO: Error handling
-                throw;
-            }
-            finally
-            {
-                callback(authorizationUrl);
-            }
+            _settingsStore.AuthorizationFrob = response.Frob;
+            return RtmRequestBuilder.GetAuthenticationUrl(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationFrob, Permissions.delete);
         }
 
-        private void GetTokenRequestComplete(object sender, DownloadStringCompletedEventArgs e,
-            GetTokenDelegate callback)
+        private Authorization ToAuthorization(RtmGetTokenResponse response)
         {
-            try
-            {
-                if (e.Error != null)
-                    return;
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
 
-                var responseXml = XElement.Parse(e.Result);
-                var reader = new StringReader(responseXml.ToString());
+            var permissions = Permissions.none;
+            if (Enum.IsDefined(typeof(Permissions), response.Authorization.Permissions))
+                permissions = (Permissions)Enum.Parse(typeof(Permissions), response.Authorization.Permissions, true);
 
-                var serializer = new XmlSerializer(typeof(RtmGetTokenResponse));
-                var response = serializer.Deserialize(reader) as RtmGetTokenResponse;
-                if (null == response)
-                    return;
+            if (Permissions.none == permissions)
+                return null;
 
-                _token = response.Authorization.Token;
-            }
-            catch (Exception)
-            {
-                //TODO: Error handling
-                throw;
-            }
-            finally
-            {
-                callback(_token);
-            }
+            var authorization = new Authorization {
+                Token = response.Authorization.Token,
+                Permissions = permissions,
+                User = new User {
+                    Id = response.Authorization.User.Id,
+                    UserName = response.Authorization.User.UserName,
+                    FullName = response.Authorization.User.FullName
+                }
+            };
+
+            _settingsStore.AuthorizationToken = authorization.Token;
+            _settingsStore.AuthorizationPermissions = authorization.Permissions;
+            _settingsStore.UserId = authorization.User.Id;
+            _settingsStore.UserName = authorization.User.UserName;
+            _settingsStore.FullName = authorization.User.FullName;
+
+            return authorization;
         }
 
-        private void CreateTimelineRequestComplete(object sender, DownloadStringCompletedEventArgs e,
-            GetTimelineDelegate callback)
+        private string ToTimeline(RtmCreateTimelineResponse response)
         {
-            try
-            {
-                if (e.Error != null)
-                    return;
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
 
-                var responseXml = XElement.Parse(e.Result);
-                var reader = new StringReader(responseXml.ToString());
-
-                var serializer = new XmlSerializer(typeof(RtmCreateTimelineResponse));
-                var response = serializer.Deserialize(reader) as RtmCreateTimelineResponse;
-                if (null == response)
-                    return;
-
-                _timeline = response.Timeline;
-            }
-            catch (Exception)
-            {
-                //TODO: Error handling
-                throw;
-            }
-            finally
-            {
-                callback(_timeline);
-            }
+            return response.Timeline;
         }
 
-        private void GetAuthorizationRequestComplete(object sender, DownloadStringCompletedEventArgs e,
-            GetAuthorizationDelegate callback)
+        private List<Task> ToTaskList(RtmGetTasksResponse response)
         {
-            Authorization authorization = null;
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
 
-            try
+            var taskList = new List<Task>();
+            foreach (var list in response.Tasks.List)
             {
-                if (e.Error != null)
-                    return;
+                if (null == list.TaskSeries)
+                    continue;
 
-                var responseXml = XElement.Parse(e.Result);
-                var reader = new StringReader(responseXml.ToString());
-
-                var serializer = new XmlSerializer(typeof(RtmGetTokenResponse));
-                var response = serializer.Deserialize(reader) as RtmGetTokenResponse;
-                if (null == response)
-                    return;
-
-                if (!response.Status.ToLower().Equals("ok"))
-                    return;
-
-                var permissions = Permissions.none;
-                if (Enum.IsDefined(typeof(Permissions), response.Authorization.Permissions))
-                    permissions = (Permissions)Enum.Parse(typeof(Permissions), response.Authorization.Permissions, true);
-
-                if (Permissions.none == permissions)
-                    return;
-
-                authorization = new Authorization {
-                    Token = response.Authorization.Token,
-                    Permissions = permissions,
-                    User = new User {
-                        Id = response.Authorization.User.Id,
-                        UserName = response.Authorization.User.UserName,
-                        FullName = response.Authorization.User.FullName
-                    }
-                };
-            }
-            catch (Exception)
-            {
-                //TODO: Error handling
-                throw;
-            }
-            finally
-            {
-                callback(authorization);
-            }
-        }
-
-        private void GetTasksRequestComplete(object sender, DownloadStringCompletedEventArgs e,
-            GetTasksDelegate callback)
-        {
-            List<Task> taskList = null;
-
-            try
-            {
-                if (e.Error != null)
-                    return;
-
-                var responseXml = XElement.Parse(e.Result);
-                var reader = new StringReader(responseXml.ToString());
-
-                var serializer = new XmlSerializer(typeof(RtmGetTasksResponse));
-                var response = serializer.Deserialize(reader) as RtmGetTasksResponse;
-                if (null == response)
-                    return;
-
-                taskList = new List<Task>();
-                foreach (var list in response.Tasks.List)
+                foreach (var series in list.TaskSeries)
                 {
-                    if (null == list.TaskSeries)
-                        continue;
+                    var dateCreated = DateTimeHelper.AsDateTime(series.Created);
+                    var dateModified = DateTimeHelper.AsDateTime(series.Modified);
+                    var dateTaskDue = DateTimeHelper.AsDateTime(series.Task.Due);
+                    var hasDueTime = BooleanHelper.AsBoolean(series.Task.HasDueTime);
+                    var dateTaskAdded = DateTimeHelper.AsDateTime(series.Task.Added);
+                    var dateTaskCompleted = DateTimeHelper.AsDateTime(series.Task.Completed);
+                    var dateTaskDeleted = DateTimeHelper.AsDateTime(series.Task.Deleted);
+                    var taskPostponed = IntHelper.AsInt(series.Task.Postponed);
+                    var dateTaskEstimated = DateTimeHelper.AsDateTime(series.Task.Estimate);
 
-                    foreach (var series in list.TaskSeries)
+                    var tags = new List<string>();
+                    if (null != series.Tags)
                     {
-                        var dateCreated = DateTimeHelper.AsDateTime(series.Created);
-                        var dateModified = DateTimeHelper.AsDateTime(series.Modified);
-                        var dateTaskDue = DateTimeHelper.AsDateTime(series.Task.Due);
-                        var hasDueTime = BooleanHelper.AsBoolean(series.Task.HasDueTime);
-                        var dateTaskAdded = DateTimeHelper.AsDateTime(series.Task.Added);
-                        var dateTaskCompleted = DateTimeHelper.AsDateTime(series.Task.Completed);
-                        var dateTaskDeleted = DateTimeHelper.AsDateTime(series.Task.Deleted);
-                        var taskPostponed = IntHelper.AsInt(series.Task.Postponed);
-                        var dateTaskEstimated = DateTimeHelper.AsDateTime(series.Task.Estimate);
-                        
-                        var tags = new List<string>();
-                        if (null != series.Tags) {
-                            foreach (var tag in series.Tags) {
-                                tags.Add(tag);
-                            }
+                        foreach (var tag in series.Tags)
+                        {
+                            tags.Add(tag);
                         }
-
-                        var participants = new List<User>();
-                        if (null != series.Participants) {
-                            foreach (var participant in series.Participants) {
-                                participants.Add(new User {
-                                    Id = participant.Id,
-                                    UserName = participant.UserName,
-                                    FullName = participant.FullName
-                                });
-                            }
-                        }
-
-                        var notes = new List<Note>();
-                        if (null != series.Notes) {
-                            foreach (var note in series.Notes) {
-                                var dateNoteCreated = DateTimeHelper.AsDateTime(note.Created);
-                                var dateNoteModified = DateTimeHelper.AsDateTime(note.Modified);
-
-                                notes.Add(new Note {
-                                    Id = note.Id,
-                                    Created = dateNoteCreated,
-                                    Modified = dateNoteModified,
-                                    Title = note.Title
-                                });
-                            }
-                        }
-
-                        taskList.Add(new Task {
-                            TaskSeriesId = series.Id,
-                            Created = (DateTime.MinValue != dateCreated) ? (DateTime?) dateCreated : null,
-                            Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
-                            Name = series.Name,
-                            Source = series.Source,
-                            Url = series.Url,
-                            LocationId = series.LocationId,
-                            Tags = tags,
-                            Participants = participants,
-                            Notes = notes,
-                            Id = series.Task.Id,
-                            Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
-                            HasDueTime = hasDueTime,
-                            Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
-                            Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
-                            Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
-                            Priority = series.Task.Priority,
-                            Postponed = taskPostponed,
-                            Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
-                        });
                     }
+
+                    var participants = new List<User>();
+                    if (null != series.Participants)
+                    {
+                        foreach (var participant in series.Participants)
+                        {
+                            participants.Add(new User {
+                                Id = participant.Id,
+                                UserName = participant.UserName,
+                                FullName = participant.FullName
+                            });
+                        }
+                    }
+
+                    var notes = new List<Note>();
+                    if (null != series.Notes)
+                    {
+                        foreach (var note in series.Notes)
+                        {
+                            var dateNoteCreated = DateTimeHelper.AsDateTime(note.Created);
+                            var dateNoteModified = DateTimeHelper.AsDateTime(note.Modified);
+
+                            notes.Add(new Note {
+                                Id = note.Id,
+                                Created = dateNoteCreated,
+                                Modified = dateNoteModified,
+                                Title = note.Title
+                            });
+                        }
+                    }
+
+                    taskList.Add(new Task {
+                        TaskSeriesId = series.Id,
+                        Created = (DateTime.MinValue != dateCreated) ? (DateTime?)dateCreated : null,
+                        Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
+                        Name = series.Name,
+                        Source = series.Source,
+                        Url = series.Url,
+                        LocationId = series.LocationId,
+                        Tags = tags,
+                        Participants = participants,
+                        Notes = notes,
+                        Id = series.Task.Id,
+                        Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
+                        HasDueTime = hasDueTime,
+                        Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
+                        Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
+                        Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
+                        Priority = series.Task.Priority,
+                        Postponed = taskPostponed,
+                        Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
+                    });
                 }
             }
-            catch (Exception)
-            {
-                //TODO: Error handling
-                throw;
-            }
-            finally
-            {
-                callback(taskList);
-            }
-        }
 
-        private void GetRequest(string url, DownloadStringCompletedEventHandler callback)
-        {
-            var client = new WebClient();
-            client.DownloadStringCompleted += callback;
-            client.DownloadStringAsync(new Uri(url));
+            return taskList;
         }
 
         #endregion Private Methods
-
-        #endregion Methods
     }
 }
