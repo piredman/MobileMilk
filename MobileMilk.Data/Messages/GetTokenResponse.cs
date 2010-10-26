@@ -9,10 +9,10 @@ namespace MobileMilk.Data.Messages
         public string Status { get; set; }
 
         [XmlElement("auth")]
-        public RtmAuthorizationResponse Authorization { get; set; }
+        public AuthorizationResponse Authorization { get; set; }
     }
 
-    public class RtmAuthorizationResponse
+    public class AuthorizationResponse
     {
         [XmlElement("token")]
         public string Token { get; set; }

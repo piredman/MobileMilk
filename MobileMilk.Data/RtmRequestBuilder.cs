@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using MobileMilk.Data.Common;
-using MobileMilk.Data.Entities;
+using MobileMilk.Model;
 
 namespace MobileMilk.Data
 {
@@ -46,7 +46,7 @@ namespace MobileMilk.Data
             return BuildRequest(parameters);
         }
 
-        public string GetAuthenticationUrl(string frob, RtmPermissions rtmPermissions)
+        public string GetAuthenticationUrl(string frob, Permissions Permissions)
         {
             var authParams = new Dictionary<string, string>();
             authParams.Add("api_key", _apiKey);

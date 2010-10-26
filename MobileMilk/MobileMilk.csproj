@@ -67,12 +67,15 @@
     <Reference Include="System.Device" />
     <Reference Include="System.Observable" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Interactivity, Version=3.7.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -90,12 +93,12 @@
     <Compile Include="Common\ViewModel.cs" />
     <Compile Include="Common\ViewModelLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ITaskSynchronizationService.cs" />
     <Compile Include="Service\LocationService.cs" />
     <Compile Include="Service\TaskCompletedSummary.cs" />
     <Compile Include="Service\TaskCompletedSummaryStrings.cs" />
     <Compile Include="Service\TaskSummaryResult.cs" />
-    <Compile Include="Store\ISettingsStore.cs" />
-    <Compile Include="Store\SettingsStore.cs" />
+    <Compile Include="Service\TaskSynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
@@ -142,9 +145,7 @@
     <Resource Include="Resources\Images\fabrikam-logo.png" />
     <Resource Include="Resources\Images\Light\appbar.favs.rest.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="Views\AppSettingsView.xaml">
       <SubType>Designer</SubType>
@@ -163,6 +164,14 @@
     <ProjectReference Include="..\MobileMilk.Data\MobileMilk.Data.csproj">
       <Project>{3EA34A4F-34BA-4999-B1E1-E2353852930C}</Project>
       <Name>MobileMilk.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MobileMilk.Model\MobileMilk.Model.csproj">
+      <Project>{7FB03978-B74A-4129-95B8-72CF17B6FD65}</Project>
+      <Name>MobileMilk.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MobileMilk.Store\MobileMilk.Store.csproj">
+      <Project>{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}</Project>
+      <Name>MobileMilk.Store</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />

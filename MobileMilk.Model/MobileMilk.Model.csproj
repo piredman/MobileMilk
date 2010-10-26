@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3EA34A4F-34BA-4999-B1E1-E2353852930C}</ProjectGuid>
+    <ProjectGuid>{7FB03978-B74A-4129-95B8-72CF17B6FD65}</ProjectGuid>
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MobileMilk.Data</RootNamespace>
-    <AssemblyName>MobileMilk.Data</AssemblyName>
+    <RootNamespace>MobileMilk.Model</RootNamespace>
+    <AssemblyName>MobileMilk.Model</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <TargetFrameworkProfile>WindowsPhone</TargetFrameworkProfile>
@@ -46,34 +46,15 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Net" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\BooleanHelper.cs" />
-    <Compile Include="Common\IntHelper.cs" />
-    <Compile Include="Common\DateTimeHelper.cs" />
-    <Compile Include="Common\Constants.cs" />
-    <Compile Include="IRtmServiceClient.cs" />
-    <Compile Include="Common\MD5.cs" />
-    <Compile Include="Messages\GetTasksResponse.cs" />
-    <Compile Include="Messages\GetFrobResponse.cs" />
-    <Compile Include="Messages\GetTokenResponse.cs" />
-    <Compile Include="Messages\GetTimelineResponse.cs" />
-    <Compile Include="RtmRequestBuilder.cs" />
-    <Compile Include="RtmServiceClient.cs" />
-    <Compile Include="TaskManager.cs" />
+    <Compile Include="Authorization.cs" />
+    <Compile Include="List.cs" />
+    <Compile Include="Note.cs" />
+    <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MobileMilk.Model\MobileMilk.Model.csproj">
-      <Project>{7FB03978-B74A-4129-95B8-72CF17B6FD65}</Project>
-      <Name>MobileMilk.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MobileMilk.Store\MobileMilk.Store.csproj">
-      <Project>{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}</Project>
-      <Name>MobileMilk.Store</Name>
-    </ProjectReference>
+    <Compile Include="Task.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />

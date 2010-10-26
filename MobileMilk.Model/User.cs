@@ -1,6 +1,6 @@
-﻿namespace MobileMilk.Data.Entities
+﻿namespace MobileMilk.Model
 {
-    public class RtmUser
+    public class User
     {
         public string Id { get; set; }
         public string UserName { get; set; }

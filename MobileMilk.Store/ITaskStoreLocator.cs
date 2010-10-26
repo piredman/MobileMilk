@@ -8,12 +8,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using System.Collections.Generic;
 
-namespace MobileMilk.Data.Entities
+namespace MobileMilk.Store
 {
-    public class RtmList
+    public interface ITaskStoreLocator
     {
-        public string Id { get; set; }
+        ITaskStore GetStore();
     }
 }

@@ -11,7 +11,7 @@ using System.Windows.Shapes;
 
 namespace MobileMilk.Data
 {
-    public interface IRtmManager
+    public interface IRtmServiceClient
     {
         string Frob { get; set; }
         string Token { get; set; }

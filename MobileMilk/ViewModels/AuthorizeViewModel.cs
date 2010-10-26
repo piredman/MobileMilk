@@ -18,20 +18,20 @@ namespace MobileMilk.ViewModels
         #region Members
 
         private readonly ISettingsStore settingsStore;
-        private readonly IRtmManager rtmManager;
+        private readonly IRtmServiceClient rtmManager;
 
-        private string rtmAuthorizationFrob;
-        private string rtmAuthorizationToken;
-        private string rtmAuthorizationURL;
+        private string _authorizationFrob;
+        private string _authorizationToken;
+        private string _authorizationURL;
 
-        private bool isSyncing;
+        private bool _isSyncing;
 
         #endregion Members
 
         #region Constructor(s)
         
         public AuthorizeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
-            IRtmManager rtmManager)
+            IRtmServiceClient rtmManager)
             : base(navigationService)
         {
             this.settingsStore = settingsStore;
@@ -39,8 +39,8 @@ namespace MobileMilk.ViewModels
 
             this.DoneCommand = new DelegateCommand(this.Done);
 
-            this.RtmAuthorizationFrob = settingsStore.AuthorizationFrob;
-            this.RtmAuthorizationToken = settingsStore.AuthorizationToken;
+            this.AuthorizationFrob = settingsStore.AuthorizationFrob;
+            this.AuthorizationToken = settingsStore.AuthorizationToken;
 
             this.IsBeingActivated();
         }
@@ -49,51 +49,51 @@ namespace MobileMilk.ViewModels
 
         #region Properties
 
-        public string RtmAuthorizationFrob
+        public string AuthorizationFrob
         {
-            get { return this.rtmAuthorizationFrob; }
+            get { return this._authorizationFrob; }
             set
             {
-                if (!string.Equals(value, this.rtmAuthorizationFrob))
+                if (!string.Equals(value, this._authorizationFrob))
                 {
-                    this.rtmAuthorizationFrob = value;
-                    this.RaisePropertyChanged(() => this.RtmAuthorizationFrob);
+                    this._authorizationFrob = value;
+                    this.RaisePropertyChanged(() => this.AuthorizationFrob);
                 }
             }
         }
 
-        public string RtmAuthorizationToken
+        public string AuthorizationToken
         {
-            get { return this.rtmAuthorizationToken; }
+            get { return this._authorizationToken; }
             set
             {
-                if (!string.Equals(value, this.rtmAuthorizationToken))
+                if (!string.Equals(value, this._authorizationToken))
                 {
-                    this.rtmAuthorizationToken = value;
-                    this.RaisePropertyChanged(() => this.RtmAuthorizationToken);
+                    this._authorizationToken = value;
+                    this.RaisePropertyChanged(() => this.AuthorizationToken);
                 }
             }
         }
 
-        public string RtmAuthorizationURL
+        public string AuthorizationURL
         {
-            get { return this.rtmAuthorizationURL; }
+            get { return this._authorizationURL; }
             set
             {
-                if (!string.Equals(value, this.rtmAuthorizationURL))
+                if (!string.Equals(value, this._authorizationURL))
                 {
-                    this.rtmAuthorizationURL = value;
-                    this.RaisePropertyChanged(() => this.RtmAuthorizationURL);
+                    this._authorizationURL = value;
+                    this.RaisePropertyChanged(() => this.AuthorizationURL);
                 }
             }
         }
 
         public bool IsSynchronizing
         {
-            get { return this.isSyncing; }
+            get { return this._isSyncing; }
             set
             {
-                this.isSyncing = value;
+                this._isSyncing = value;
                 this.RaisePropertyChanged(() => this.IsSynchronizing);
             }
         }
@@ -104,36 +104,36 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            var tombstonedFrob = Tombstoning.Load<string>("RtmAuthorizationFrob");
-            var tombstonedToken = Tombstoning.Load<string>("RtmAuthorizationToken");
+            var tombstonedFrob = Tombstoning.Load<string>("AuthorizationFrob");
+            var tombstonedToken = Tombstoning.Load<string>("AuthorizationToken");
 
             if (!string.IsNullOrEmpty(tombstonedFrob))
-                this.RtmAuthorizationFrob = tombstonedFrob;
+                this.AuthorizationFrob = tombstonedFrob;
 
             if (!string.IsNullOrEmpty(tombstonedToken))
-                this.RtmAuthorizationToken = tombstonedToken;
+                this.AuthorizationToken = tombstonedToken;
 
-            this.GetRtmAuthorizationPage();
+            this.GetAuthorizationPage();
         }
 
         public override void IsBeingDeactivated()
         {
-            if (this.RtmAuthorizationFrob != settingsStore.AuthorizationFrob)
-                Tombstoning.Save("RtmAuthorizationFrob", this.RtmAuthorizationFrob);
+            if (this.AuthorizationFrob != settingsStore.AuthorizationFrob)
+                Tombstoning.Save("AuthorizationFrob", this.AuthorizationFrob);
 
-            if (this.RtmAuthorizationToken != settingsStore.AuthorizationToken)
-                Tombstoning.Save("RtmAuthorizationToken", this.RtmAuthorizationToken);
+            if (this.AuthorizationToken != settingsStore.AuthorizationToken)
+                Tombstoning.Save("AuthorizationToken", this.AuthorizationToken);
 
             base.IsBeingDeactivated();
         }
 
-        public void GetRtmAuthorizationPage()
+        public void GetAuthorizationPage()
         {
             rtmManager.GetAuthorizationUrl((string url) => {
                 if (string.IsNullOrEmpty(url))
                     return;
 
-                this.RtmAuthorizationURL = url;
+                this.AuthorizationURL = url;
             });
         }
 
@@ -145,10 +145,10 @@ namespace MobileMilk.ViewModels
                 if (string.IsNullOrEmpty(token))
                     return;
 
-                this.RtmAuthorizationToken = token;
+                this.AuthorizationToken = token;
 
-                settingsStore.AuthorizationFrob = this.RtmAuthorizationFrob;
-                settingsStore.AuthorizationToken = this.RtmAuthorizationToken;
+                settingsStore.AuthorizationFrob = this.AuthorizationFrob;
+                settingsStore.AuthorizationToken = this.AuthorizationToken;
 
                 IsSynchronizing = false;
                 this.NavigationService.GoBack();

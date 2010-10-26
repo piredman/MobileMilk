@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
-using MobileMilk.Data.Entities;
+using MobileMilk.Model;
 
 namespace MobileMilk.Store
 {
@@ -55,22 +55,22 @@ namespace MobileMilk.Store
             set { this.AddOrUpdateValue(AuthorizationTokenSettingKeyName, value); }
         }
 
-        public RtmPermissions AuthorizationPermissions
+        public Permissions AuthorizationPermissions
         {
             get
             {
                 var storedPermissions = this.GetValueOrDefault(AuthorizationPermissionsSettingKeyName, AuthorizationPermissionsSettingDefault);
 
-                var permissions = RtmPermissions.none;
-                if (Enum.IsDefined(typeof(RtmPermissions), storedPermissions))
-                    permissions = (RtmPermissions)Enum.Parse(typeof(RtmPermissions), storedPermissions, true);
+                var permissions = Permissions.none;
+                if (Enum.IsDefined(typeof(Permissions), storedPermissions))
+                    permissions = (Permissions)Enum.Parse(typeof(Permissions), storedPermissions, true);
 
                 return permissions;
             }
             set
             {
-                var rtmPermissions = Enum.GetName(typeof(RtmPermissions), value);
-                this.AddOrUpdateValue(AuthorizationPermissionsSettingKeyName, rtmPermissions);
+                var Permissions = Enum.GetName(typeof(Permissions), value);
+                this.AddOrUpdateValue(AuthorizationPermissionsSettingKeyName, Permissions);
             }
         }
 

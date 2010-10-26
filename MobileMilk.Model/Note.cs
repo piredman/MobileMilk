@@ -10,9 +10,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.Generic;
 
-namespace MobileMilk.Data.Entities
+namespace MobileMilk.Model
 {
-    public class RtmNote
+    public class Note
     {
         public string Id { get; set; }
         public DateTime? Created { get; set; }

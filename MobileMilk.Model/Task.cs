@@ -10,11 +10,11 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.Generic;
 
-namespace MobileMilk.Data.Entities
+namespace MobileMilk.Model
 {
-    public class RtmTaskSeries
+    public class Task
     {
-        public string Id { get; set; }
+        public string TaskSeriesId { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public string Name { get; set; }
@@ -23,9 +23,17 @@ namespace MobileMilk.Data.Entities
         public string LocationId { get; set; }
 
         public List<string> Tags { get; set; }
-        public List<RtmUser> Participants { get; set; }
-        public List<RtmNote> Notes { get; set; }
+        public List<User> Participants { get; set; }
+        public List<Note> Notes { get; set; }
 
-        public RtmTask Task { get; set; }
+        public string Id { get; set; }
+        public DateTime? Due { get; set; }
+        public bool HasDueTime { get; set; }
+        public DateTime? Added { get; set; }
+        public DateTime? Completed { get; set; }
+        public DateTime? Deleted { get; set; }
+        public string Priority { get; set; }
+        public int Postponed { get; set; }
+        public DateTime? Estimate { get; set; }
     }
 }

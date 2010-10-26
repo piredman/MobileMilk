@@ -2,7 +2,7 @@
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Data;
-using MobileMilk.Data.Entities;
+using MobileMilk.Model;
 using MobileMilk.Store;
 using System.Windows;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace MobileMilk.ViewModels
         #region Members
 
         private readonly ISettingsStore _settingsStore;        
-        private readonly IRtmManager _rtmManager;
+        private readonly IRtmServiceClient _rtmManager;
 
         private string _authorizationToken;
         private string _permissions;
@@ -29,7 +29,7 @@ namespace MobileMilk.ViewModels
         private string _userName;
         private string _fullName;
 
-        private List<RtmTaskSeries> _tasks;
+        private List<Task> _tasks;
 
         private bool _isSyncing;
 
@@ -38,12 +38,12 @@ namespace MobileMilk.ViewModels
         #region Constructor(s)
 
         public HomeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
-            IRtmManager rtmManager)
+            IRtmServiceClient rtmManager)
             : base(navigationService)
         {
             this._settingsStore = settingsStore;
             this._rtmManager = rtmManager;
-            this._tasks = new List<RtmTaskSeries>();
+            this._tasks = new List<Task>();
 
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
@@ -106,7 +106,7 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public List<RtmTaskSeries> Tasks
+        public List<Task> Tasks
         {
             get { return _tasks; }
             set
@@ -168,7 +168,7 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public void CheckAuthorizationComplete(RtmAuthorization authorization)
+        public void CheckAuthorizationComplete(Authorization authorization)
         {
             if (null == authorization) {
                 this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
@@ -196,7 +196,7 @@ namespace MobileMilk.ViewModels
             _rtmManager.GetTasksList(GetTasksListComplete);
         }
 
-        public void GetTasksListComplete(List<RtmTaskSeries> taskSeriesList)
+        public void GetTasksListComplete(List<Task> taskSeriesList)
         {
             Tasks = taskSeriesList;
         }

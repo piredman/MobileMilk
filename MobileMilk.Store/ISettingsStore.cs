@@ -1,4 +1,4 @@
-﻿using MobileMilk.Data.Entities;
+﻿using MobileMilk.Model;
 
 namespace MobileMilk.Store
 {
@@ -6,7 +6,7 @@ namespace MobileMilk.Store
     {
         string AuthorizationFrob { get; set; }
         string AuthorizationToken { get; set; }
-        RtmPermissions AuthorizationPermissions { get; set; }
+        Permissions AuthorizationPermissions { get; set; }
         string AuthorizationPermissionsAsString { get; }
 
         string UserId { get; set; }

@@ -1,6 +1,6 @@
-﻿namespace MobileMilk.Data.Entities
+﻿namespace MobileMilk.Model
 {
-    public enum RtmPermissions
+    public enum Permissions
     {
         none,
         read,

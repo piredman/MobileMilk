@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk", "MobileMilk\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Data", "MobileMilk.Data\MobileMilk.Data.csproj", "{3EA34A4F-34BA-4999-B1E1-E2353852930C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Model", "MobileMilk.Model\MobileMilk.Model.csproj", "{7FB03978-B74A-4129-95B8-72CF17B6FD65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Store", "MobileMilk.Store\MobileMilk.Store.csproj", "{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA34A4F-34BA-4999-B1E1-E2353852930C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FB03978-B74A-4129-95B8-72CF17B6FD65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FB03978-B74A-4129-95B8-72CF17B6FD65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FB03978-B74A-4129-95B8-72CF17B6FD65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FB03978-B74A-4129-95B8-72CF17B6FD65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

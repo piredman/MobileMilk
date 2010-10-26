@@ -59,18 +59,6 @@ namespace MobileMilk.Data.Messages
         [XmlElement("task")]
         public RtmTaskResponse Task { get; set; }
     }
-    
-    //public class RtmTagsResponse
-    //{
-    //    [XmlElement("tag")]
-    //    public string Tag { get; set; }
-    //}
-
-    //public class RtmParticipantsResponse
-    //{
-    //    [XmlElement("contact")]
-    //    public RtmContactResponse Contact { get; set; }
-    //}
 
     public class RtmContactResponse
     {
@@ -81,12 +69,6 @@ namespace MobileMilk.Data.Messages
         [XmlAttribute("username")]
         public string UserName { get; set; }
     }
-
-    //public class RtmNotesResponse
-    //{
-    //    [XmlElement("note")]
-    //    public RtmNoteResponse Note { get; set; }
-    //}
 
     public class RtmNoteResponse
     {

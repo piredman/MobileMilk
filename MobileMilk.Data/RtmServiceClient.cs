@@ -5,25 +5,28 @@ using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using MobileMilk.Model;
 using MobileMilk.Data.Common;
-using MobileMilk.Data.Entities;
 using MobileMilk.Data.Messages;
+using MobileMilk.Store;
 
 namespace MobileMilk.Data
 {
     public delegate void GetUrlDelegate(string url);
     public delegate void GetTokenDelegate(string token);
-    public delegate void GetAuthorizationDelegate(RtmAuthorization authorization);
+    public delegate void GetAuthorizationDelegate(Authorization authorization);
     public delegate void GetTimelineDelegate(string timeline);
-    public delegate void GetTasksDelegate(List<RtmTaskSeries> taskSeriesList);
+    public delegate void GetTasksDelegate(List<Task> taskSeriesList);
 
-    public class RtmManager : IRtmManager
+    public class RtmServiceClient : IRtmServiceClient
     {
         #region Members
 
         private string _frob;
         private string _token;
         private string _timeline;
+
+        private readonly ISettingsStore _settingsStore;
 
         #endregion Members
 
@@ -34,6 +37,11 @@ namespace MobileMilk.Data
         public string Timeline { get { return _timeline; } set { _timeline = value; } }
 
         #endregion Properties
+
+        public RtmServiceClient(ISettingsStore settingsStore)
+        {
+            this._settingsStore = settingsStore;
+        }
 
         #region Methods
 
@@ -122,7 +130,7 @@ namespace MobileMilk.Data
                 _frob = response.Frob;
 
                 var rtmRequestBuilder = new RtmRequestBuilder(Constants.ApiKey, Constants.SharedSecret);
-                authorizationUrl = rtmRequestBuilder.GetAuthenticationUrl(_frob, RtmPermissions.delete);
+                authorizationUrl = rtmRequestBuilder.GetAuthenticationUrl(_frob, Permissions.delete);
             }
             catch (Exception)
             {
@@ -196,7 +204,7 @@ namespace MobileMilk.Data
         private void GetAuthorizationRequestComplete(object sender, DownloadStringCompletedEventArgs e,
             GetAuthorizationDelegate callback)
         {
-            RtmAuthorization authorization = null;
+            Authorization authorization = null;
 
             try
             {
@@ -214,17 +222,17 @@ namespace MobileMilk.Data
                 if (!response.Status.ToLower().Equals("ok"))
                     return;
 
-                var permissions = RtmPermissions.none;
-                if (Enum.IsDefined(typeof(RtmPermissions), response.Authorization.Permissions))
-                    permissions = (RtmPermissions)Enum.Parse(typeof(RtmPermissions), response.Authorization.Permissions, true);
+                var permissions = Permissions.none;
+                if (Enum.IsDefined(typeof(Permissions), response.Authorization.Permissions))
+                    permissions = (Permissions)Enum.Parse(typeof(Permissions), response.Authorization.Permissions, true);
 
-                if (RtmPermissions.none == permissions)
+                if (Permissions.none == permissions)
                     return;
 
-                authorization = new RtmAuthorization {
+                authorization = new Authorization {
                     Token = response.Authorization.Token,
                     Permissions = permissions,
-                    User = new RtmUser {
+                    User = new User {
                         Id = response.Authorization.User.Id,
                         UserName = response.Authorization.User.UserName,
                         FullName = response.Authorization.User.FullName
@@ -245,7 +253,7 @@ namespace MobileMilk.Data
         private void GetTasksRequestComplete(object sender, DownloadStringCompletedEventArgs e,
             GetTasksDelegate callback)
         {
-            List<RtmTaskSeries> taskSeriesList = null;
+            List<Task> taskList = null;
 
             try
             {
@@ -260,7 +268,7 @@ namespace MobileMilk.Data
                 if (null == response)
                     return;
 
-                taskSeriesList = new List<RtmTaskSeries>();
+                taskList = new List<Task>();
                 foreach (var list in response.Tasks.List)
                 {
                     if (null == list.TaskSeries)
@@ -281,15 +289,14 @@ namespace MobileMilk.Data
                         var tags = new List<string>();
                         if (null != series.Tags) {
                             foreach (var tag in series.Tags) {
-                                //tags.Add(tag.Tag);
                                 tags.Add(tag);
                             }
                         }
 
-                        var participants = new List<RtmUser>();
+                        var participants = new List<User>();
                         if (null != series.Participants) {
                             foreach (var participant in series.Participants) {
-                                participants.Add(new RtmUser {
+                                participants.Add(new User {
                                     Id = participant.Id,
                                     UserName = participant.UserName,
                                     FullName = participant.FullName
@@ -297,13 +304,13 @@ namespace MobileMilk.Data
                             }
                         }
 
-                        var notes = new List<RtmNote>();
+                        var notes = new List<Note>();
                         if (null != series.Notes) {
                             foreach (var note in series.Notes) {
                                 var dateNoteCreated = DateTimeHelper.AsDateTime(note.Created);
                                 var dateNoteModified = DateTimeHelper.AsDateTime(note.Modified);
 
-                                notes.Add(new RtmNote {
+                                notes.Add(new Note {
                                     Id = note.Id,
                                     Created = dateNoteCreated,
                                     Modified = dateNoteModified,
@@ -312,8 +319,8 @@ namespace MobileMilk.Data
                             }
                         }
 
-                        taskSeriesList.Add(new RtmTaskSeries {
-                            Id = series.Id,
+                        taskList.Add(new Task {
+                            TaskSeriesId = series.Id,
                             Created = (DateTime.MinValue != dateCreated) ? (DateTime?) dateCreated : null,
                             Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
                             Name = series.Name,
@@ -323,17 +330,15 @@ namespace MobileMilk.Data
                             Tags = tags,
                             Participants = participants,
                             Notes = notes,
-                            Task = new RtmTask {
-                                Id = series.Task.Id,
-                                Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
-                                HasDueTime = hasDueTime,
-                                Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
-                                Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
-                                Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
-                                Priority = series.Task.Priority,
-                                Postponed = taskPostponed,
-                                Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
-                            }
+                            Id = series.Task.Id,
+                            Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
+                            HasDueTime = hasDueTime,
+                            Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
+                            Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
+                            Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
+                            Priority = series.Task.Priority,
+                            Postponed = taskPostponed,
+                            Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
                         });
                     }
                 }
@@ -345,7 +350,7 @@ namespace MobileMilk.Data
             }
             finally
             {
-                callback(taskSeriesList);
+                callback(taskList);
             }
         }
 
