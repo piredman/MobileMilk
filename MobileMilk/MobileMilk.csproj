@@ -161,6 +161,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MobileMilk.Common\MobileMilk.Common.csproj">
+      <Project>{6E7AA249-F4F6-4248-927B-F9217788598A}</Project>
+      <Name>MobileMilk.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MobileMilk.Data\MobileMilk.Data.csproj">
       <Project>{3EA34A4F-34BA-4999-B1E1-E2353852930C}</Project>
       <Name>MobileMilk.Data</Name>

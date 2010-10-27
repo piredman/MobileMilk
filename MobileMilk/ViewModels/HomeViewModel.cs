@@ -27,7 +27,9 @@ namespace MobileMilk.ViewModels
 
         private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
 
-        private readonly ISettingsStore _settingsStore;        
+        private readonly ITaskStoreLocator _taskStoreLocator;
+        private readonly ITaskSynchronizationService _synchronizationService;
+
         private readonly IRtmServiceClient _rtmServiceClient;
 
         private string _authorizationToken;
@@ -44,12 +46,17 @@ namespace MobileMilk.ViewModels
 
         #region Constructor(s)
 
-        public HomeViewModel(ISettingsStore settingsStore, INavigationService navigationService,
-            IRtmServiceClient rtmServiceClient)
+        public HomeViewModel(
+            INavigationService navigationService,
+            IRtmServiceClient rtmServiceClient,
+            ITaskStoreLocator taskStoreLocator,
+            ITaskSynchronizationService synchronizationService)
             : base(navigationService)
         {
-            this._settingsStore = settingsStore;
             this._rtmServiceClient = rtmServiceClient;
+            this._taskStoreLocator = taskStoreLocator;
+            this._synchronizationService = synchronizationService;
+
             this._tasks = new List<Task>();
 
             this.AppSettingsCommand = new DelegateCommand(
@@ -94,9 +101,7 @@ namespace MobileMilk.ViewModels
 
         public bool SettingAreNotConfigured
         {
-            get { return true; }
-            //TODO: this
-            //get { return this.surveyStoreLocator.GetStore() is NullSurveyStore; }
+            get { return this._taskStoreLocator.GetStore() is NullTaskStore; }
         }
 
         public override void IsBeingActivated()
@@ -116,11 +121,7 @@ namespace MobileMilk.ViewModels
 
         public void CheckAuthorization()
         {
-            if (string.IsNullOrEmpty(_settingsStore.AuthorizationToken))
-                this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
-            else
-            {
-                this._rtmServiceClient
+            this._rtmServiceClient
                     .GetAuthorization()
                     .ObserveOnDispatcher()
                     .Subscribe(
@@ -135,7 +136,6 @@ namespace MobileMilk.ViewModels
                             else
                                 throw exception;
                         });
-            }
         }
 
         public void CheckAuthorizationComplete(Authorization authorization)
@@ -144,12 +144,6 @@ namespace MobileMilk.ViewModels
                 this.NavigationService.Navigate(new Uri("/Views/AuthorizeView.xaml", UriKind.Relative));
                 return;
             }
-            
-            _settingsStore.AuthorizationToken = authorization.Token;
-            _settingsStore.AuthorizationPermissions = authorization.Permissions;
-            _settingsStore.UserId = authorization.User.Id;
-            _settingsStore.UserName = authorization.User.UserName;
-            _settingsStore.FullName = authorization.User.FullName;
 
             this._rtmServiceClient
                     .CreateTimeline()

@@ -5,6 +5,7 @@ using MobileMilk.Service;
 using MobileMilk.Store;
 using MobileMilk.ViewModels;
 using MobileMilk.Data;
+using System.ComponentModel;
 
 namespace MobileMilk.Common
 {
@@ -58,8 +59,10 @@ namespace MobileMilk.Common
         private void ConfigureContainer()
         {
             //example: this.Container.Register("ServiceUri", new Uri("http://127.0.0.1:8080/Survey/"));
+            if (Common.Environment.InDesignMode())
+                this.Container.Register<ISettingsStore>(c => new NullSettingsStore());
+            else this.Container.Register<ISettingsStore>(c => new SettingsStore());
 
-            this.Container.Register<ISettingsStore>(c => new SettingsStore());
             this.Container.Register<INavigationService>(_ =>
                 new ApplicationFrameNavigationService(((App)Application.Current).RootFrame));
 
@@ -70,19 +73,34 @@ namespace MobileMilk.Common
             // 2. Starts the service by trying to get the current location
             this.Container.Resolve<ILocationService>().TryToGetCurrentLocation();
 
-            this.Container.Register<IRtmServiceClient>(c => new RtmServiceClient(c.Resolve<ISettingsStore>()));
-
             // View Models
-            this.Container.Register(
-                c => new HomeViewModel(
-                    c.Resolve<ISettingsStore>(),
-                    c.Resolve<INavigationService>(),
-                    c.Resolve<IRtmServiceClient>()));
             this.Container.Register(
                 c => new AppSettingsViewModel(
                          c.Resolve<ISettingsStore>(),
                          c.Resolve<INavigationService>()))
                 .ReusedWithin(ReuseScope.None);
+
+            this.Container.Register<IRtmServiceClient>(
+                c => new RtmServiceClient(
+                    c.Resolve<ISettingsStore>()));
+
+            this.Container.Register<ITaskStoreLocator>(
+                c => new TaskStoreLocator(
+                         c.Resolve<ISettingsStore>(),
+                         storeName => new TaskStore(storeName)));
+
+            this.Container.Register<ITaskSynchronizationService>(
+                c => new TaskSynchronizationService(
+                         c.Resolve<IRtmServiceClient>,
+                         c.Resolve<ITaskStoreLocator>()));
+
+            this.Container.Register(
+                c => new HomeViewModel(
+                    c.Resolve<INavigationService>(),
+                    c.Resolve<IRtmServiceClient>(),
+                    c.Resolve<ITaskStoreLocator>(),
+                    c.Resolve<ITaskSynchronizationService>()));
+
             this.Container.Register(
                 c => new AuthorizeViewModel(
                          c.Resolve<ISettingsStore>(),

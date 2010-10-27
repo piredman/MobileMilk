@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Model", "MobileM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Store", "MobileMilk.Store\MobileMilk.Store.csproj", "{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileMilk.Common", "MobileMilk.Common\MobileMilk.Common.csproj", "{6E7AA249-F4F6-4248-927B-F9217788598A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E7AA249-F4F6-4248-927B-F9217788598A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E7AA249-F4F6-4248-927B-F9217788598A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E7AA249-F4F6-4248-927B-F9217788598A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E7AA249-F4F6-4248-927B-F9217788598A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

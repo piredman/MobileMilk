@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B3E534D2-5AF7-4666-BC2B-FF246FD4DA34}</ProjectGuid>
+    <ProjectGuid>{6E7AA249-F4F6-4248-927B-F9217788598A}</ProjectGuid>
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MobileMilk.Store</RootNamespace>
-    <AssemblyName>MobileMilk.Store</AssemblyName>
+    <RootNamespace>MobileMilk.Common</RootNamespace>
+    <AssemblyName>MobileMilk.Common</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <TargetFrameworkProfile>WindowsPhone</TargetFrameworkProfile>
@@ -41,7 +41,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="Microsoft.Phone" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
@@ -49,26 +49,8 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ISettingsStore.cs" />
-    <Compile Include="ITaskStore.cs" />
-    <Compile Include="ITaskStoreLocator.cs" />
-    <Compile Include="NullSettingsStore.cs" />
-    <Compile Include="NullTaskStore.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsStore.cs" />
-    <Compile Include="TaskList.cs" />
-    <Compile Include="TaskStore.cs" />
-    <Compile Include="TaskStoreLocator.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MobileMilk.Common\MobileMilk.Common.csproj">
-      <Project>{6E7AA249-F4F6-4248-927B-F9217788598A}</Project>
-      <Name>MobileMilk.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MobileMilk.Model\MobileMilk.Model.csproj">
-      <Project>{7FB03978-B74A-4129-95B8-72CF17B6FD65}</Project>
-      <Name>MobileMilk.Model</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
