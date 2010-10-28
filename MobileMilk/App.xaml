@@ -4,11 +4,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
-    xmlns:viewmodels="clr-namespace:MobileMilk.Common">
+    xmlns:viewmodels="clr-namespace:MobileMilk.Common" xmlns:resources="clr-namespace:MobileMilk.Resources">
 
     <!--Application Resources-->
     <Application.Resources>
+        <ResourceDictionary x:Key="Styles">
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Themes/styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
         <viewmodels:ViewModelLocator x:Key="ViewModelLocator"/>
+        <resources:ThemedResourceLocator x:Key="ThemedResource"/>
     </Application.Resources>
 
     <Application.ApplicationLifetimeObjects>

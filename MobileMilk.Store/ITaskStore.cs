@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MobileMilk.Model;
 
 namespace MobileMilk.Store
 {
     public interface ITaskStore
     {
-        string LastSyncDate { get; set; }
-        
+        DateTime? LastSyncDate { get; set; }
+
         List<Task> GetAllTasks();
+        void SaveTasks(IEnumerable<Task> tasks);
         
         Task GetTask(Task task);
         void SaveTask(Task task);

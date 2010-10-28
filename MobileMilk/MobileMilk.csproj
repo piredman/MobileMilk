@@ -82,6 +82,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ContainerLocator.cs" />
+    <Compile Include="Common\DynamicTextBlock.cs" />
+    <Compile Include="Common\FrameworkElementClickCommand.cs" />
+    <Compile Include="Common\PopupHideOnLeftMouseUp.cs" />
     <Compile Include="Common\Tombstoning.cs" />
     <Compile Include="Common\WebBrowserHelper.cs" />
     <Compile Include="Resources\Converters\VisibilityConverter.cs" />
@@ -102,6 +105,8 @@
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
+    <Compile Include="ViewModels\TaskDetailViewModel.cs" />
+    <Compile Include="ViewModels\TaskListItemViewModel.cs" />
     <Compile Include="Views\AppSettingsView.xaml.cs">
       <DependentUpon>AppSettingsView.xaml</DependentUpon>
     </Compile>
@@ -147,6 +152,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="Resources\Themes\styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AppSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

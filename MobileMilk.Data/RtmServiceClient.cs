@@ -227,6 +227,10 @@ namespace MobileMilk.Data
                         }
                     }
 
+                    int priority;
+                    if (!int.TryParse(series.Task.Priority, out priority))
+                        priority = 0;
+
                     taskList.Add(new Task {
                         TaskSeriesId = series.Id,
                         Created = (DateTime.MinValue != dateCreated) ? (DateTime?)dateCreated : null,
@@ -244,7 +248,7 @@ namespace MobileMilk.Data
                         Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
                         Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
                         Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
-                        Priority = series.Task.Priority,
+                        Priority = priority,
                         Postponed = taskPostponed,
                         Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
                     });

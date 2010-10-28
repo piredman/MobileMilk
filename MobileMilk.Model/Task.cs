@@ -32,8 +32,10 @@ namespace MobileMilk.Model
         public DateTime? Added { get; set; }
         public DateTime? Completed { get; set; }
         public DateTime? Deleted { get; set; }
-        public string Priority { get; set; }
+        public int Priority { get; set; }
         public int Postponed { get; set; }
         public DateTime? Estimate { get; set; }
+
+        public bool IsNew { get; set; }
     }
 }

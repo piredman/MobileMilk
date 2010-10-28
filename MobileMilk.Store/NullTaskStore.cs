@@ -15,12 +15,14 @@ namespace MobileMilk.Store
 {
     public class NullTaskStore : ITaskStore
     {
-        public string LastSyncDate { get; set; }
+        public DateTime? LastSyncDate { get; set; }
 
         public List<Model.Task> GetAllTasks()
         {
             return new List<Task>();
         }
+
+        public void SaveTasks(IEnumerable<Task> tasks) {}
 
         public Task GetTask(Model.Task task)
         {

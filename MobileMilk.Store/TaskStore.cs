@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace MobileMilk.Store
 
         public TaskList AllTasks { get; set; }
 
-        public string LastSyncDate
+        public DateTime? LastSyncDate
         {
             get { return this.AllTasks.LastSyncDate; }
             set
@@ -41,6 +42,21 @@ namespace MobileMilk.Store
         public List<Task> GetAllTasks()
         {
             return this.AllTasks;
+        }
+
+        public void SaveTasks(IEnumerable<Task> tasks)
+        {
+            foreach (var task in tasks)
+                task.IsNew = true;
+
+            foreach (var task in this.AllTasks)
+                task.IsNew = false;
+
+            this.AllTasks.AddRange(tasks.Where(
+                newTask => !this.AllTasks.Any(task => task.Name == newTask.Name)
+            ));
+
+            this.SaveStore();
         }
 
         public Task GetTask(Task task)
@@ -93,11 +109,23 @@ namespace MobileMilk.Store
                     } 
                     else
                     {
+                        var resetStore = false;
                         using (var fs = new IsolatedStorageFileStream(this.storeName, FileMode.Open, filesystem))
                         {
                             var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(TaskList));
-                            this.AllTasks = serializer.ReadObject(fs) as TaskList;
+                            try
+                            {
+                                this.AllTasks = serializer.ReadObject(fs) as TaskList;
+                            }
+                            catch (Exception)
+                            {
+                                resetStore = true;
+                                this.AllTasks = new TaskList();
+                            }
                         }
+
+                        if (resetStore)
+                            LastSyncDate = null;
                     }
                 }
             }
