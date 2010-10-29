@@ -80,6 +80,33 @@
                 </controls:PivotItem>
 
                 <controls:PivotItem Header="Tomorrow">
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                    Visibility="{Binding TomorrowsTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                        <ListBox ItemsSource="{Binding TomorrowsTasks}" Style="{StaticResource TaskListItemStyle}"
+                             Visibility="{Binding TomorrowsTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    </StackPanel>
+                </controls:PivotItem>
+
+                <controls:PivotItem Header="This Week">
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                    Visibility="{Binding ThisWeeksTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                        <ListBox ItemsSource="{Binding ThisWeeksTasks}" Style="{StaticResource TaskListItemStyle}"
+                             Visibility="{Binding ThisWeeksTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    </StackPanel>
+                </controls:PivotItem>
+
+                <controls:PivotItem Header="Next Week">
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                    Visibility="{Binding NextWeeksTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                        <ListBox ItemsSource="{Binding NextWeeksTasks}" Style="{StaticResource TaskListItemStyle}"
+                             Visibility="{Binding NextWeeksTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    </StackPanel>
+                </controls:PivotItem>
+                
+                <controls:PivotItem Header="Tomorrow">
                     <Grid>
                         <!--<ListBox Name="todaysTasks" ItemsSource="{Binding Path=Tasks}" ItemTemplate="{StaticResource tasksTemplate}" />-->
                     </Grid>

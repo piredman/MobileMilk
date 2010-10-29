@@ -77,6 +77,15 @@ namespace MobileMilk.ViewModels
             }
         }
 
+        [DataMember]
+        public DateTime? Created { get { return this.TaskItem.Created; } }
+
+        [DataMember]
+        public DateTime? Completed { get { return this.TaskItem.Completed; } }
+
+        [DataMember]
+        public DateTime? Deleted { get { return this.TaskItem.Deleted; } }
+
         public bool HasNotes { get { return this.TaskItem.Notes.Count != 0; } }
         public int NoteCount { get { return this.TaskItem.Notes.Count; } }
 

@@ -112,6 +112,8 @@ namespace MobileMilk.Data
 
         #region Private Methods
 
+        #region Authorization
+
         private string ToAuthorizationUrl(RtmGetFrobResponse response)
         {
             //TODO: handle response failure
@@ -155,6 +157,10 @@ namespace MobileMilk.Data
             return authorization;
         }
 
+        #endregion Authorization
+
+        #region Timeline
+
         private string ToTimeline(RtmCreateTimelineResponse response)
         {
             //TODO: handle response failure
@@ -163,6 +169,10 @@ namespace MobileMilk.Data
 
             return response.Timeline;
         }
+
+        #endregion
+
+        #region Tasks
 
         private List<Task> ToTaskList(RtmGetTasksResponse response)
         {
@@ -178,85 +188,80 @@ namespace MobileMilk.Data
 
                 foreach (var series in list.TaskSeries)
                 {
-                    var dateCreated = DateTimeHelper.AsDateTime(series.Created);
-                    var dateModified = DateTimeHelper.AsDateTime(series.Modified);
-                    var dateTaskDue = DateTimeHelper.AsDateTime(series.Task.Due);
-                    var hasDueTime = BooleanHelper.AsBoolean(series.Task.HasDueTime);
-                    var dateTaskAdded = DateTimeHelper.AsDateTime(series.Task.Added);
-                    var dateTaskCompleted = DateTimeHelper.AsDateTime(series.Task.Completed);
-                    var dateTaskDeleted = DateTimeHelper.AsDateTime(series.Task.Deleted);
-                    var taskPostponed = IntHelper.AsInt(series.Task.Postponed);
-                    var dateTaskEstimated = DateTimeHelper.AsDateTime(series.Task.Estimate);
+                    var dateCreated = Common.Convert.AsDateTime(series.Created);
+                    var dateModified = Common.Convert.AsDateTime(series.Modified);
 
                     var tags = new List<string>();
-                    if (null != series.Tags)
-                    {
-                        foreach (var tag in series.Tags)
-                        {
-                            tags.Add(tag);
-                        }
+                    if (null != series.Tags) {
+                        tags.AddRange(series.Tags);
                     }
 
                     var participants = new List<User>();
-                    if (null != series.Participants)
-                    {
-                        foreach (var participant in series.Participants)
-                        {
-                            participants.Add(new User {
-                                Id = participant.Id,
-                                UserName = participant.UserName,
-                                FullName = participant.FullName
-                            });
-                        }
+                    if (null != series.Participants) {
+                        participants.AddRange(series.Participants.Select(participant => new User {
+                            Id = participant.Id, 
+                            UserName = participant.UserName, 
+                            FullName = participant.FullName
+                        }));
                     }
 
                     var notes = new List<Note>();
-                    if (null != series.Notes)
-                    {
-                        foreach (var note in series.Notes)
-                        {
-                            var dateNoteCreated = DateTimeHelper.AsDateTime(note.Created);
-                            var dateNoteModified = DateTimeHelper.AsDateTime(note.Modified);
-
-                            notes.Add(new Note {
+                    if (null != series.Notes) {
+                        notes.AddRange(
+                            from note in series.Notes
+                            let dateNoteCreated = Common.Convert.AsDateTime(note.Created)
+                            let dateNoteModified = Common.Convert.AsDateTime(note.Modified)
+                            select new Note {
                                 Id = note.Id,
+                                Title = note.Title,
                                 Created = dateNoteCreated,
-                                Modified = dateNoteModified,
-                                Title = note.Title
-                            });
-                        }
+                                Modified = dateNoteModified
+                        });
                     }
 
-                    int priority;
-                    if (!int.TryParse(series.Task.Priority, out priority))
-                        priority = 0;
+                    foreach (var task in series.Tasks)
+                    {
+                        var dateTaskDue = Common.Convert.AsDateTime(task.Due);
+                        var hasDueTime = Common.Convert.AsBoolean(task.HasDueTime);
+                        var dateTaskAdded = Common.Convert.AsDateTime(task.Added);
+                        var dateTaskCompleted = Common.Convert.AsDateTime(task.Completed);
+                        var dateTaskDeleted = Common.Convert.AsDateTime(task.Deleted);
+                        var taskPostponed = Common.Convert.AsInt(task.Postponed);
+                        var dateTaskEstimated = Common.Convert.AsDateTime(task.Estimate);
 
-                    taskList.Add(new Task {
-                        TaskSeriesId = series.Id,
-                        Created = (DateTime.MinValue != dateCreated) ? (DateTime?)dateCreated : null,
-                        Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
-                        Name = series.Name,
-                        Source = series.Source,
-                        Url = series.Url,
-                        LocationId = series.LocationId,
-                        Tags = tags,
-                        Participants = participants,
-                        Notes = notes,
-                        Id = series.Task.Id,
-                        Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
-                        HasDueTime = hasDueTime,
-                        Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
-                        Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
-                        Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
-                        Priority = priority,
-                        Postponed = taskPostponed,
-                        Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
-                    });
+                        int priority;
+                        if (!int.TryParse(task.Priority, out priority))
+                            priority = 0;
+
+                        taskList.Add(new Task {
+                            TaskSeriesId = series.Id,
+                            Created = (DateTime.MinValue != dateCreated) ? (DateTime?)dateCreated : null,
+                            Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
+                            Name = series.Name,
+                            Source = series.Source,
+                            Url = series.Url,
+                            LocationId = series.LocationId,
+                            Tags = tags,
+                            Participants = participants,
+                            Notes = notes,
+                            Id = task.Id,
+                            Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
+                            HasDueTime = hasDueTime,
+                            Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
+                            Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
+                            Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
+                            Priority = priority,
+                            Postponed = taskPostponed,
+                            Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
+                        });
+                    }
                 }
             }
 
             return taskList;
         }
+
+        #endregion Tasks
 
         #endregion Private Methods
     }

@@ -11,7 +11,7 @@ using System.Windows.Shapes;
 
 namespace MobileMilk.Data.Common
 {
-    public static class DateTimeHelper
+    public static class Convert
     {
         public static DateTime? AsDateTime(string value)
         {
@@ -23,6 +23,30 @@ namespace MobileMilk.Data.Common
                 date = DateTime.MinValue;
 
             return (DateTime.MinValue != date) ? (DateTime?) date : null;
+        }
+
+        public static bool AsBoolean(string value)
+        {
+            if (null == value)
+                return false;
+
+            bool boolean;
+            if (!Boolean.TryParse(value, out boolean))
+                boolean = false;
+
+            return boolean;
+        }
+
+        public static int AsInt(string value)
+        {
+            if (null == value)
+                return 0;
+
+            int integer;
+            if (!int.TryParse(value, out integer))
+                integer = 0;
+
+            return integer;
         }
     }
 }

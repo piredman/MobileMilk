@@ -46,15 +46,24 @@ namespace MobileMilk.Store
 
         public void SaveTasks(IEnumerable<Task> tasks)
         {
-            foreach (var task in tasks)
-                task.IsNew = true;
+            //foreach (var task in tasks)
+            //    task.IsNew = true;
 
-            foreach (var task in this.AllTasks)
-                task.IsNew = false;
+            //foreach (var task in this.AllTasks)
+            //    task.IsNew = false;
 
-            this.AllTasks.AddRange(tasks.Where(
-                newTask => !this.AllTasks.Any(task => task.Name == newTask.Name)
-            ));
+            ////Add new tasks to the list
+            //this.AllTasks.AddRange(tasks.Where(
+            //    newTask => !this.AllTasks.Any(task => task.TaskSeriesId == newTask.TaskSeriesId)
+            //));
+
+            //TODO: merge existing tasks
+
+            //TODO: delete removed tasks
+
+            //TODO: do not force update tasks all the time
+            this.AllTasks.Clear();
+            this.AllTasks.AddRange(tasks);
 
             this.SaveStore();
         }

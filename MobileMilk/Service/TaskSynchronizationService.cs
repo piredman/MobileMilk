@@ -27,22 +27,12 @@ namespace MobileMilk.Service
 
         public IObservable<TaskCompletedSummary[]> StartSynchronization()
         {
-            var taskStore = this._taskStoreLocator.GetStore();
-
             var getNewTasks = 
                 this._rtmServiceClientFactory()
                     .GetTasksList()
                     .Select(
                         tasks => {
-                            taskStore.SaveTasks(tasks);
-                            if (tasks.Count() > 0)
-                                taskStore.LastSyncDate = tasks.Max(task => task.Created ?? DateTime.MinValue);
-
-                            return new TaskCompletedSummary {
-                                Task = GetTasksTask,
-                                Result = TaskSummaryResult.Success,
-                                Context = tasks.Count().ToString()
-                            };
+                            return GetTasksListCompleted(tasks);
                         })
                     .Catch((Exception exception) => {
                         if (exception is WebException)
@@ -61,9 +51,24 @@ namespace MobileMilk.Service
                     });
 
             //TODO: Save Tasks back to RTM
-            var saveTasks = Observable.Return(new TaskCompletedSummary { Task = SaveTasksTask, Result = TaskSummaryResult.AccessDenied });
+            var saveTasks = Observable.Return(new TaskCompletedSummary { Task = SaveTasksTask, Result = TaskSummaryResult.Success, Context = "0"});
             
             return Observable.ForkJoin(getNewTasks, saveTasks);
+        }
+
+        private TaskCompletedSummary GetTasksListCompleted(List<Task> tasks)
+        {
+            var taskStore = this._taskStoreLocator.GetStore();
+
+            taskStore.SaveTasks(tasks);
+            if (tasks.Count() > 0)
+                taskStore.LastSyncDate = tasks.Max(task => task.Created ?? DateTime.MinValue);
+
+            return new TaskCompletedSummary {
+                Task = GetTasksTask,
+                Result = TaskSummaryResult.Success,
+                Context = tasks.Count().ToString()
+            };
         }
     }
 }

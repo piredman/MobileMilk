@@ -9,6 +9,7 @@ using System.Windows.Data;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Data;
+using MobileMilk.Data.Common;
 using MobileMilk.Model;
 using MobileMilk.Store;
 using MobileMilk.Service;
@@ -39,9 +40,13 @@ namespace MobileMilk.ViewModels
         private ITaskStore lastTaskStore;
 
         private ObservableCollection<TaskListItemViewModel> observableTaskListItems;
-        private CollectionViewSource todaysTasksViewSource;
-        private int selectedPivotIndex;
         private TaskListItemViewModel selectedTaskListItem;
+        private int selectedPivotIndex;
+
+        private CollectionViewSource todaysTasksViewSource;
+        private CollectionViewSource tomorrowsTasksViewSource;
+        private CollectionViewSource thisWeeksTasksViewSource;
+        private CollectionViewSource nextWeeksTasksViewSource;
 
         private readonly IRtmServiceClient _rtmServiceClient;
 
@@ -80,10 +85,10 @@ namespace MobileMilk.ViewModels
 
         #region Properties
 
-        public ICollectionView TodaysTasks
-        {
-            get { return this.todaysTasksViewSource.View; }
-        }
+        public ICollectionView TodaysTasks { get { return this.todaysTasksViewSource.View; } }
+        public ICollectionView TomorrowsTasks { get { return this.tomorrowsTasksViewSource.View; } }
+        public ICollectionView ThisWeeksTasks { get { return this.thisWeeksTasksViewSource.View; } }
+        public ICollectionView NextWeeksTasks { get { return this.nextWeeksTasksViewSource.View; } }
 
         public int SelectedPivotIndex
         {
@@ -303,12 +308,53 @@ namespace MobileMilk.ViewModels
 
             // Create collection views
             this.todaysTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
+            this.tomorrowsTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
+            this.thisWeeksTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
+            this.nextWeeksTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
 
-            this.todaysTasksViewSource.Filter += (o, e) => e.Accepted = (((TaskListItemViewModel)e.Item).Due ?? DateTime.MaxValue) <= DateTime.Today;
+            var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+            var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
+
+            this.todaysTasksViewSource.Filter += (o, e) => {
+                var task = (TaskListItemViewModel) e.Item;
+                e.Accepted = (((task.Due ?? DateTime.MaxValue) <= DateTime.Today) &&
+                    (task.Completed == null) && (task.Deleted == null));
+            };
+            this.tomorrowsTasksViewSource.Filter += (o, e) => {
+                var task = (TaskListItemViewModel)e.Item;
+                e.Accepted = (((task.Due ?? DateTime.MaxValue) == DateTime.Today.AddDays(1)) &&
+                    (task.Completed == null) && (task.Deleted == null));
+            };
+            this.thisWeeksTasksViewSource.Filter += (o, e) => {
+                var task = (TaskListItemViewModel)e.Item;
+                var due = (task.Due ?? DateTime.MaxValue);
+                e.Accepted = (
+                    (due >= startOfWeek && due <= endOfWeek) &&
+                    (task.Completed == null) && (task.Deleted == null)
+                );
+            };
+            this.nextWeeksTasksViewSource.Filter += (o, e) => {
+                var task = (TaskListItemViewModel)e.Item;
+                var due = (task.Due ?? DateTime.MaxValue);
+                e.Accepted = (
+                    (due >= startOfWeek.AddDays(7) && due <= endOfWeek.AddDays(7)) &&
+                    (task.Completed == null) && (task.Deleted == null)
+                );
+            };
+
             this.todaysTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+            this.tomorrowsTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+            this.thisWeeksTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+            this.nextWeeksTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
 
             this.todaysTasksViewSource.View.CurrentChanged +=
                 (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.todaysTasksViewSource.View.CurrentItem;
+            this.tomorrowsTasksViewSource.View.CurrentChanged +=
+                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.tomorrowsTasksViewSource.View.CurrentItem;
+            this.thisWeeksTasksViewSource.View.CurrentChanged +=
+                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.thisWeeksTasksViewSource.View.CurrentItem;
+            this.nextWeeksTasksViewSource.View.CurrentChanged +=
+                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.nextWeeksTasksViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();

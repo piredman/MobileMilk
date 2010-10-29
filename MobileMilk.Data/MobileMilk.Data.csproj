@@ -53,10 +53,9 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\BooleanHelper.cs" />
-    <Compile Include="Common\IntHelper.cs" />
-    <Compile Include="Common\DateTimeHelper.cs" />
+    <Compile Include="Common\Convert.cs" />
     <Compile Include="Common\Constants.cs" />
+    <Compile Include="Common\DateTimeExtensions.cs" />
     <Compile Include="HttpClient.cs" />
     <Compile Include="HttpWebRequestExtensions.cs" />
     <Compile Include="IRtmServiceClient.cs" />

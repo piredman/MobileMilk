@@ -45,7 +45,6 @@ namespace MobileMilk.Data.Messages
         [XmlAttribute("location_id")]
         public string LocationId { get; set; }
 
-        //TODO: These three lists are not loading properly
         [XmlArray("tags")]
         [XmlArrayItem("tag", typeof(string))]
         public List<string> Tags { get; set; }
@@ -57,7 +56,7 @@ namespace MobileMilk.Data.Messages
         public List<RtmNoteResponse> Notes { get; set; }
 
         [XmlElement("task")]
-        public RtmTaskResponse Task { get; set; }
+        public List<RtmTaskResponse> Tasks { get; set; }
     }
 
     public class RtmContactResponse
