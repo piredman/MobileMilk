@@ -8,9 +8,10 @@ using System.Text;
 using System.Windows.Data;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
+using MobileMilk.Common.Extensions;
 using MobileMilk.Data;
-using MobileMilk.Data.Common;
 using MobileMilk.Model;
+using MobileMilk.Resources.Themes;
 using MobileMilk.Store;
 using MobileMilk.Service;
 using System.Collections.Generic;
@@ -25,8 +26,8 @@ namespace MobileMilk.ViewModels
         #region Delegates
 
         public DelegateCommand StartSyncCommand { get; set; }
+        public DelegateCommand TasksByDueCommand { get; set; }
         public DelegateCommand AppSettingsCommand { get; set; }
-        public DelegateCommand VerifyAuthorizedCommand { get; set; }
                 
         #endregion Delegates
         
@@ -35,22 +36,16 @@ namespace MobileMilk.ViewModels
         private readonly InteractionRequest<Notification> submitErrorInteractionRequest;
         private readonly InteractionRequest<Notification> submitNotificationInteractionRequest;
 
+        private readonly IRtmServiceClient _rtmServiceClient;
         private readonly ITaskStoreLocator _taskStoreLocator;
         private readonly ITaskSynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
-        private ObservableCollection<TaskListItemViewModel> observableTaskListItems;
-        private TaskListItemViewModel selectedTaskListItem;
-        private int selectedPivotIndex;
-
-        private CollectionViewSource todaysTasksViewSource;
-        private CollectionViewSource tomorrowsTasksViewSource;
-        private CollectionViewSource thisWeeksTasksViewSource;
-        private CollectionViewSource nextWeeksTasksViewSource;
-
-        private readonly IRtmServiceClient _rtmServiceClient;
-
+        private int selectedPanoramaIndex;
         private bool _isSyncing;
+
+        private ObservableCollection<HomeTasksByDueItemViewModel> _observableTasksByDueItems;
+        private CollectionViewSource _tasksByDue;
 
         #endregion Members
 
@@ -74,10 +69,15 @@ namespace MobileMilk.ViewModels
                 () => { this.StartSync(); },
                 () => !this.IsSyncing && !this.SettingAreNotConfigured);
 
+            this.TasksByDueCommand = new DelegateCommand(
+                () => { this.NavigationService.Navigate(new Uri("/Views/TasksByDueView.xaml", UriKind.Relative)); },
+                () => !this.IsSyncing && !this.SettingAreNotConfigured);
+
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
+            this.SelectedPanoramaIndex = 1;
             this.IsBeingActivated();
         }
 
@@ -85,33 +85,16 @@ namespace MobileMilk.ViewModels
 
         #region Properties
 
-        public ICollectionView TodaysTasks { get { return this.todaysTasksViewSource.View; } }
-        public ICollectionView TomorrowsTasks { get { return this.tomorrowsTasksViewSource.View; } }
-        public ICollectionView ThisWeeksTasks { get { return this.thisWeeksTasksViewSource.View; } }
-        public ICollectionView NextWeeksTasks { get { return this.nextWeeksTasksViewSource.View; } }
-
-        public int SelectedPivotIndex
+        public ICollectionView TasksByDue { get { return this._tasksByDue.View; } }
+        
+        public int SelectedPanoramaIndex
         {
-            get { return this.selectedPivotIndex; }
+            get { return this.selectedPanoramaIndex; }
 
             set
             {
-                this.selectedPivotIndex = value;
+                this.selectedPanoramaIndex = value;
                 this.HandleCurrentSectionChanged();
-            }
-        }
-
-        public TaskListItemViewModel SelectedTaskListItem
-        {
-            get { return this.selectedTaskListItem; }
-
-            set
-            {
-                if (value != null)
-                {
-                    this.selectedTaskListItem = value;
-                    this.RaisePropertyChanged(() => this.SelectedTaskListItem);
-                }
             }
         }
 
@@ -160,22 +143,22 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            if (this.selectedTaskListItem == null)
-            {
-                var tombstoned = Tombstoning.Load<TaskListItemViewModel>("SelectedTemplate");
-                if (tombstoned != null)
-                {
-                    this.SelectedTaskListItem = new TaskListItemViewModel(tombstoned.TaskItem, this.NavigationService);
-                }
+            //if (this.selectedTaskListItem == null)
+            //{
+            //    var tombstoned = Tombstoning.Load<TaskListItemViewModel>("SelectedTemplate");
+            //    if (tombstoned != null)
+            //    {
+            //        this.SelectedTaskListItem = new TaskListItemViewModel(tombstoned.TaskItem, this.NavigationService);
+            //    }
+            //}
 
-                this.selectedPivotIndex = Tombstoning.Load<int>("MainPivot");
-            }
+            this.selectedPanoramaIndex = Tombstoning.Load<int>("MainPivot");
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTemplate", this.SelectedTaskListItem);
-            Tombstoning.Save("MainPivot", this.SelectedPivotIndex);
+            //Tombstoning.Save("SelectedTemplate", this.SelectedTaskListItem);
+            Tombstoning.Save("MainPivot", this.SelectedPanoramaIndex);
 
             base.IsBeingDeactivated();
         }
@@ -274,7 +257,7 @@ namespace MobileMilk.ViewModels
             }
 
             // Update the View Model status
-            this.BuildPivotDimensions();
+            this.BuildPanoramaDimensions();
             this.RaisePropertyChanged(string.Empty);
             this.IsSyncing = false;
             this.UpdateCommandsForSync();
@@ -285,7 +268,7 @@ namespace MobileMilk.ViewModels
             if (this._taskStoreLocator.GetStore() != this.lastTaskStore)
             {
                 this.lastTaskStore = this._taskStoreLocator.GetStore();
-                this.BuildPivotDimensions();
+                this.BuildPanoramaDimensions();
                 this.RaisePropertyChanged(string.Empty);
                 this.StartSyncCommand.RaiseCanExecuteChanged();
             }
@@ -295,85 +278,79 @@ namespace MobileMilk.ViewModels
 
         #region Private Methods
 
-        private void BuildPivotDimensions()
+        private void BuildPanoramaDimensions()
         {
-            this.observableTaskListItems = new ObservableCollection<TaskListItemViewModel>();
-            var taskListItemViewModels = this._taskStoreLocator.GetStore().GetAllTasks().Select(t => 
-                    new TaskListItemViewModel(t, this.NavigationService)).ToList();
-            taskListItemViewModels.ForEach(this.observableTaskListItems.Add);
+            var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
 
-            // Listen for task changes
-            // TODO: listen for task changes
-            //this.ListenSurveyChanges();
+            this._observableTasksByDueItems = new ObservableCollection<HomeTasksByDueItemViewModel>();
+            var taskListItemViewModels = this._taskStoreLocator.GetStore().GetAllTasks().Select(t =>
+                    new HomeTasksByDueItemViewModel(
+                        string.Empty, 
+                        0,
+                        this.NavigationService
+                    )).ToList();
+            taskListItemViewModels.ForEach(this._observableTasksByDueItems.Add);
 
-            // Create collection views
-            this.todaysTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
-            this.tomorrowsTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
-            this.thisWeeksTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
-            this.nextWeeksTasksViewSource = new CollectionViewSource { Source = this.observableTaskListItems };
+
+            var dueTodayCount = tasks.
+                Select(task => ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
+                                (task.Completed == null) && (task.Deleted == null))).
+                Count();
+
+            var todaysTasks = new HomeTasksByDueItemViewModel("Today", dueTodayCount, this.NavigationService);
+            taskListItemViewModels.Add(todaysTasks);
+
+            // Create collection views);
+            this._tasksByDue = new CollectionViewSource { Source = this._observableTasksByDueItems };
 
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
 
-            this.todaysTasksViewSource.Filter += (o, e) => {
-                var task = (TaskListItemViewModel) e.Item;
-                e.Accepted = (((task.Due ?? DateTime.MaxValue) <= DateTime.Today) &&
+            this._tasksByDue.Filter += (o, e) => {
+                var task = (TaskListItemViewModel)e.Item;
+                e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
                     (task.Completed == null) && (task.Deleted == null));
             };
-            this.tomorrowsTasksViewSource.Filter += (o, e) => {
+            this._tomorrowsTasksViewSource.Filter += (o, e) => {
                 var task = (TaskListItemViewModel)e.Item;
-                e.Accepted = (((task.Due ?? DateTime.MaxValue) == DateTime.Today.AddDays(1)) &&
+                e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) == DateTime.Today.AddDays(1)) &&
                     (task.Completed == null) && (task.Deleted == null));
             };
-            this.thisWeeksTasksViewSource.Filter += (o, e) => {
+            this._thisWeeksTasksViewSource.Filter += (o, e) => {
                 var task = (TaskListItemViewModel)e.Item;
-                var due = (task.Due ?? DateTime.MaxValue);
                 e.Accepted = (
-                    (due >= startOfWeek && due <= endOfWeek) &&
+                    (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek &&
+                     task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek) &&
                     (task.Completed == null) && (task.Deleted == null)
                 );
             };
-            this.nextWeeksTasksViewSource.Filter += (o, e) => {
+            this._nextWeeksTasksViewSource.Filter += (o, e) => {
                 var task = (TaskListItemViewModel)e.Item;
-                var due = (task.Due ?? DateTime.MaxValue);
                 e.Accepted = (
-                    (due >= startOfWeek.AddDays(7) && due <= endOfWeek.AddDays(7)) &&
+                    (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek.AddDays(7) &&
+                     task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
                     (task.Completed == null) && (task.Deleted == null)
                 );
             };
-
-            this.todaysTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
-            this.tomorrowsTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
-            this.thisWeeksTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
-            this.nextWeeksTasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
-
-            this.todaysTasksViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.todaysTasksViewSource.View.CurrentItem;
-            this.tomorrowsTasksViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.tomorrowsTasksViewSource.View.CurrentItem;
-            this.thisWeeksTasksViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.thisWeeksTasksViewSource.View.CurrentItem;
-            this.nextWeeksTasksViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedTaskListItem = (TaskListItemViewModel)this.nextWeeksTasksViewSource.View.CurrentItem;
-
-            // Initialize the selected survey template
+            
+            // Initialize the selected survey template))
             this.HandleCurrentSectionChanged();
         }
 
         private void HandleCurrentSectionChanged()
         {
-            ICollectionView currentView = null;
-            switch (this.SelectedPivotIndex)
-            {
-                case 0:
-                    currentView = this.TodaysTasks;
-                    break;
-            }
+            //ICollectionView currentView = null;
+            //switch (this.selectedPanoramaIndex)
+            //{
+            //    case 0:
+            //        currentView = this.TodaysTasks;
+            //        break;
+            //}
 
-            if (currentView != null)
-            {
-                this.SelectedTaskListItem = (TaskListItemViewModel)currentView.CurrentItem;
-            }
+            //if (currentView != null)
+            //{
+            //    this.SelectedTaskListItem = (TaskListItemViewModel)currentView.CurrentItem;
+            //}
         }
 
         private void UpdateCommandsForSync()

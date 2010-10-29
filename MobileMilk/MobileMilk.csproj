@@ -104,7 +104,12 @@
     <Compile Include="Service\TaskSynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
+    <Compile Include="ViewModels\HomeTasksByDueItemViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
+    <Compile Include="Views\HomeView.xaml.cs">
+      <DependentUpon>HomeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\TasksByDueViewModel.cs" />
     <Compile Include="ViewModels\TaskDetailViewModel.cs" />
     <Compile Include="ViewModels\TaskListItemViewModel.cs" />
     <Compile Include="Views\AppSettingsView.xaml.cs">
@@ -113,8 +118,8 @@
     <Compile Include="Views\AuthorizeView.xaml.cs">
       <DependentUpon>AuthorizeView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\HomeView.xaml.cs">
-      <DependentUpon>HomeView.xaml</DependentUpon>
+    <Compile Include="Views\TasksByDueView.xaml.cs">
+      <DependentUpon>TasksByDueView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +161,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\HomeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AppSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -164,7 +173,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\HomeView.xaml">
+    <Page Include="Views\TasksByDueView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

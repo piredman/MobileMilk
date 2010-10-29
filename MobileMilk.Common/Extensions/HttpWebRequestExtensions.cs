@@ -2,11 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
-using Microsoft.Phone.Reactive;
 using System.Xml.Serialization;
-using System.Xml.Linq;
+using Microsoft.Phone.Reactive;
 
-namespace MobileMilk.Data
+namespace MobileMilk.Common.Extensions
 {
     public static class HttpWebRequestExtensions
     {

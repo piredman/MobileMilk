@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using System.Net;
 
-namespace MobileMilk.Data
+namespace MobileMilk.Data.Common
 {
     public static class HttpClient
     {

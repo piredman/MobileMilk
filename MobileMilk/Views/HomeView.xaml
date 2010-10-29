@@ -5,20 +5,14 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:prismInteractionRequest="clr-namespace:Microsoft.Practices.Prism.Interactivity.InteractionRequest;assembly=Microsoft.Practices.Prism.Interactivity" 
-    xmlns:prismInteractivity="clr-namespace:Microsoft.Practices.Prism.Interactivity;assembly=Microsoft.Practices.Prism.Interactivity" 
-    xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" 
-    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" 
-    xmlns:pag="clr-namespace:MobileMilk.Common" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}"
-    SupportedOrientations="Portrait"  Orientation="Portrait" shell:SystemTray.IsVisible="True" >
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="False">
 
     <!--Resources-->
     <phone:PhoneApplicationPage.Resources>
@@ -26,24 +20,15 @@
         <converters:VisibilityConverter x:Key="NegativeVisibilityConverter" Negative="True"/>
     </phone:PhoneApplicationPage.Resources>
     
-    <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <!--LayoutRoot contains the root grid where all other page content is placed-->
+    <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="4"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!--SettingNotConfiguredPanel is shown only when the user has not entered his setting-->
-        <StackPanel x:Name="SettingNotConfiguredPanel" Grid.Row="0" Margin="24,24,0,12"
-                    Visibility="{Binding SettingAreNotConfigured, Converter={StaticResource VisibilityConverter}}">
-            <TextBlock x:Name="ApplicationTitle" Text="MobileMilk" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock x:Name="PageTitle" Text="Tasks" Margin="-3,-8,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
-            <ContentControl Template="{StaticResource SettingsNotConfiguredTextBlock}" />
-        </StackPanel>
-
         <!--ProgressBar for showing synchronization activity-->
-        <StackPanel Grid.Row="1" Visibility="{Binding IsSyncing, Converter={StaticResource VisibilityConverter}}">
+        <StackPanel Grid.Row="0" Visibility="{Binding IsSyncing, Converter={StaticResource VisibilityConverter}}">
             <ProgressBar Height="4" HorizontalAlignment="Center"
                      Margin="10,0,10,5" 
                      Name="syncProgressBar" 
@@ -52,90 +37,81 @@
                      IsIndeterminate="{Binding IsSyncing}"/>
         </StackPanel>
 
-        <!--Pivot Control-->
-        <Canvas Grid.Row="2">
-            <!--Synchronization Status Toast -->
-            <Popup x:Name="SynchronizationToast">
-                <Grid Background="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Width="480">
-                    <TextBlock Text="{Binding Title}" HorizontalAlignment="Stretch" Foreground="Black" TextWrapping="Wrap" Margin="14,5,14,5">
-                        <custom:Interaction.Behaviors>
-                            <pag:PopupHideOnLeftMouseUp/>
-                        </custom:Interaction.Behaviors>
-                    </TextBlock>
-                </Grid>
-            </Popup>
-            
-            <controls:Pivot Title="MobileMilk"
-                        Name="todayPivot"
-                        SelectedIndex="{Binding SelectedPivotIndex, Mode=TwoWay}"
-                        Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
+        <controls:Panorama Grid.Row="1" Title="MobileMilk" SelectedIndex="{Binding SelectedPanoramaIndex, Mode=TwoWay}">
 
-                <controls:PivotItem Header="Today">
-                    <StackPanel Orientation="Vertical">
-                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                    Visibility="{Binding TodaysTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                        <ListBox ItemsSource="{Binding TodaysTasks}" Style="{StaticResource TaskListItemStyle}"
-                             Visibility="{Binding TodaysTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
-                    </StackPanel>
-                </controls:PivotItem>
+            <controls:PanoramaItem Header="Settings">
+                <Grid x:Name="SettingsOptions" Background="Transparent">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <controls:PivotItem Header="Tomorrow">
-                    <StackPanel Orientation="Vertical">
-                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                    Visibility="{Binding TomorrowsTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                        <ListBox ItemsSource="{Binding TomorrowsTasks}" Style="{StaticResource TaskListItemStyle}"
-                             Visibility="{Binding TomorrowsTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
-                    </StackPanel>
-                </controls:PivotItem>
-
-                <controls:PivotItem Header="This Week">
-                    <StackPanel Orientation="Vertical">
-                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                    Visibility="{Binding ThisWeeksTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                        <ListBox ItemsSource="{Binding ThisWeeksTasks}" Style="{StaticResource TaskListItemStyle}"
-                             Visibility="{Binding ThisWeeksTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
-                    </StackPanel>
-                </controls:PivotItem>
-
-                <controls:PivotItem Header="Next Week">
-                    <StackPanel Orientation="Vertical">
-                        <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                    Visibility="{Binding NextWeeksTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                        <ListBox ItemsSource="{Binding NextWeeksTasks}" Style="{StaticResource TaskListItemStyle}"
-                             Visibility="{Binding NextWeeksTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
-                    </StackPanel>
-                </controls:PivotItem>
-
-                <controls:PivotItem Header="Settings">
-                    <Grid x:Name="SettingsOptions" Background="Transparent">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <ScrollViewer Grid.Row="0">
-                            <!--Content Grid-->
-                            <Grid x:Name="ContentGrid">
-                                <Button>
-                                    <Button.Template>
-                                        <ControlTemplate>
-                                            <TextBlock Height="Auto" Width="Auto" HorizontalAlignment="Left" Margin="12,6,0,0" 
+                    <ScrollViewer Grid.Row="0">
+                        <!--Content Grid-->
+                        <Grid x:Name="ContentGrid">
+                            <Button>
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <TextBlock Height="Auto" Width="Auto" HorizontalAlignment="Left" Margin="12,6,0,0" 
                                             Name="ConnectionSettings" Text="Connection Details" VerticalAlignment="Top" 
                                             FontSize="40" />
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <custom:Interaction.Triggers>
-                                        <custom:EventTrigger EventName="Click">
-                                            <mvvmLightCommand:EventToCommand Command="{Binding AppSettingsCommand}" />
-                                        </custom:EventTrigger>
-                                    </custom:Interaction.Triggers>
-                                </Button>
-                            </Grid>
-                        </ScrollViewer>
-                    </Grid>
-                </controls:PivotItem>
-            </controls:Pivot>
-        </Canvas>
-        
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <custom:Interaction.Triggers>
+                                    <custom:EventTrigger EventName="Click">
+                                        <mvvmLightCommand:EventToCommand Command="{Binding AppSettingsCommand}" />
+                                    </custom:EventTrigger>
+                                </custom:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </controls:PanoramaItem>
+            
+            <controls:PanoramaItem Header="Due">
+                <Grid>
+                    <ListBox ItemsSource="{Binding TasksByDue}" Style="{StaticResource PanoramaListItemStyle}"
+                            Visibility="{Binding TasksByDue.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    
+                    <!--<StackPanel>
+                        <Button>
+                            <Button.Template>
+                                <ControlTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Today" />
+                                        <TextBlock Grid.Column="1" Text="{Binding TodaysTaskCount}" />
+                                    </Grid>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <custom:Interaction.Triggers>
+                                <custom:EventTrigger EventName="Click">
+                                    <mvvmLightCommand:EventToCommand Command="{Binding TasksByDueCommand}" />
+                                </custom:EventTrigger>
+                            </custom:Interaction.Triggers>
+                        </Button>
+                        <TextBlock Text="Today" />
+                        <TextBlock Text="Tomorrow" />
+                        <TextBlock Text="This Week" />
+                        <TextBlock Text="Next Week" />
+                    </StackPanel>-->
+                </Grid>
+            </controls:PanoramaItem>
+
+            <controls:PanoramaItem Header="Lists">
+                <Grid/>
+            </controls:PanoramaItem>
+
+            <controls:PanoramaItem Header="Locations">
+                <Grid/>
+            </controls:PanoramaItem>
+            
+        </controls:Panorama>
     </Grid>
-    
+
+    <!--Panorama-based applications should not show an ApplicationBar-->
+
 </phone:PhoneApplicationPage>

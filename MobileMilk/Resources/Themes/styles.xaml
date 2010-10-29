@@ -83,4 +83,17 @@
             TextWrapping="Wrap"/>
     </ControlTemplate>
 
+    <!-- Panorama List Item Style -->
+    <DataTemplate x:Key="PanoramaListItemStyle">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding Name}" />
+            <TextBlock Grid.Column="1" Text="{Binding Count}" />
+        </Grid>
+    </DataTemplate>
+    
 </ResourceDictionary>

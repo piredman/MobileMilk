@@ -15,6 +15,7 @@ namespace MobileMilk.Model
     public class Task
     {
         public string TaskSeriesId { get; set; }
+        public string ListId { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public string Name { get; set; }

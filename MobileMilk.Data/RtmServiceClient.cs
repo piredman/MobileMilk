@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 using Microsoft.Phone.Reactive;
+using MobileMilk.Common.Extensions;
 using MobileMilk.Model;
 using MobileMilk.Data.Common;
 using MobileMilk.Data.Messages;
 using MobileMilk.Store;
+using MobileMilk.Common;
+using Convert = MobileMilk.Common.Convert;
 
 namespace MobileMilk.Data
 {
@@ -93,6 +92,36 @@ namespace MobileMilk.Data
 
         #endregion Timelines
 
+        #region Lists
+
+        public IObservable<List<List>> GetListsList()
+        {
+            var url = RtmRequestBuilder.GetListsRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetListsResponse>()
+                .Select(ToLists);
+        }
+
+        #endregion Lists
+
+        #region Locations
+
+        public IObservable<List<Location>> GetLocationsList()
+        {
+            var url = RtmRequestBuilder.GetLocationsRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmGetLocationsResponse>()
+                .Select(ToLocations);
+        }
+
+        #endregion Locations
+
         #region Tasks
 
         public IObservable<List<Task>> GetTasksList()
@@ -172,6 +201,59 @@ namespace MobileMilk.Data
 
         #endregion
 
+        #region Lists
+
+        private List<List> ToLists(RtmGetListsResponse response)
+        {
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
+
+            var lists = new List<List>();
+            foreach (var list in response.Lists)
+            {
+                var filters = new List<string>();
+                if (null != list.Filters)
+                    filters.AddRange(list.Filters);
+
+                lists.Add(new List {
+                    Id = list.Id,
+                    Name = list.Name,
+                    Deleted = list.Deleted.AsBool(false),
+                    Archived = list.Archived.AsBool(false),
+                    Locked = list.Locked.AsBool(false),
+                    Position = list.Position.AsInt(-1),
+                    Smart = list.Smart.AsBool(false),
+                    Filters = filters
+                });
+            }
+
+            return lists;
+        }
+
+        #endregion Lists
+
+        #region Locations
+
+        private List<Location> ToLocations(RtmGetLocationsResponse response)
+        {
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
+
+            return response.Locations.Select(location => new Location {
+                Id = location.Id, 
+                Name = location.Name, 
+                Address = location.Address, 
+                Latitude = location.Latitude.AsDecimal(0), 
+                Longitude = location.Longitude.AsDecimal(0), 
+                Viewable = location.Viewable.AsBool(false), 
+                Zoom = location.Zoom.AsInt(0)
+            }).ToList();
+        }
+
+        #endregion Locations
+
         #region Tasks
 
         private List<Task> ToTaskList(RtmGetTasksResponse response)
@@ -188,9 +270,6 @@ namespace MobileMilk.Data
 
                 foreach (var series in list.TaskSeries)
                 {
-                    var dateCreated = Common.Convert.AsDateTime(series.Created);
-                    var dateModified = Common.Convert.AsDateTime(series.Modified);
-
                     var tags = new List<string>();
                     if (null != series.Tags) {
                         tags.AddRange(series.Tags);
@@ -207,54 +286,38 @@ namespace MobileMilk.Data
 
                     var notes = new List<Note>();
                     if (null != series.Notes) {
-                        notes.AddRange(
-                            from note in series.Notes
-                            let dateNoteCreated = Common.Convert.AsDateTime(note.Created)
-                            let dateNoteModified = Common.Convert.AsDateTime(note.Modified)
-                            select new Note {
-                                Id = note.Id,
-                                Title = note.Title,
-                                Created = dateNoteCreated,
-                                Modified = dateNoteModified
-                        });
+                        notes.AddRange(series.Notes.Select(note => new Note {
+                            Id = note.Id,
+                            Title = note.Title,
+                            Created = note.Created.AsNullableDateTime(null),
+                            Modified = note.Modified.AsNullableDateTime(null)
+                        }));
                     }
 
-                    foreach (var task in series.Tasks)
-                    {
-                        var dateTaskDue = Common.Convert.AsDateTime(task.Due);
-                        var hasDueTime = Common.Convert.AsBoolean(task.HasDueTime);
-                        var dateTaskAdded = Common.Convert.AsDateTime(task.Added);
-                        var dateTaskCompleted = Common.Convert.AsDateTime(task.Completed);
-                        var dateTaskDeleted = Common.Convert.AsDateTime(task.Deleted);
-                        var taskPostponed = Common.Convert.AsInt(task.Postponed);
-                        var dateTaskEstimated = Common.Convert.AsDateTime(task.Estimate);
-
-                        int priority;
-                        if (!int.TryParse(task.Priority, out priority))
-                            priority = 0;
-
-                        taskList.Add(new Task {
-                            TaskSeriesId = series.Id,
-                            Created = (DateTime.MinValue != dateCreated) ? (DateTime?)dateCreated : null,
-                            Modified = (DateTime.MinValue != dateModified) ? (DateTime?)dateModified : null,
-                            Name = series.Name,
-                            Source = series.Source,
-                            Url = series.Url,
-                            LocationId = series.LocationId,
-                            Tags = tags,
-                            Participants = participants,
-                            Notes = notes,
-                            Id = task.Id,
-                            Due = (DateTime.MinValue != dateTaskDue) ? (DateTime?)dateTaskDue : null,
-                            HasDueTime = hasDueTime,
-                            Added = (DateTime.MinValue != dateTaskAdded) ? (DateTime?)dateTaskAdded : null,
-                            Completed = (DateTime.MinValue != dateTaskCompleted) ? (DateTime?)dateTaskCompleted : null,
-                            Deleted = (DateTime.MinValue != dateTaskDeleted) ? (DateTime?)dateTaskDeleted : null,
-                            Priority = priority,
-                            Postponed = taskPostponed,
-                            Estimate = (DateTime.MinValue != dateTaskEstimated) ? (DateTime?)dateTaskEstimated : null
-                        });
-                    }
+                    var rootList = list;
+                    var rootSeries = series;
+                    taskList.AddRange(series.Tasks.Select(task => new Task {
+                        ListId = rootList.Id,
+                        TaskSeriesId = rootSeries.Id, 
+                        Created = rootSeries.Created.AsNullableDateTime(null), 
+                        Modified = rootSeries.Modified.AsNullableDateTime(null), 
+                        Name = rootSeries.Name, 
+                        Source = rootSeries.Source, 
+                        Url = rootSeries.Url, 
+                        LocationId = rootSeries.LocationId, 
+                        Tags = tags, 
+                        Participants = participants, 
+                        Notes = notes, 
+                        Id = task.Id, 
+                        Due = task.Due.AsNullableDateTime(null), 
+                        HasDueTime = task.HasDueTime.AsBool(false), 
+                        Added = task.Added.AsNullableDateTime(null), 
+                        Completed = task.Completed.AsNullableDateTime(null), 
+                        Deleted = task.Deleted.AsNullableDateTime(null), 
+                        Priority = task.Priority.AsInt(0), 
+                        Postponed = task.Postponed.AsInt(0), 
+                        Estimate = task.Estimate.AsNullableDateTime(null)
+                    }));
                 }
             }
 

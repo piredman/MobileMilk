@@ -53,23 +53,25 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Convert.cs" />
     <Compile Include="Common\Constants.cs" />
-    <Compile Include="Common\DateTimeExtensions.cs" />
-    <Compile Include="HttpClient.cs" />
-    <Compile Include="HttpWebRequestExtensions.cs" />
+    <Compile Include="Common\HttpClient.cs" />
     <Compile Include="IRtmServiceClient.cs" />
     <Compile Include="Common\MD5.cs" />
+    <Compile Include="Messages\GetLocationResponse.cs" />
+    <Compile Include="Messages\GetListsResponse.cs" />
     <Compile Include="Messages\GetTasksResponse.cs" />
     <Compile Include="Messages\GetFrobResponse.cs" />
     <Compile Include="Messages\GetTokenResponse.cs" />
     <Compile Include="Messages\GetTimelineResponse.cs" />
     <Compile Include="RtmRequestBuilder.cs" />
     <Compile Include="RtmServiceClient.cs" />
-    <Compile Include="TaskManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MobileMilk.Common\MobileMilk.Common.csproj">
+      <Project>{6E7AA249-F4F6-4248-927B-F9217788598A}</Project>
+      <Name>MobileMilk.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MobileMilk.Model\MobileMilk.Model.csproj">
       <Project>{7FB03978-B74A-4129-95B8-72CF17B6FD65}</Project>
       <Name>MobileMilk.Model</Name>

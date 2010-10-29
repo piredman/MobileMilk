@@ -62,6 +62,28 @@ namespace MobileMilk.Data
 
         #endregion Timelines
 
+        #region Lists
+
+        public static string GetListsRequest(string apiKey, string sharedSecret, string token)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters.Add("method", "rtm.lists.getList");
+            return BuildRequest(apiKey, sharedSecret, token, parameters);
+        }
+
+        #endregion Lists
+
+        #region Locations
+
+        public static string GetLocationsRequest(string apiKey, string sharedSecret, string token)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters.Add("method", "rtm.locations.getList");
+            return BuildRequest(apiKey, sharedSecret, token, parameters);
+        }
+
+        #endregion Locations
+
         #region Tasks
 
         public static string GetTasksRequest(string apiKey, string sharedSecret, string token)

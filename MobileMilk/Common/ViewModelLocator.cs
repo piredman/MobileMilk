@@ -49,6 +49,11 @@ namespace MobileMilk.Common
             get { return this.containerLocator.Container.Resolve<HomeViewModel>(); }
         }
 
+        public TasksByDueViewModel TasksByDueViewModel
+        {
+            get { return this.containerLocator.Container.Resolve<TasksByDueViewModel>(); }
+        }
+
         public AppSettingsViewModel AppSettingsViewModel
         {
             get { return this.containerLocator.Container.Resolve<AppSettingsViewModel>(); }

@@ -102,6 +102,11 @@ namespace MobileMilk.Common
                     c.Resolve<ITaskSynchronizationService>()));
 
             this.Container.Register(
+                c => new TasksByDueViewModel(
+                    c.Resolve<INavigationService>(),
+                    c.Resolve<ITaskStoreLocator>()));
+
+            this.Container.Register(
                 c => new AuthorizeViewModel(
                          c.Resolve<ISettingsStore>(),
                          c.Resolve<INavigationService>(),
