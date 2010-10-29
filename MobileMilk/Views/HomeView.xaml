@@ -105,12 +105,6 @@
                              Visibility="{Binding NextWeeksTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
                     </StackPanel>
                 </controls:PivotItem>
-                
-                <controls:PivotItem Header="Tomorrow">
-                    <Grid>
-                        <!--<ListBox Name="todaysTasks" ItemsSource="{Binding Path=Tasks}" ItemTemplate="{StaticResource tasksTemplate}" />-->
-                    </Grid>
-                </controls:PivotItem>
 
                 <controls:PivotItem Header="Settings">
                     <Grid x:Name="SettingsOptions" Background="Transparent">
