@@ -37,7 +37,9 @@
                      IsIndeterminate="{Binding IsSyncing}"/>
         </StackPanel>
 
-        <controls:Panorama Grid.Row="1" Title="MobileMilk" SelectedIndex="{Binding SelectedPanoramaIndex, Mode=TwoWay}">
+        <controls:Panorama Grid.Row="1" Title="MobileMilk" 
+                           SelectedIndex="{Binding SelectedPanoramaIndex, Mode=TwoWay}"
+                           Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
 
             <controls:PanoramaItem Header="Settings">
                 <Grid x:Name="SettingsOptions" Background="Transparent">
@@ -66,11 +68,11 @@
                     </ScrollViewer>
                 </Grid>
             </controls:PanoramaItem>
-            
+
             <controls:PanoramaItem Header="Due">
                 <Grid>
                     <ListBox ItemsSource="{Binding TasksByDue}" Style="{StaticResource PanoramaListItemStyle}"
-                            Visibility="{Binding TasksByDue.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                             Visibility="{Binding TasksByDue.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
                     
                     <!--<StackPanel>
                         <Button>

@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Windows.Media;
+using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
-using MobileMilk.Model;
 
 namespace MobileMilk.ViewModels
 {
     [DataContract]
     public class HomeTasksByDueItemViewModel : ViewModel
     {
+        #region Delegates
+
+        public DelegateCommand TasksByDueCommand { get; set; }
+
+        #endregion Delegates
+
         #region Members
         #endregion Members
 
@@ -17,6 +22,9 @@ namespace MobileMilk.ViewModels
         {
             Name = name;
             Count = count;
+            
+            this.TasksByDueCommand = new DelegateCommand(
+                () => { this.NavigationService.Navigate(new Uri("/Views/TasksByDueView.xaml", UriKind.Relative)); });
 
             this.IsBeingActivated();
         }

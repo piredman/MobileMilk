@@ -12,7 +12,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TasksByDueViewModel}"
+    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel.SelectedTasksByDueItem}"
     SupportedOrientations="Portrait"  Orientation="Portrait" shell:SystemTray.IsVisible="True" >
 
     <!--Resources-->
@@ -27,7 +27,7 @@
         <!--Pivot Control-->
         <controls:Pivot Title="MobileMilk"
                         Name="byDueDatePivot"
-                        SelectedIndex="{Binding SelectedPivotIndex, Mode=TwoWay}"
+                        SelectedIndex="{Binding SelectedPivotIndex, Mode=TwoWay}" ItemsSource=""
                         Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
 
             <controls:PivotItem Header="Today">

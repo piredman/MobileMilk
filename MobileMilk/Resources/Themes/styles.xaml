@@ -4,7 +4,7 @@
     xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:Converters="clr-namespace:MobileMilk.Resources.Converters" 
-    xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:con="clr-namespace:WinMilk.Gui.Controls">
+    xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:con="clr-namespace:WinMilk.Gui.Controls" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7">
 
     <!--Visibility Converter-->
     <Converters:VisibilityConverter x:Key="VisibilityConverter"/>
@@ -82,18 +82,47 @@
             Text="Connecting to Remember the Milk ..."
             TextWrapping="Wrap"/>
     </ControlTemplate>
-
+    
     <!-- Panorama List Item Style -->
-    <DataTemplate x:Key="PanoramaListItemStyle">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+    <DataTemplate x:Key="DueListItemStyle">
+        <Button>
+            <Button.Template>
+                <ControlTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="60"/>
+                        </Grid.RowDefinitions>
 
-            <TextBlock Grid.Column="0" Text="{Binding Name}" />
-            <TextBlock Grid.Column="1" Text="{Binding Count}" />
-        </Grid>
+                        <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Text="{Binding Name}"
+                                   Style="{StaticResource PhoneTextTitle2Style}" />
+
+                        <Border Grid.Column="1" Grid.Row="0" Margin="5,5,5,5"
+                                BorderBrush="{StaticResource PhoneBorderBrush}" BorderThickness="2" >
+                            <TextBlock Text="{Binding Count}" TextAlignment="Right" 
+                                   Style="{StaticResource PhoneTextNormalStyle}"
+                                   Foreground="{StaticResource PhoneForegroundBrush}">
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+            <Custom:Interaction.Triggers>
+                <Custom:EventTrigger EventName="Click">
+                    <mvvmLightCommand:EventToCommand Command="{Binding TasksByDueCommand}" />
+                </Custom:EventTrigger>
+            </Custom:Interaction.Triggers>
+        </Button>
     </DataTemplate>
+
+    <!--Style for Panorama List-->
+    <Style x:Key="PanoramaListItemStyle" TargetType="ItemsControl">
+        <Setter Property="Margin" Value="0,40,0,0"/>
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource DueListItemStyle}"/>
+        <Setter Property="Height" Value="490"/>
+    </Style>
     
 </ResourceDictionary>

@@ -11,7 +11,6 @@ using MobileMilk.Common;
 using MobileMilk.Common.Extensions;
 using MobileMilk.Data;
 using MobileMilk.Model;
-using MobileMilk.Resources.Themes;
 using MobileMilk.Store;
 using MobileMilk.Service;
 using System.Collections.Generic;
@@ -26,7 +25,6 @@ namespace MobileMilk.ViewModels
         #region Delegates
 
         public DelegateCommand StartSyncCommand { get; set; }
-        public DelegateCommand TasksByDueCommand { get; set; }
         public DelegateCommand AppSettingsCommand { get; set; }
                 
         #endregion Delegates
@@ -45,7 +43,8 @@ namespace MobileMilk.ViewModels
         private bool _isSyncing;
 
         private ObservableCollection<HomeTasksByDueItemViewModel> _observableTasksByDueItems;
-        private CollectionViewSource _tasksByDue;
+        private CollectionViewSource _tasksByDueViewSource;
+        private HomeTasksByDueItemViewModel _selectedTasksByDueItem;
 
         #endregion Members
 
@@ -69,10 +68,6 @@ namespace MobileMilk.ViewModels
                 () => { this.StartSync(); },
                 () => !this.IsSyncing && !this.SettingAreNotConfigured);
 
-            this.TasksByDueCommand = new DelegateCommand(
-                () => { this.NavigationService.Navigate(new Uri("/Views/TasksByDueView.xaml", UriKind.Relative)); },
-                () => !this.IsSyncing && !this.SettingAreNotConfigured);
-
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
@@ -85,7 +80,7 @@ namespace MobileMilk.ViewModels
 
         #region Properties
 
-        public ICollectionView TasksByDue { get { return this._tasksByDue.View; } }
+        public ICollectionView TasksByDue { get { return this._tasksByDueViewSource.View; } }
         
         public int SelectedPanoramaIndex
         {
@@ -95,6 +90,20 @@ namespace MobileMilk.ViewModels
             {
                 this.selectedPanoramaIndex = value;
                 this.HandleCurrentSectionChanged();
+            }
+        }
+
+        public HomeTasksByDueItemViewModel SelectedTasksByDueItem
+        {
+            get { return this._selectedTasksByDueItem; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._selectedTasksByDueItem = value;
+                    this.RaisePropertyChanged(() => this.SelectedTasksByDueItem);
+                }
             }
         }
 
@@ -143,21 +152,20 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            //if (this.selectedTaskListItem == null)
-            //{
-            //    var tombstoned = Tombstoning.Load<TaskListItemViewModel>("SelectedTemplate");
-            //    if (tombstoned != null)
-            //    {
-            //        this.SelectedTaskListItem = new TaskListItemViewModel(tombstoned.TaskItem, this.NavigationService);
-            //    }
-            //}
+            if (this._selectedTasksByDueItem == null)
+            {
+                var tombstoned = Tombstoning.Load<HomeTasksByDueItemViewModel>("SelectedTasksByDueItem");
+                if (tombstoned != null)
+                    this.SelectedTasksByDueItem = new HomeTasksByDueItemViewModel(
+                        tombstoned.Name, tombstoned.Count, this.NavigationService);
+            }
 
             this.selectedPanoramaIndex = Tombstoning.Load<int>("MainPivot");
         }
 
         public override void IsBeingDeactivated()
         {
-            //Tombstoning.Save("SelectedTemplate", this.SelectedTaskListItem);
+            Tombstoning.Save("SelectedTasksByDueItem", this.SelectedTasksByDueItem);
             Tombstoning.Save("MainPivot", this.SelectedPanoramaIndex);
 
             base.IsBeingDeactivated();
@@ -283,74 +291,56 @@ namespace MobileMilk.ViewModels
             var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
 
             this._observableTasksByDueItems = new ObservableCollection<HomeTasksByDueItemViewModel>();
-            var taskListItemViewModels = this._taskStoreLocator.GetStore().GetAllTasks().Select(t =>
-                    new HomeTasksByDueItemViewModel(
-                        string.Empty, 
-                        0,
-                        this.NavigationService
-                    )).ToList();
-            taskListItemViewModels.ForEach(this._observableTasksByDueItems.Add);
-
-
-            var dueTodayCount = tasks.
-                Select(task => ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
-                                (task.Completed == null) && (task.Deleted == null))).
-                Count();
-
-            var todaysTasks = new HomeTasksByDueItemViewModel("Today", dueTodayCount, this.NavigationService);
-            taskListItemViewModels.Add(todaysTasks);
-
-            // Create collection views);
-            this._tasksByDue = new CollectionViewSource { Source = this._observableTasksByDueItems };
+            var taskListItemViewModels = new List<HomeTasksByDueItemViewModel>();
 
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
 
-            this._tasksByDue.Filter += (o, e) => {
-                var task = (TaskListItemViewModel)e.Item;
-                e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
-                    (task.Completed == null) && (task.Deleted == null));
-            };
-            this._tomorrowsTasksViewSource.Filter += (o, e) => {
-                var task = (TaskListItemViewModel)e.Item;
-                e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) == DateTime.Today.AddDays(1)) &&
-                    (task.Completed == null) && (task.Deleted == null));
-            };
-            this._thisWeeksTasksViewSource.Filter += (o, e) => {
-                var task = (TaskListItemViewModel)e.Item;
-                e.Accepted = (
-                    (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek &&
-                     task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek) &&
-                    (task.Completed == null) && (task.Deleted == null)
-                );
-            };
-            this._nextWeeksTasksViewSource.Filter += (o, e) => {
-                var task = (TaskListItemViewModel)e.Item;
-                e.Accepted = (
-                    (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek.AddDays(7) &&
-                     task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
-                    (task.Completed == null) && (task.Deleted == null)
-                );
-            };
-            
+            var dueTodayTasks = tasks.
+                Where(task => ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
+                                (task.Completed == null) && (task.Deleted == null)));
+
+            var dueTomorrowTasks = tasks.
+                Where(task => ((task.Due.AsDateTime(DateTime.MaxValue) == DateTime.Today.AddDays(1)) &&
+                                (task.Completed == null) && (task.Deleted == null)));
+
+            var dueThisWeekTasks = tasks.
+                Where(task => (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek &&
+                                task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek) &&
+                               (task.Completed == null) && (task.Deleted == null));
+
+            var dueNextWeekTasks = tasks.
+                Where(task => (task.Due.AsDateTime(DateTime.MaxValue) >= startOfWeek.AddDays(7) &&
+                                task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
+                               (task.Completed == null) && (task.Deleted == null));
+
+            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Today", dueTodayTasks.Count(), this.NavigationService));
+            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Tomorrow", dueTomorrowTasks.Count(), this.NavigationService));
+            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("This Week", dueThisWeekTasks.Count(), this.NavigationService));
+            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Next Week", dueNextWeekTasks.Count(), this.NavigationService));
+
+            taskListItemViewModels.ForEach(this._observableTasksByDueItems.Add);
+
+            // Create collection views);
+            this._tasksByDueViewSource = new CollectionViewSource { Source = this._observableTasksByDueItems };
+
+            this._tasksByDueViewSource.View.CurrentChanged += (o, e) => 
+                this.SelectedTasksByDueItem = (HomeTasksByDueItemViewModel)this._tasksByDueViewSource.View.CurrentItem;
+
             // Initialize the selected survey template))
             this.HandleCurrentSectionChanged();
         }
 
         private void HandleCurrentSectionChanged()
         {
-            //ICollectionView currentView = null;
-            //switch (this.selectedPanoramaIndex)
-            //{
-            //    case 0:
-            //        currentView = this.TodaysTasks;
-            //        break;
-            //}
-
-            //if (currentView != null)
-            //{
-            //    this.SelectedTaskListItem = (TaskListItemViewModel)currentView.CurrentItem;
-            //}
+            ICollectionView currentView = null;
+            switch (this.selectedPanoramaIndex)
+            {
+                case 0:
+                    currentView = this.TasksByDue;
+                    this.SelectedTasksByDueItem = (HomeTasksByDueItemViewModel)currentView.CurrentItem;
+                    break;
+            }
         }
 
         private void UpdateCommandsForSync()
