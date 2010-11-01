@@ -3,9 +3,9 @@ using MobileMilk.ViewModels;
 
 namespace MobileMilk.Views
 {
-    public partial class HomeView : PhoneApplicationPage
+    public partial class TaskCollectionView : PhoneApplicationPage
     {
-        public HomeView()
+        public TaskCollectionView()
         {
             InitializeComponent();
         }
@@ -14,7 +14,7 @@ namespace MobileMilk.Views
         {
             base.OnNavigatedTo(e);
 
-            var viewModel = this.DataContext as HomeViewModel;
+            var viewModel = this.DataContext as TaskCollectionViewModel;
             if (viewModel == null)
                 return;
 

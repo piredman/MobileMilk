@@ -3,9 +3,9 @@ using MobileMilk.ViewModels;
 
 namespace MobileMilk.Views
 {
-    public partial class TasksByDueView : PhoneApplicationPage
+    public partial class TaskGroupView : PhoneApplicationPage
     {
-        public TasksByDueView()
+        public TaskGroupView()
         {
             InitializeComponent();
         }

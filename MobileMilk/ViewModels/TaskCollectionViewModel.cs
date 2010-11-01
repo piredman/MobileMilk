@@ -20,7 +20,7 @@ using Notification = Microsoft.Practices.Prism.Interactivity.InteractionRequest.
 
 namespace MobileMilk.ViewModels
 {
-    public class HomeViewModel : ViewModel
+    public class TaskCollectionViewModel : ViewModel
     {
         #region Delegates
 
@@ -39,18 +39,24 @@ namespace MobileMilk.ViewModels
         private readonly ITaskSynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
-        private int selectedPanoramaIndex;
+        private int _activeTaskGroupIndex;
         private bool _isSyncing;
 
-        private ObservableCollection<HomeTasksByDueItemViewModel> _observableTasksByDueItems;
-        private CollectionViewSource _tasksByDueViewSource;
-        private HomeTasksByDueItemViewModel _selectedTasksByDueItem;
+        private List<Group> _dueByTaskGroup;
+        private List<Group> _listTaskGroup;
+        private List<Group> _locationTaskGroup;
+
+        private List<Group> _activeTaskGroup;
+        private TaskGroupViewModel _selectedTaskCollection;
+
+        private ObservableCollection<TaskGroupViewModel> _dueByTaskViewModelCollection;
+        private CollectionViewSource _dueByCollectionViewSource;
 
         #endregion Members
 
         #region Constructor(s)
 
-        public HomeViewModel(
+        public TaskCollectionViewModel(
             INavigationService navigationService,
             IRtmServiceClient rtmServiceClient,
             ITaskStoreLocator taskStoreLocator,
@@ -72,37 +78,63 @@ namespace MobileMilk.ViewModels
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
-            this.SelectedPanoramaIndex = 1;
+            this.ActiveTaskGroupIndex = 1;
             this.IsBeingActivated();
         }
 
         #endregion Constructor(s)
 
         #region Properties
-
-        public ICollectionView TasksByDue { get { return this._tasksByDueViewSource.View; } }
         
-        public int SelectedPanoramaIndex
-        {
-            get { return this.selectedPanoramaIndex; }
+        public ICollectionView DueByCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
+        public ICollectionView ListCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
+        public ICollectionView LocationCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
 
+        public List<Group> ActiveTaskGroup
+        {
+            get { return this._activeTaskGroup; }
             set
             {
-                this.selectedPanoramaIndex = value;
+                this._activeTaskGroup = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public HomeTasksByDueItemViewModel SelectedTasksByDueItem
+        public int ActiveTaskGroupIndex
         {
-            get { return this._selectedTasksByDueItem; }
+            get { return this._activeTaskGroupIndex; }
+
+            set
+            {
+                this._activeTaskGroupIndex = value;
+                this.HandleCurrentSectionChanged();
+            }
+        }
+
+        public TaskGroupViewModel SelectedTaskCollection
+        {
+            get { return this._selectedTaskCollection; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selectedTasksByDueItem = value;
-                    this.RaisePropertyChanged(() => this.SelectedTasksByDueItem);
+                    this._selectedTaskCollection = value;
+                    this.RaisePropertyChanged(() => this.SelectedTaskCollection);
+                }
+            }
+        }
+
+        public ObservableCollection<TaskGroupViewModel> DueByTaskViewModelCollectionCollection
+        {
+            get { return this._dueByTaskViewModelCollection; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._dueByTaskViewModelCollection = value;
+                    this.RaisePropertyChanged(() => this.DueByTaskViewModelCollectionCollection);
                 }
             }
         }
@@ -152,21 +184,21 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            if (this._selectedTasksByDueItem == null)
-            {
-                var tombstoned = Tombstoning.Load<HomeTasksByDueItemViewModel>("SelectedTasksByDueItem");
-                if (tombstoned != null)
-                    this.SelectedTasksByDueItem = new HomeTasksByDueItemViewModel(
-                        tombstoned.Name, tombstoned.Count, this.NavigationService);
-            }
+            //if (this._selectedTaskCollection == null)
+            //{
+            //    var tombstoned = Tombstoning.Load<TaskGroupViewModel>("SelectedTaskCollection");
+            //    if (tombstoned != null)
+            //        this.SelectedTaskCollection = new TaskGroupViewModel(
+            //            tombstoned.DueByCollection, this.NavigationService, this._taskStoreLocator);
+            //}
 
-            this.selectedPanoramaIndex = Tombstoning.Load<int>("MainPivot");
+            //this._activeTaskGroupIndex = Tombstoning.Load<int>("MainPivot");
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTasksByDueItem", this.SelectedTasksByDueItem);
-            Tombstoning.Save("MainPivot", this.SelectedPanoramaIndex);
+            Tombstoning.Save("SelectedTaskCollection", this.SelectedTaskCollection);
+            Tombstoning.Save("MainPivot", this.ActiveTaskGroupIndex);
 
             base.IsBeingDeactivated();
         }
@@ -289,10 +321,14 @@ namespace MobileMilk.ViewModels
         private void BuildPanoramaDimensions()
         {
             var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
+            BuildDueByDimensions(tasks);
 
-            this._observableTasksByDueItems = new ObservableCollection<HomeTasksByDueItemViewModel>();
-            var taskListItemViewModels = new List<HomeTasksByDueItemViewModel>();
+            // Initialize the selected survey template))
+            this.HandleCurrentSectionChanged();
+        }
 
+        private void BuildDueByDimensions(List<Model.Task> tasks)
+        {
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
 
@@ -314,31 +350,33 @@ namespace MobileMilk.ViewModels
                                 task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
                                (task.Completed == null) && (task.Deleted == null));
 
-            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Today", dueTodayTasks.Count(), this.NavigationService));
-            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Tomorrow", dueTomorrowTasks.Count(), this.NavigationService));
-            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("This Week", dueThisWeekTasks.Count(), this.NavigationService));
-            taskListItemViewModels.Add(new HomeTasksByDueItemViewModel("Next Week", dueNextWeekTasks.Count(), this.NavigationService));
+            _dueByTaskGroup = new List<Group> {
+                new Group {Name = "Today", Tasks = dueTodayTasks.ToList()},
+                new Group {Name = "Tomorrow", Tasks = dueTomorrowTasks.ToList()},
+                new Group {Name = "This Week", Tasks = dueThisWeekTasks.ToList()},
+                new Group {Name = "Next Week", Tasks = dueNextWeekTasks.ToList()}
+            };
 
-            taskListItemViewModels.ForEach(this._observableTasksByDueItems.Add);
+            this._dueByTaskViewModelCollection = new ObservableCollection<TaskGroupViewModel>();
+            var dueByItemViewModels = this._dueByTaskGroup.Select(o => 
+                    new TaskGroupViewModel(o.Name, o.Tasks, this.NavigationService, this._taskStoreLocator)).ToList();
+            dueByItemViewModels.ForEach(this._dueByTaskViewModelCollection.Add);
 
-            // Create collection views);
-            this._tasksByDueViewSource = new CollectionViewSource { Source = this._observableTasksByDueItems };
+            // Create collection views
+            this._dueByCollectionViewSource = new CollectionViewSource { Source = this._dueByTaskViewModelCollection };
 
-            this._tasksByDueViewSource.View.CurrentChanged += (o, e) => 
-                this.SelectedTasksByDueItem = (HomeTasksByDueItemViewModel)this._tasksByDueViewSource.View.CurrentItem;
-
-            // Initialize the selected survey template))
-            this.HandleCurrentSectionChanged();
+            this._dueByCollectionViewSource.View.CurrentChanged += (o, e) =>
+                this.SelectedTaskCollection = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
         }
 
         private void HandleCurrentSectionChanged()
         {
             ICollectionView currentView = null;
-            switch (this.selectedPanoramaIndex)
+            switch (this._activeTaskGroupIndex)
             {
                 case 0:
-                    currentView = this.TasksByDue;
-                    this.SelectedTasksByDueItem = (HomeTasksByDueItemViewModel)currentView.CurrentItem;
+                    currentView = this.DueByCollectionViewSource;
+                    this.SelectedTaskCollection = (TaskGroupViewModel)currentView.CurrentItem;
                     break;
             }
         }

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authorization.cs" />
+    <Compile Include="Group.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="List.cs" />
     <Compile Include="Note.cs" />

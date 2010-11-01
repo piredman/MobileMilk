@@ -2,17 +2,16 @@
 using System.Runtime.Serialization;
 using System.Windows.Media;
 using MobileMilk.Common;
-using MobileMilk.Model;
 
-namespace MobileMilk.ViewModels
+namespace MobileMilk.ViewModels.Task
 {
     [DataContract]
-    public class TaskListItemViewModel : ViewModel
+    public class TaskItemViewModel : ViewModel
     {
         #region Members
         #endregion Members
 
-        public TaskListItemViewModel(Task taskItem, INavigationService navigationService) 
+        public TaskItemViewModel(Model.Task taskItem, INavigationService navigationService) 
             : base(navigationService)
         {
             this.TaskItem = taskItem;
@@ -23,7 +22,7 @@ namespace MobileMilk.ViewModels
         #region Properties
 
         [DataMember]
-        public Task TaskItem { get; set; }
+        public Model.Task TaskItem { get; set; }
 
         [DataMember]
         public string Name { get { return this.TaskItem.Name; } }

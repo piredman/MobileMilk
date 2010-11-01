@@ -1,7 +1,7 @@
 ﻿using System;
 using MobileMilk.Common;
 
-namespace MobileMilk.ViewModels
+namespace MobileMilk.ViewModels.Task
 {
     public class TaskDetailViewModel : ViewModel
     {

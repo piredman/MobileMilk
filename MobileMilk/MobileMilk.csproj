@@ -104,22 +104,21 @@
     <Compile Include="Service\TaskSynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
-    <Compile Include="ViewModels\HomeTasksByDueItemViewModel.cs" />
-    <Compile Include="ViewModels\HomeViewModel.cs" />
-    <Compile Include="Views\HomeView.xaml.cs">
-      <DependentUpon>HomeView.xaml</DependentUpon>
+    <Compile Include="ViewModels\TaskGroupViewModel.cs" />
+    <Compile Include="ViewModels\TaskCollectionViewModel.cs" />
+    <Compile Include="Views\TaskCollectionView.xaml.cs">
+      <DependentUpon>TaskCollectionView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\TasksByDueViewModel.cs" />
-    <Compile Include="ViewModels\TaskDetailViewModel.cs" />
-    <Compile Include="ViewModels\TaskListItemViewModel.cs" />
+    <Compile Include="ViewModels\Task\TaskDetailViewModel.cs" />
+    <Compile Include="ViewModels\Task\TaskItemViewModel.cs" />
     <Compile Include="Views\AppSettingsView.xaml.cs">
       <DependentUpon>AppSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AuthorizeView.xaml.cs">
       <DependentUpon>AuthorizeView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TasksByDueView.xaml.cs">
-      <DependentUpon>TasksByDueView.xaml</DependentUpon>
+    <Compile Include="Views\TaskGroupView.xaml.cs">
+      <DependentUpon>TaskGroupView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -161,7 +160,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\HomeView.xaml">
+    <Page Include="Views\TaskCollectionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -173,7 +172,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TasksByDueView.xaml">
+    <Page Include="Views\TaskGroupView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

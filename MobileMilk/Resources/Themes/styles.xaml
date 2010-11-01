@@ -4,7 +4,7 @@
     xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:Converters="clr-namespace:MobileMilk.Resources.Converters" 
-    xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:con="clr-namespace:WinMilk.Gui.Controls" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7">
+    xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:con="clr-namespace:WinMilk.Gui.Controls" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls">
 
     <!--Visibility Converter-->
     <Converters:VisibilityConverter x:Key="VisibilityConverter"/>
@@ -124,5 +124,22 @@
         <Setter Property="ListBox.ItemTemplate" Value="{StaticResource DueListItemStyle}"/>
         <Setter Property="Height" Value="490"/>
     </Style>
+
+    <!-- Panorama List Item Style -->
+    <DataTemplate x:Key="TaskPivotSection">
+        <controls:PivotItem Header="{Binding Name}">
+            <StackPanel Orientation="Vertical">
+                <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                Visibility="{Binding ViewTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                <ListBox ItemsSource="{Binding ViewTasks}" Style="{StaticResource TaskListItemStyle}"
+                            Visibility="{Binding ViewTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+            </StackPanel>
+        </controls:PivotItem>
+    </DataTemplate>
     
+    <!--Style for Panorama List-->
+    <Style x:Key="TaskPivotSectionStyle" TargetType="ItemsControl">
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskPivotSection}"/>
+    </Style>
+
 </ResourceDictionary>
