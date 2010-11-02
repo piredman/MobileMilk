@@ -112,7 +112,7 @@
             </Button.Template>
             <Custom:Interaction.Triggers>
                 <Custom:EventTrigger EventName="Click">
-                    <mvvmLightCommand:EventToCommand Command="{Binding TasksByDueCommand}" />
+                    <mvvmLightCommand:EventToCommand Command="{Binding TaskGroupCommand}" />
                 </Custom:EventTrigger>
             </Custom:Interaction.Triggers>
         </Button>
@@ -130,9 +130,9 @@
         <controls:PivotItem Header="{Binding Name}">
             <StackPanel Orientation="Vertical">
                 <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                Visibility="{Binding ViewTasks.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                <ListBox ItemsSource="{Binding ViewTasks}" Style="{StaticResource TaskListItemStyle}"
-                            Visibility="{Binding ViewTasks.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                                Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                <ListBox ItemsSource="{Binding TasksViewSource}" Style="{StaticResource TaskListItemStyle}"
+                            Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
             </StackPanel>
         </controls:PivotItem>
     </DataTemplate>

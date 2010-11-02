@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Windows.Data;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
+using MobileMilk.Model;
 using MobileMilk.Store;
 using System.Collections.Generic;
 using MobileMilk.ViewModels.Task;
@@ -16,37 +17,31 @@ namespace MobileMilk.ViewModels
     {
         #region Delegates
 
-        public DelegateCommand TasksByDueCommand { get; set; }
+        public DelegateCommand TaskGroupCommand { get; set; }
 
         #endregion Delegates
 
         #region Members
 
-        private readonly ITaskStoreLocator _taskStoreLocator;
-        private ITaskStore _lastTaskStore;
-
         private ObservableCollection<TaskViewModel> _observableItems;
         private TaskViewModel _selected;
         private int _selectedIndex;
 
-        private CollectionViewSource _taskCollectionViewSource;
+        private CollectionViewSource _tasksViewSource;
 
         #endregion Members
 
         #region Constructor(s)
 
         public TaskGroupViewModel(
-            string name, List<Model.Task> taskCollection,
-            INavigationService navigationService,
-            ITaskStoreLocator taskStoreLocator)
+            string groupName, List<Model.Task> tasks,
+            DelegateCommand taskGroupCommand,
+            INavigationService navigationService)
             : base(navigationService)
         {
-            this.Name = name;
-            this.TaskCollection = taskCollection;
-            this._taskStoreLocator = taskStoreLocator;
-
-            this.TasksByDueCommand = new DelegateCommand(
-                () => { this.NavigationService.Navigate(new Uri("/Views/TasksByDueView.xaml", UriKind.Relative)); });
+            this.Name = groupName;
+            this.Tasks = tasks;
+            this.TaskGroupCommand = taskGroupCommand;
 
             Load();
             this.IsBeingActivated();
@@ -57,14 +52,14 @@ namespace MobileMilk.ViewModels
         #region Properties
 
         [DataMember]
-        public List<Model.Task> TaskCollection { get; set; }
+        public List<Model.Task> Tasks { get; set; }
 
         [DataMember]
         public string Name { get; set; }
 
-        public int Count { get { return this.TaskCollection.Count; } }
+        public int Count { get { return this.Tasks.Count; } }
 
-        public ICollectionView TaskCollectionViewSource { get { return this._taskCollectionViewSource.View; } }
+        public ICollectionView TasksViewSource { get { return this._tasksViewSource.View; } }
 
         public int SelectedIndex
         {
@@ -88,22 +83,6 @@ namespace MobileMilk.ViewModels
                     this._selected = value;
                     this.RaisePropertyChanged(() => this.Selected);
                 }
-            }
-        }
-
-        public bool TasksHaveBeenSynced
-        {
-            get { return !this.TasksHaveNotBeenSynced; }
-        }
-
-        public bool TasksHaveNotBeenSynced
-        {
-            get
-            {
-                var store = this._taskStoreLocator.GetStore();
-                var nullStore = (store is NullTaskStore);
-
-                return ((nullStore) || (store.LastSyncDate == null));
             }
         }
 
@@ -140,16 +119,6 @@ namespace MobileMilk.ViewModels
             this.RaisePropertyChanged(string.Empty);
         }
 
-        public void Refresh()
-        {
-            if (this._taskStoreLocator.GetStore() != this._lastTaskStore)
-            {
-                this._lastTaskStore = this._taskStoreLocator.GetStore();
-                this.BuildPivotDimensions();
-                this.RaisePropertyChanged(string.Empty);
-            }
-        }
-
         #endregion Methods
 
         #region Private Methods
@@ -157,7 +126,7 @@ namespace MobileMilk.ViewModels
         private void BuildPivotDimensions()
         {
             this._observableItems = new ObservableCollection<TaskViewModel>();
-            var taskListItemViewModels = this.TaskCollection.Select(t => 
+            var taskListItemViewModels = this.Tasks.Select(t => 
                     new TaskViewModel(t, this.NavigationService)).ToList();
             taskListItemViewModels.ForEach(this._observableItems.Add);
 
@@ -166,7 +135,7 @@ namespace MobileMilk.ViewModels
             //this.ListenSurveyChanges();
 
             // Create collection views
-            this._taskCollectionViewSource = new CollectionViewSource { Source = this._observableItems };
+            this._tasksViewSource = new CollectionViewSource { Source = this._observableItems };
 
             //this._tasksViewSource.Filter += (o, e) => {
             //    var task = (TaskViewModel) e.Item;
@@ -174,10 +143,10 @@ namespace MobileMilk.ViewModels
             //        (task.Completed == null) && (task.Deleted == null));
             //};
 
-            this._taskCollectionViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+            this._tasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
 
-            this._taskCollectionViewSource.View.CurrentChanged +=
-                (o, e) => this.Selected = (TaskViewModel)this._taskCollectionViewSource.View.CurrentItem;
+            this._tasksViewSource.View.CurrentChanged +=
+                (o, e) => this.Selected = (TaskViewModel)this._tasksViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();
@@ -189,7 +158,7 @@ namespace MobileMilk.ViewModels
             switch (this.SelectedIndex)
             {
                 case 0:
-                    currentView = this.TaskCollectionViewSource;
+                    currentView = this.TasksViewSource;
                     break;
             }
 

@@ -44,14 +44,14 @@ namespace MobileMilk.Common
 
         #region Properties
 
-        public TaskCollectionViewModel TaskCollectionViewModel
+        public TaskCollectionsViewModel TaskCollectionsViewModel
         {
-            get { return this.containerLocator.Container.Resolve<TaskCollectionViewModel>(); }
+            get { return this.containerLocator.Container.Resolve<TaskCollectionsViewModel>(); }
         }
 
-        public TaskGroupViewModel TaskGroupViewModel
+        public TaskGroupsViewModel TaskGroupsViewModel
         {
-            get { return this.containerLocator.Container.Resolve<TaskGroupViewModel>(); }
+            get { return this.containerLocator.Container.Resolve<TaskGroupsViewModel>(); }
         }
 
         public AppSettingsViewModel AppSettingsViewModel

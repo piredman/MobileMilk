@@ -1,5 +1,5 @@
 ﻿<phone:PhoneApplicationPage 
-    x:Class="MobileMilk.Views.TaskCollectionView"
+    x:Class="MobileMilk.Views.TaskCollectionsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -10,7 +10,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskCollectionViewModel}"
+    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskCollectionsViewModel}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="False">
 
@@ -71,8 +71,8 @@
 
             <controls:PanoramaItem Header="Due">
                 <Grid>
-                    <ListBox ItemsSource="{Binding DueByCollectionViewSource}" Style="{StaticResource PanoramaListItemStyle}"
-                             Visibility="{Binding DueByCollectionViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    <ListBox ItemsSource="{Binding DueByTaskGroupsViewSource}" Style="{StaticResource PanoramaListItemStyle}"
+                             Visibility="{Binding DueByTaskGroupsViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
                 </Grid>
             </controls:PanoramaItem>
 

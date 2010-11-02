@@ -104,11 +104,11 @@
     <Compile Include="Service\TaskSynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
-    <Compile Include="ViewModels\TaskGroupsViewModel.cs" />
     <Compile Include="ViewModels\TaskGroupViewModel.cs" />
-    <Compile Include="ViewModels\TaskCollectionViewModel.cs" />
-    <Compile Include="Views\TaskCollectionView.xaml.cs">
-      <DependentUpon>TaskCollectionView.xaml</DependentUpon>
+    <Compile Include="ViewModels\TaskGroupsViewModel.cs" />
+    <Compile Include="ViewModels\TaskCollectionsViewModel.cs" />
+    <Compile Include="Views\TaskCollectionsView.xaml.cs">
+      <DependentUpon>TaskCollectionsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Task\TaskDetailViewModel.cs" />
     <Compile Include="ViewModels\Task\TaskViewModel.cs" />
@@ -161,7 +161,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TaskCollectionView.xaml">
+    <Page Include="Views\TaskCollectionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

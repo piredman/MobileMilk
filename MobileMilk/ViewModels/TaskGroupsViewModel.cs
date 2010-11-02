@@ -16,27 +16,30 @@ namespace MobileMilk.ViewModels
     public class TaskGroupsViewModel : ViewModel
     {
         #region Delegates
+
+        public DelegateCommand TaskGroupCommand { get; set; }
+
         #endregion Delegates
 
         #region Members
-        
-        private ObservableCollection<TaskGroupViewModel> _observableGroups;
-        private TaskViewModel _selectedGroup;
-        private int _selectedGroupIndex;
 
-        private CollectionViewSource _groupsViewSource;
+        private ObservableCollection<TaskGroupViewModel> _observableGroups;
+        private TaskGroupViewModel _selected;
+        private int _selectedIndex;
+
+        private CollectionViewSource _taskGroupsViewSource;
 
         #endregion Members
 
         #region Constructor(s)
 
         public TaskGroupsViewModel(
-            string name, List<Group> taskCollection,
+            string collectionName, List<Group> taskGroups,
             INavigationService navigationService)
             : base(navigationService)
         {
-            this.Name = name;
-            this.Groups = taskCollection;
+            this.Name = collectionName;
+            this.Groups = taskGroups;
 
             Load();
             this.IsBeingActivated();
@@ -54,29 +57,29 @@ namespace MobileMilk.ViewModels
 
         public int Count { get { return this.Groups.Count; } }
 
-        public ICollectionView TaskGroupsViewSource { get { return this._groupsViewSource.View; } }
+        public ICollectionView TaskGroupsViewSource { get { return this._taskGroupsViewSource.View; } }
 
-        public int SelectedGroupIndex
+        public int SelectedIndex
         {
-            get { return this._selectedGroupIndex; }
+            get { return this._selectedIndex; }
 
             set
             {
-                this._selectedGroupIndex = value;
+                this._selectedIndex = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public TaskViewModel SelectedGroup
+        public TaskGroupViewModel Selected
         {
-            get { return this._selectedGroup; }
+            get { return this._selected; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selectedGroup = value;
-                    this.RaisePropertyChanged(() => this.SelectedGroup);
+                    this._selected = value;
+                    this.RaisePropertyChanged(() => this.Selected);
                 }
             }
         }
@@ -85,10 +88,25 @@ namespace MobileMilk.ViewModels
 
         #region Methods
 
-        public override void IsBeingActivated() { }
+        public override void IsBeingActivated()
+        {
+            if (this._selected == null)
+            {
+                var tombstoned = Tombstoning.Load<TaskGroupViewModel>("SelectedTaskGroup");
+                if (tombstoned != null)
+                {
+                    this.Selected = new TaskGroupViewModel(tombstoned.Name, tombstoned.Tasks, TaskGroupCommand, this.NavigationService);
+                }
+
+                this._selectedIndex = Tombstoning.Load<int>("SelectedTaskIndex");
+            }
+        }
 
         public override void IsBeingDeactivated()
         {
+            Tombstoning.Save("SelectedTaskGroup", this.Selected);
+            Tombstoning.Save("SelectedTaskIndex", this.SelectedIndex);
+
             base.IsBeingDeactivated();
         }
 
@@ -99,44 +117,22 @@ namespace MobileMilk.ViewModels
             this.RaisePropertyChanged(string.Empty);
         }
 
-        public void Refresh()
-        {
-            if (this._taskStoreLocator.GetStore() != this._lastTaskStore)
-            {
-                this._lastTaskStore = this._taskStoreLocator.GetStore();
-                this.BuildPivotDimensions();
-                this.RaisePropertyChanged(string.Empty);
-            }
-        }
-
         #endregion Methods
 
         #region Private Methods
 
         private void BuildPivotDimensions()
         {
-            this._observableGroups = new ObservableCollection<TaskViewModel>();
-            var taskListItemViewModels = this.Groups.Select(t => 
-                    new TaskViewModel(t, this.NavigationService)).ToList();
-            taskListItemViewModels.ForEach(this._observableGroups.Add);
-
-            // Listen for task changes
-            // TODO: listen for task changes
-            //this.ListenSurveyChanges();
+            this._observableGroups = new ObservableCollection<TaskGroupViewModel>();
+            var groupViewModels = this.Groups.Select(o =>
+                    new TaskGroupViewModel(o.Name, o.Tasks, TaskGroupCommand, this.NavigationService)).ToList();
+            groupViewModels.ForEach(this._observableGroups.Add);
 
             // Create collection views
-            this._groupsViewSource = new CollectionViewSource { Source = this._observableGroups };
+            this._taskGroupsViewSource = new CollectionViewSource { Source = this._observableGroups };
 
-            //this._tasksViewSource.Filter += (o, e) => {
-            //    var task = (TaskViewModel) e.Item;
-            //    e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
-            //        (task.Completed == null) && (task.Deleted == null));
-            //};
-
-            this._groupsViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
-
-            this._groupsViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedGroup = (TaskViewModel)this._groupsViewSource.View.CurrentItem;
+            this._taskGroupsViewSource.View.CurrentChanged += (o, e) =>
+                this.Selected = (TaskGroupViewModel)this._taskGroupsViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();
@@ -145,7 +141,7 @@ namespace MobileMilk.ViewModels
         private void HandleCurrentSectionChanged()
         {
             ICollectionView currentView = null;
-            switch (this.SelectedGroupIndex)
+            switch (this.SelectedIndex)
             {
                 case 0:
                     currentView = this.TaskGroupsViewSource;
@@ -154,7 +150,7 @@ namespace MobileMilk.ViewModels
 
             if (currentView != null)
             {
-                this.SelectedGroup = (TaskViewModel)currentView.CurrentItem;
+                this.Selected = (TaskGroupViewModel)currentView.CurrentItem;
             }
         }
 

@@ -20,10 +20,11 @@ using Notification = Microsoft.Practices.Prism.Interactivity.InteractionRequest.
 
 namespace MobileMilk.ViewModels
 {
-    public class TaskCollectionViewModel : ViewModel
+    public class TaskCollectionsViewModel : ViewModel
     {
         #region Delegates
 
+        public DelegateCommand TaskGroupCommand { get; set; }
         public DelegateCommand StartSyncCommand { get; set; }
         public DelegateCommand AppSettingsCommand { get; set; }
                 
@@ -39,24 +40,20 @@ namespace MobileMilk.ViewModels
         private readonly ITaskSynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
-        private int _activeTaskCollectionIndex;
         private bool _isSyncing;
 
         private List<Group> _dueByTaskCollection;
         private List<Group> _listTaskGroup;
         private List<Group> _locationTaskGroup;
 
-        private List<Group> _activeTaskCollection;
-        private TaskGroupsViewModel _selectedTaskGroups;
-
-        private ObservableCollection<TaskGroupsViewModel> _dueByTaskGroupsViewModels;
+        private ObservableCollection<TaskGroupViewModel> _dueByTaskGroupsViewModels;
         private CollectionViewSource _dueByTaskGroupsViewSource;
 
         #endregion Members
 
         #region Constructor(s)
 
-        public TaskCollectionViewModel(
+        public TaskCollectionsViewModel(
             INavigationService navigationService,
             IRtmServiceClient rtmServiceClient,
             ITaskStoreLocator taskStoreLocator,
@@ -74,11 +71,14 @@ namespace MobileMilk.ViewModels
                 () => { this.StartSync(); },
                 () => !this.IsSyncing && !this.SettingAreNotConfigured);
 
+            this.TaskGroupCommand = new DelegateCommand(
+                () => { this.NavigationService.Navigate(new Uri("/Views/TaskGroupsView.xaml", UriKind.Relative)); },
+                () => !this.IsSyncing);
+
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
-            this.ActiveTaskCollectionIndex = 1;
             this.IsBeingActivated();
         }
 
@@ -86,46 +86,11 @@ namespace MobileMilk.ViewModels
 
         #region Properties
         
-        public ICollectionView DueByCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
-        public ICollectionView ListCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
-        public ICollectionView LocationCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
+        public ICollectionView DueByTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
+        public ICollectionView ListTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
+        public ICollectionView LocationTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
 
-        public List<Group> ActiveTaskCollection
-        {
-            get { return this._activeTaskCollection; }
-            set
-            {
-                this._activeTaskCollection = value;
-                this.HandleCurrentSectionChanged();
-            }
-        }
-
-        public int ActiveTaskCollectionIndex
-        {
-            get { return this._activeTaskCollectionIndex; }
-
-            set
-            {
-                this._activeTaskCollectionIndex = value;
-                this.HandleCurrentSectionChanged();
-            }
-        }
-
-        public TaskGroupsViewModel SelectedTaskGroups
-        {
-            get { return this._selectedTaskGroups; }
-
-            set
-            {
-                if (value != null)
-                {
-                    this._selectedTaskGroups = value;
-                    this.RaisePropertyChanged(() => this.SelectedTaskGroups);
-                }
-            }
-        }
-
-        public ObservableCollection<TaskGroupsViewModel> DueByTaskGroupsViewModels
+        public ObservableCollection<TaskGroupViewModel> DueByTaskGroupsViewModels
         {
             get { return this._dueByTaskGroupsViewModels; }
 
@@ -138,6 +103,8 @@ namespace MobileMilk.ViewModels
                 }
             }
         }
+
+        public int SelectedIndex { get; set; }
 
         public bool IsSyncing
         {
@@ -184,21 +151,12 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            //if (this._selectedTaskGroups == null)
-            //{
-            //    var tombstoned = Tombstoning.Load<TaskGroupViewModel>("SelectedTaskGroups");
-            //    if (tombstoned != null)
-            //        this.SelectedTaskGroups = new TaskGroupViewModel(
-            //            tombstoned.DueByCollection, this.NavigationService, this._taskStoreLocator);
-            //}
-
-            //this._activeTaskCollectionIndex = Tombstoning.Load<int>("MainPivot");
+            this.SelectedIndex = Tombstoning.Load<int>("SelectedCollectionIndex");
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTaskGroups", this.SelectedTaskGroups);
-            Tombstoning.Save("MainPivot", this.ActiveTaskCollectionIndex);
+            Tombstoning.Save("SelectedCollectionIndex", this.SelectedIndex);
 
             base.IsBeingDeactivated();
         }
@@ -322,9 +280,6 @@ namespace MobileMilk.ViewModels
         {
             var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
             BuildDueByDimensions(tasks);
-
-            // Initialize the selected survey template))
-            this.HandleCurrentSectionChanged();
         }
 
         private void BuildDueByDimensions(List<Model.Task> tasks)
@@ -357,28 +312,13 @@ namespace MobileMilk.ViewModels
                 new Group {Name = "Next Week", Tasks = dueNextWeekTasks.ToList()}
             };
 
-            this._dueByTaskGroupsViewModels = new ObservableCollection<TaskGroupsViewModel>();
-            var dueByItemViewModels = this._dueByTaskCollection.Select(o => 
-                    new TaskGroupViewModel(o.Name, o.Tasks, this.NavigationService, this._taskStoreLocator)).ToList();
+            this._dueByTaskGroupsViewModels = new ObservableCollection<TaskGroupViewModel>();
+            var dueByItemViewModels = this._dueByTaskCollection.Select(o =>
+                    new TaskGroupViewModel(o.Name, o.Tasks, TaskGroupCommand, this.NavigationService)).ToList();
             dueByItemViewModels.ForEach(this._dueByTaskGroupsViewModels.Add);
 
             // Create collection views
             this._dueByTaskGroupsViewSource = new CollectionViewSource { Source = this._dueByTaskGroupsViewModels };
-
-            this._dueByTaskGroupsViewSource.View.CurrentChanged += (o, e) =>
-                this.SelectedTaskGroups = (TaskGroupViewModel)this._dueByTaskGroupsViewSource.View.CurrentItem;
-        }
-
-        private void HandleCurrentSectionChanged()
-        {
-            ICollectionView currentView = null;
-            switch (this._activeTaskCollectionIndex)
-            {
-                case 0:
-                    currentView = this.DueByCollectionViewSource;
-                    this.SelectedTaskGroups = (TaskGroupViewModel)currentView.CurrentItem;
-                    break;
-            }
         }
 
         private void UpdateCommandsForSync()

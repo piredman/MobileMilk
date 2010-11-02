@@ -95,7 +95,7 @@ namespace MobileMilk.Common
                          c.Resolve<ITaskStoreLocator>()));
 
             this.Container.Register(
-                c => new TaskCollectionViewModel(
+                c => new TaskCollectionsViewModel(
                     c.Resolve<INavigationService>(),
                     c.Resolve<IRtmServiceClient>(),
                     c.Resolve<ITaskStoreLocator>(),
