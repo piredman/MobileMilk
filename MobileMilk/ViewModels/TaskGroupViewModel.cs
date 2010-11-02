@@ -9,7 +9,6 @@ using MobileMilk.Common;
 using MobileMilk.Model;
 using MobileMilk.Store;
 using System.Collections.Generic;
-using MobileMilk.ViewModels.Task;
 
 namespace MobileMilk.ViewModels
 {
@@ -18,6 +17,7 @@ namespace MobileMilk.ViewModels
         #region Delegates
 
         public DelegateCommand TaskGroupCommand { get; set; }
+        public DelegateCommand TaskCommand { get; set; }
 
         #endregion Delegates
 
@@ -34,7 +34,7 @@ namespace MobileMilk.ViewModels
         #region Constructor(s)
 
         public TaskGroupViewModel(
-            string groupName, List<Model.Task> tasks,
+            string groupName, List<Task> tasks,
             DelegateCommand taskGroupCommand,
             INavigationService navigationService)
             : base(navigationService)
@@ -42,6 +42,9 @@ namespace MobileMilk.ViewModels
             this.Name = groupName;
             this.Tasks = tasks;
             this.TaskGroupCommand = taskGroupCommand;
+
+            this.TaskCommand = new DelegateCommand(
+                () => { this.NavigationService.Navigate(new Uri("/Views/TaskDetailsView.xaml", UriKind.Relative)); });
 
             Load();
             this.IsBeingActivated();
@@ -52,7 +55,7 @@ namespace MobileMilk.ViewModels
         #region Properties
 
         [DataMember]
-        public List<Model.Task> Tasks { get; set; }
+        public List<Task> Tasks { get; set; }
 
         [DataMember]
         public string Name { get; set; }
@@ -60,6 +63,20 @@ namespace MobileMilk.ViewModels
         public int Count { get { return this.Tasks.Count; } }
 
         public ICollectionView TasksViewSource { get { return this._tasksViewSource.View; } }
+
+        public ObservableCollection<TaskViewModel> TaskViewModels
+        {
+            get { return this._observableItems; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._observableItems = value;
+                    this.RaisePropertyChanged(() => this.TaskViewModels);
+                }
+            }
+        }
 
         public int SelectedIndex
         {
@@ -97,7 +114,7 @@ namespace MobileMilk.ViewModels
                 var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.Selected = new TaskViewModel(tombstoned.TaskItem, this.NavigationService);
+                    this.Selected = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
                 }
 
                 this._selectedIndex = Tombstoning.Load<int>("SelectedTaskIndex");
@@ -126,8 +143,8 @@ namespace MobileMilk.ViewModels
         private void BuildPivotDimensions()
         {
             this._observableItems = new ObservableCollection<TaskViewModel>();
-            var taskListItemViewModels = this.Tasks.Select(t => 
-                    new TaskViewModel(t, this.NavigationService)).ToList();
+            var taskListItemViewModels = this.Tasks.Select(t =>
+                    new TaskViewModel(t, TaskCommand, this.NavigationService)).ToList();
             taskListItemViewModels.ForEach(this._observableItems.Add);
 
             // Listen for task changes

@@ -46,6 +46,8 @@ namespace MobileMilk.ViewModels
         private List<Group> _listTaskGroup;
         private List<Group> _locationTaskGroup;
 
+        private List<Group> _selectedTaskGroups;
+
         private ObservableCollection<TaskGroupViewModel> _dueByTaskGroupsViewModels;
         private CollectionViewSource _dueByTaskGroupsViewSource;
 
@@ -100,6 +102,21 @@ namespace MobileMilk.ViewModels
                 {
                     this._dueByTaskGroupsViewModels = value;
                     this.RaisePropertyChanged(() => this.DueByTaskGroupsViewModels);
+                }
+            }
+        }
+
+        public string SelectedCollectionName { get; set; }
+
+        public List<Group> SelectedTaskGroups
+        {
+            get { return _selectedTaskGroups; }
+            set
+            {
+                if (value != null)
+                {
+                    this._selectedTaskGroups = value;
+                    this.RaisePropertyChanged(() => this.SelectedTaskGroups);
                 }
             }
         }
@@ -319,6 +336,10 @@ namespace MobileMilk.ViewModels
 
             // Create collection views
             this._dueByTaskGroupsViewSource = new CollectionViewSource { Source = this._dueByTaskGroupsViewModels };
+
+            //TODO: Set Selected Collection info on panorama index change
+            SelectedCollectionName = "Due By";
+            SelectedTaskGroups = this._dueByTaskCollection;
         }
 
         private void UpdateCommandsForSync()

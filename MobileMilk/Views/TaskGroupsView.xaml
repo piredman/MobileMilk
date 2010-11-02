@@ -12,7 +12,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskCollectionsViewModel.DueByTaskGroupsViewModels}"
+    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskGroupsViewModel}"
     SupportedOrientations="Portrait"  Orientation="Portrait" shell:SystemTray.IsVisible="True" >
 
     <!--Resources-->
@@ -27,7 +27,7 @@
         <!--Pivot Control-->
         <controls:Pivot Title="MobileMilk"
                         SelectedIndex="{Binding SelectedPivotIndex, Mode=TwoWay}" 
-                        ItemsSource="{Binding}" Style="{StaticResource TaskPivotSectionStyle}" />
+                        ItemsSource="{Binding TaskGroupsViewSource}" Style="{StaticResource TaskPivotSectionStyle}" />
         
     </Grid>
     

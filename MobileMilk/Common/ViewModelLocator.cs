@@ -49,11 +49,6 @@ namespace MobileMilk.Common
             get { return this.containerLocator.Container.Resolve<TaskCollectionsViewModel>(); }
         }
 
-        public TaskGroupsViewModel TaskGroupsViewModel
-        {
-            get { return this.containerLocator.Container.Resolve<TaskGroupsViewModel>(); }
-        }
-
         public AppSettingsViewModel AppSettingsViewModel
         {
             get { return this.containerLocator.Container.Resolve<AppSettingsViewModel>(); }
@@ -62,6 +57,27 @@ namespace MobileMilk.Common
         public AuthorizeViewModel AuthorizeViewModel
         {
             get { return this.containerLocator.Container.Resolve<AuthorizeViewModel>(); }
+        }
+        
+        public TaskGroupsViewModel TaskGroupsViewModel
+        {
+            get
+            {
+                return new TaskGroupsViewModel(
+                    this.TaskCollectionsViewModel.SelectedCollectionName, 
+                    this.TaskCollectionsViewModel.SelectedTaskGroups,
+                    this.containerLocator.Container.Resolve<INavigationService>());
+            }
+        }
+
+        public TaskGroupViewModel TaskGroupViewModel
+        {
+            get { return this.TaskGroupsViewModel.Selected; }
+        }
+
+        public TaskViewModel TaskViewModel
+        {
+            get { return this.TaskGroupViewModel.Selected; }
         }
 
         #endregion Properties

@@ -1,20 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Windows.Media;
+using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
+using MobileMilk.Model;
 
-namespace MobileMilk.ViewModels.Task
+namespace MobileMilk.ViewModels
 {
     [DataContract]
     public class TaskViewModel : ViewModel
     {
+        #region Delegates
+
+        public DelegateCommand TaskCommand { get; set; }
+
+        #endregion Delegates
+
         #region Members
         #endregion Members
 
-        public TaskViewModel(Model.Task taskItem, INavigationService navigationService) 
+        public TaskViewModel(Model.Task taskItem, DelegateCommand taskCommand, INavigationService navigationService) 
             : base(navigationService)
         {
             this.TaskItem = taskItem;
+            this.TaskCommand = taskCommand;
 
             this.IsBeingActivated();
         }
@@ -85,9 +95,11 @@ namespace MobileMilk.ViewModels.Task
         [DataMember]
         public DateTime? Deleted { get { return this.TaskItem.Deleted; } }
 
+        [DataMember]
+        public List<Note> Notes { get { return this.TaskItem.Notes; } }
         public bool HasNotes { get { return this.TaskItem.Notes.Count != 0; } }
         public int NoteCount { get { return this.TaskItem.Notes.Count; } }
-
+        
         public string TagsAsString { get { return string.Join(",", this.TaskItem.Tags.ToArray()); } }
         public bool HasTags { get { return this.TaskItem.Tags.Count != 0; } }
         public int TagCount { get { return this.TaskItem.Tags.Count; } }

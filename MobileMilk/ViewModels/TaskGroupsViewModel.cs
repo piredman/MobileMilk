@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -7,9 +6,7 @@ using System.Windows.Data;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Model;
-using MobileMilk.Store;
 using System.Collections.Generic;
-using MobileMilk.ViewModels.Task;
 
 namespace MobileMilk.ViewModels
 {
