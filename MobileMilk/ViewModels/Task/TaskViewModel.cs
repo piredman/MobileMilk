@@ -6,12 +6,12 @@ using MobileMilk.Common;
 namespace MobileMilk.ViewModels.Task
 {
     [DataContract]
-    public class TaskItemViewModel : ViewModel
+    public class TaskViewModel : ViewModel
     {
         #region Members
         #endregion Members
 
-        public TaskItemViewModel(Model.Task taskItem, INavigationService navigationService) 
+        public TaskViewModel(Model.Task taskItem, INavigationService navigationService) 
             : base(navigationService)
         {
             this.TaskItem = taskItem;

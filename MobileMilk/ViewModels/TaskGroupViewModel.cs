@@ -25,8 +25,8 @@ namespace MobileMilk.ViewModels
         private readonly ITaskStoreLocator _taskStoreLocator;
         private ITaskStore _lastTaskStore;
 
-        private ObservableCollection<TaskItemViewModel> _observableItems;
-        private TaskItemViewModel _selectedItem;
+        private ObservableCollection<TaskViewModel> _observableItems;
+        private TaskViewModel _selected;
         private int _selectedIndex;
 
         private CollectionViewSource _taskCollectionViewSource;
@@ -77,16 +77,16 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public TaskItemViewModel SelectedItem
+        public TaskViewModel Selected
         {
-            get { return this._selectedItem; }
+            get { return this._selected; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selectedItem = value;
-                    this.RaisePropertyChanged(() => this.SelectedItem);
+                    this._selected = value;
+                    this.RaisePropertyChanged(() => this.Selected);
                 }
             }
         }
@@ -113,12 +113,12 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            if (this._selectedItem == null)
+            if (this._selected == null)
             {
-                var tombstoned = Tombstoning.Load<TaskItemViewModel>("SelectedTaskItem");
+                var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.SelectedItem = new TaskItemViewModel(tombstoned.TaskItem, this.NavigationService);
+                    this.Selected = new TaskViewModel(tombstoned.TaskItem, this.NavigationService);
                 }
 
                 this._selectedIndex = Tombstoning.Load<int>("SelectedTaskIndex");
@@ -127,7 +127,7 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTaskItem", this.SelectedItem);
+            Tombstoning.Save("SelectedTaskItem", this.Selected);
             Tombstoning.Save("SelectedTaskIndex", this.SelectedIndex);
 
             base.IsBeingDeactivated();
@@ -156,9 +156,9 @@ namespace MobileMilk.ViewModels
 
         private void BuildPivotDimensions()
         {
-            this._observableItems = new ObservableCollection<TaskItemViewModel>();
+            this._observableItems = new ObservableCollection<TaskViewModel>();
             var taskListItemViewModels = this.TaskCollection.Select(t => 
-                    new TaskItemViewModel(t, this.NavigationService)).ToList();
+                    new TaskViewModel(t, this.NavigationService)).ToList();
             taskListItemViewModels.ForEach(this._observableItems.Add);
 
             // Listen for task changes
@@ -169,7 +169,7 @@ namespace MobileMilk.ViewModels
             this._taskCollectionViewSource = new CollectionViewSource { Source = this._observableItems };
 
             //this._tasksViewSource.Filter += (o, e) => {
-            //    var task = (TaskItemViewModel) e.Item;
+            //    var task = (TaskViewModel) e.Item;
             //    e.Accepted = ((task.Due.AsDateTime(DateTime.MaxValue) <= DateTime.Today) &&
             //        (task.Completed == null) && (task.Deleted == null));
             //};
@@ -177,7 +177,7 @@ namespace MobileMilk.ViewModels
             this._taskCollectionViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
 
             this._taskCollectionViewSource.View.CurrentChanged +=
-                (o, e) => this.SelectedItem = (TaskItemViewModel)this._taskCollectionViewSource.View.CurrentItem;
+                (o, e) => this.Selected = (TaskViewModel)this._taskCollectionViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();
@@ -195,7 +195,7 @@ namespace MobileMilk.ViewModels
 
             if (currentView != null)
             {
-                this.SelectedItem = (TaskItemViewModel)currentView.CurrentItem;
+                this.Selected = (TaskViewModel)currentView.CurrentItem;
             }
         }
 

@@ -39,18 +39,18 @@ namespace MobileMilk.ViewModels
         private readonly ITaskSynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
-        private int _activeTaskGroupIndex;
+        private int _activeTaskCollectionIndex;
         private bool _isSyncing;
 
-        private List<Group> _dueByTaskGroup;
+        private List<Group> _dueByTaskCollection;
         private List<Group> _listTaskGroup;
         private List<Group> _locationTaskGroup;
 
-        private List<Group> _activeTaskGroup;
-        private TaskGroupViewModel _selectedTaskCollection;
+        private List<Group> _activeTaskCollection;
+        private TaskGroupsViewModel _selectedTaskGroups;
 
-        private ObservableCollection<TaskGroupViewModel> _dueByTaskViewModelCollection;
-        private CollectionViewSource _dueByCollectionViewSource;
+        private ObservableCollection<TaskGroupsViewModel> _dueByTaskGroupsViewModels;
+        private CollectionViewSource _dueByTaskGroupsViewSource;
 
         #endregion Members
 
@@ -78,7 +78,7 @@ namespace MobileMilk.ViewModels
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
-            this.ActiveTaskGroupIndex = 1;
+            this.ActiveTaskCollectionIndex = 1;
             this.IsBeingActivated();
         }
 
@@ -86,55 +86,55 @@ namespace MobileMilk.ViewModels
 
         #region Properties
         
-        public ICollectionView DueByCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
-        public ICollectionView ListCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
-        public ICollectionView LocationCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
+        public ICollectionView DueByCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
+        public ICollectionView ListCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
+        public ICollectionView LocationCollectionViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
 
-        public List<Group> ActiveTaskGroup
+        public List<Group> ActiveTaskCollection
         {
-            get { return this._activeTaskGroup; }
+            get { return this._activeTaskCollection; }
             set
             {
-                this._activeTaskGroup = value;
+                this._activeTaskCollection = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public int ActiveTaskGroupIndex
+        public int ActiveTaskCollectionIndex
         {
-            get { return this._activeTaskGroupIndex; }
+            get { return this._activeTaskCollectionIndex; }
 
             set
             {
-                this._activeTaskGroupIndex = value;
+                this._activeTaskCollectionIndex = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public TaskGroupViewModel SelectedTaskCollection
+        public TaskGroupsViewModel SelectedTaskGroups
         {
-            get { return this._selectedTaskCollection; }
+            get { return this._selectedTaskGroups; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selectedTaskCollection = value;
-                    this.RaisePropertyChanged(() => this.SelectedTaskCollection);
+                    this._selectedTaskGroups = value;
+                    this.RaisePropertyChanged(() => this.SelectedTaskGroups);
                 }
             }
         }
 
-        public ObservableCollection<TaskGroupViewModel> DueByTaskViewModelCollectionCollection
+        public ObservableCollection<TaskGroupsViewModel> DueByTaskGroupsViewModels
         {
-            get { return this._dueByTaskViewModelCollection; }
+            get { return this._dueByTaskGroupsViewModels; }
 
             set
             {
                 if (value != null)
                 {
-                    this._dueByTaskViewModelCollection = value;
-                    this.RaisePropertyChanged(() => this.DueByTaskViewModelCollectionCollection);
+                    this._dueByTaskGroupsViewModels = value;
+                    this.RaisePropertyChanged(() => this.DueByTaskGroupsViewModels);
                 }
             }
         }
@@ -184,21 +184,21 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            //if (this._selectedTaskCollection == null)
+            //if (this._selectedTaskGroups == null)
             //{
-            //    var tombstoned = Tombstoning.Load<TaskGroupViewModel>("SelectedTaskCollection");
+            //    var tombstoned = Tombstoning.Load<TaskGroupViewModel>("SelectedTaskGroups");
             //    if (tombstoned != null)
-            //        this.SelectedTaskCollection = new TaskGroupViewModel(
+            //        this.SelectedTaskGroups = new TaskGroupViewModel(
             //            tombstoned.DueByCollection, this.NavigationService, this._taskStoreLocator);
             //}
 
-            //this._activeTaskGroupIndex = Tombstoning.Load<int>("MainPivot");
+            //this._activeTaskCollectionIndex = Tombstoning.Load<int>("MainPivot");
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTaskCollection", this.SelectedTaskCollection);
-            Tombstoning.Save("MainPivot", this.ActiveTaskGroupIndex);
+            Tombstoning.Save("SelectedTaskGroups", this.SelectedTaskGroups);
+            Tombstoning.Save("MainPivot", this.ActiveTaskCollectionIndex);
 
             base.IsBeingDeactivated();
         }
@@ -350,33 +350,33 @@ namespace MobileMilk.ViewModels
                                 task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
                                (task.Completed == null) && (task.Deleted == null));
 
-            _dueByTaskGroup = new List<Group> {
+            _dueByTaskCollection = new List<Group> {
                 new Group {Name = "Today", Tasks = dueTodayTasks.ToList()},
                 new Group {Name = "Tomorrow", Tasks = dueTomorrowTasks.ToList()},
                 new Group {Name = "This Week", Tasks = dueThisWeekTasks.ToList()},
                 new Group {Name = "Next Week", Tasks = dueNextWeekTasks.ToList()}
             };
 
-            this._dueByTaskViewModelCollection = new ObservableCollection<TaskGroupViewModel>();
-            var dueByItemViewModels = this._dueByTaskGroup.Select(o => 
+            this._dueByTaskGroupsViewModels = new ObservableCollection<TaskGroupsViewModel>();
+            var dueByItemViewModels = this._dueByTaskCollection.Select(o => 
                     new TaskGroupViewModel(o.Name, o.Tasks, this.NavigationService, this._taskStoreLocator)).ToList();
-            dueByItemViewModels.ForEach(this._dueByTaskViewModelCollection.Add);
+            dueByItemViewModels.ForEach(this._dueByTaskGroupsViewModels.Add);
 
             // Create collection views
-            this._dueByCollectionViewSource = new CollectionViewSource { Source = this._dueByTaskViewModelCollection };
+            this._dueByTaskGroupsViewSource = new CollectionViewSource { Source = this._dueByTaskGroupsViewModels };
 
-            this._dueByCollectionViewSource.View.CurrentChanged += (o, e) =>
-                this.SelectedTaskCollection = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
+            this._dueByTaskGroupsViewSource.View.CurrentChanged += (o, e) =>
+                this.SelectedTaskGroups = (TaskGroupViewModel)this._dueByTaskGroupsViewSource.View.CurrentItem;
         }
 
         private void HandleCurrentSectionChanged()
         {
             ICollectionView currentView = null;
-            switch (this._activeTaskGroupIndex)
+            switch (this._activeTaskCollectionIndex)
             {
                 case 0:
                     currentView = this.DueByCollectionViewSource;
-                    this.SelectedTaskCollection = (TaskGroupViewModel)currentView.CurrentItem;
+                    this.SelectedTaskGroups = (TaskGroupViewModel)currentView.CurrentItem;
                     break;
             }
         }

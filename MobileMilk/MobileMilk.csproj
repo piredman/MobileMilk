@@ -104,21 +104,22 @@
     <Compile Include="Service\TaskSynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
+    <Compile Include="ViewModels\TaskGroupsViewModel.cs" />
     <Compile Include="ViewModels\TaskGroupViewModel.cs" />
     <Compile Include="ViewModels\TaskCollectionViewModel.cs" />
     <Compile Include="Views\TaskCollectionView.xaml.cs">
       <DependentUpon>TaskCollectionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Task\TaskDetailViewModel.cs" />
-    <Compile Include="ViewModels\Task\TaskItemViewModel.cs" />
+    <Compile Include="ViewModels\Task\TaskViewModel.cs" />
     <Compile Include="Views\AppSettingsView.xaml.cs">
       <DependentUpon>AppSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AuthorizeView.xaml.cs">
       <DependentUpon>AuthorizeView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TaskGroupView.xaml.cs">
-      <DependentUpon>TaskGroupView.xaml</DependentUpon>
+    <Compile Include="Views\TaskGroupsView.xaml.cs">
+      <DependentUpon>TaskGroupsView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -172,7 +173,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TaskGroupView.xaml">
+    <Page Include="Views\TaskGroupsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

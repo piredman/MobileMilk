@@ -38,7 +38,7 @@
         </StackPanel>
 
         <controls:Panorama Grid.Row="1" Title="MobileMilk" 
-                           SelectedIndex="{Binding ActiveTaskGroupIndex, Mode=TwoWay}"
+                           SelectedIndex="{Binding ActiveTaskCollectionIndex, Mode=TwoWay}"
                            Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
 
             <controls:PanoramaItem Header="Settings">
