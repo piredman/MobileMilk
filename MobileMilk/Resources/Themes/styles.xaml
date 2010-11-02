@@ -126,20 +126,22 @@
     </Style>
 
     <!-- Panorama List Item Style -->
-    <DataTemplate x:Key="TaskPivotSection">
-        <controls:PivotItem Header="{Binding Name}">
-            <StackPanel Orientation="Vertical">
-                <ContentControl Template="{StaticResource NoItemsTextBlock}"
+    <DataTemplate x:Key="TaskGroupsHeaderTemplate">
+        <TextBlock Text="{Binding Name}" />
+    </DataTemplate>
+    <DataTemplate x:Key="TaskGroupsItemTemplate">
+        <StackPanel Orientation="Vertical">
+            <ContentControl Template="{StaticResource NoItemsTextBlock}"
                                 Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-                <ListBox ItemsSource="{Binding TasksViewSource}" Style="{StaticResource TaskListItemStyle}"
+            <ListBox ItemsSource="{Binding TasksViewSource}" Style="{StaticResource TaskListItemStyle}"
                             Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
-            </StackPanel>
-        </controls:PivotItem>
+        </StackPanel>
     </DataTemplate>
     
     <!--Style for Panorama List-->
     <Style x:Key="TaskPivotSectionStyle" TargetType="ItemsControl">
-        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskPivotSection}"/>
+        <Setter Property="controls:Pivot.HeaderTemplate" Value="{StaticResource TaskGroupsHeaderTemplate}"/>
+        <Setter Property="controls:Pivot.ItemTemplate" Value="{StaticResource TaskGroupsItemTemplate}"/>
     </Style>
 
 </ResourceDictionary>
