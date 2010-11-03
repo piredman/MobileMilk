@@ -288,6 +288,7 @@ namespace MobileMilk.Data
                     if (null != series.Notes) {
                         notes.AddRange(series.Notes.Select(note => new Note {
                             Id = note.Id,
+                            Text = note.Text,
                             Title = note.Title,
                             Created = note.Created.AsNullableDateTime(null),
                             Modified = note.Modified.AsNullableDateTime(null)

@@ -24,8 +24,8 @@ namespace MobileMilk.ViewModels
         #region Members
 
         private ObservableCollection<TaskViewModel> _observableItems;
-        private TaskViewModel _selectedTaskViewModel;
-        private int _selectedTaskViewIndex;
+        private TaskViewModel _selectedTask;
+        private int _selectedTaskIndex;
 
         private CollectionViewSource _tasksViewSource;
 
@@ -78,27 +78,27 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public int SelectedTaskViewIndex
+        public int SelectedTaskIndex
         {
-            get { return this._selectedTaskViewIndex; }
+            get { return this._selectedTaskIndex; }
 
             set
             {
-                this._selectedTaskViewIndex = value;
+                this._selectedTaskIndex = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public TaskViewModel SelectedTaskViewModel
+        public TaskViewModel SelectedTask
         {
-            get { return this._selectedTaskViewModel; }
+            get { return this._selectedTask; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selectedTaskViewModel = value;
-                    this.RaisePropertyChanged(() => this.SelectedTaskViewModel);
+                    this._selectedTask = value;
+                    this.RaisePropertyChanged(() => this.SelectedTask);
                 }
             }
         }
@@ -109,22 +109,22 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            if (this._selectedTaskViewModel == null)
+            if (this._selectedTask == null)
             {
                 var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.SelectedTaskViewModel = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
+                    this.SelectedTask = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
                 }
 
-                this._selectedTaskViewIndex = Tombstoning.Load<int>("SelectedTaskIndex");
+                this._selectedTaskIndex = Tombstoning.Load<int>("SelectedTaskIndex");
             }
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTaskItem", this.SelectedTaskViewModel);
-            Tombstoning.Save("SelectedTaskIndex", this.SelectedTaskViewIndex);
+            Tombstoning.Save("SelectedTaskItem", this.SelectedTask);
+            Tombstoning.Save("SelectedTaskIndex", this.SelectedTaskIndex);
 
             base.IsBeingDeactivated();
         }
@@ -162,21 +162,21 @@ namespace MobileMilk.ViewModels
 
             this._tasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
 
-            this._tasksViewSource.View.CurrentChanged += View_CurrentChanged;
-                //(o, e) => this.SelectedTaskViewModel = (TaskViewModel)this._tasksViewSource.View.CurrentItem;
+            this._tasksViewSource.View.CurrentChanged += TaskViewSourceCurrentChanged;
+                //(o, e) => this.SelectedTask = (TaskViewModel)this._tasksViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();
         }
 
-        void View_CurrentChanged(object sender, EventArgs e)
+        void TaskViewSourceCurrentChanged(object sender, EventArgs e)
         {
-            this.SelectedTaskViewModel = (TaskViewModel) this._tasksViewSource.View.CurrentItem;
+            this.SelectedTask = (TaskViewModel) this._tasksViewSource.View.CurrentItem;
         }
 
         private void HandleCurrentSectionChanged()
         {
-            this.SelectedTaskViewModel = (TaskViewModel)this.TasksViewSource.CurrentItem;
+            this.SelectedTask = (TaskViewModel)this.TasksViewSource.CurrentItem;
         }
 
         #endregion Private Methods

@@ -71,6 +71,9 @@ namespace MobileMilk.Common
                 && System.Environment.TickCount - this.mouseDownTicks < 450)
             {
                 // Invoke Command
+                if (null == this.commandBindinglistener) return;
+                if (null == this.commandBindinglistener.Value) return;
+
                 ((ICommand)this.commandBindinglistener.Value).Execute(null);
             }
         }

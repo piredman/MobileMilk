@@ -40,16 +40,26 @@ namespace MobileMilk.ViewModels
         private readonly ITaskSynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
-        private bool _isSyncing;
-
+        // Panorama Sources
         private List<Group> _dueByTaskCollection;
         private List<Group> _listTaskGroup;
         private List<Group> _locationTaskGroup;
 
-        private List<Group> _selectedTaskGroups;
+        private ObservableCollection<TaskGroupViewModel> _dueByCollectionViewModels;
+        private CollectionViewSource _dueByCollectionViewSource;
+        private ObservableCollection<TaskGroupViewModel> _listCollectionViewModels;
+        private CollectionViewSource _listCollectionViewSource;
+        private ObservableCollection<TaskGroupViewModel> _locationCollectionViewModels;
+        private CollectionViewSource _locationCollectionViewSource;
 
-        private ObservableCollection<TaskGroupViewModel> _dueByTaskGroupsViewModels;
-        private CollectionViewSource _dueByTaskGroupsViewSource;
+        private bool _isSyncing;
+
+        private ICollectionView _selectedCollectionViewSource;
+        private ObservableCollection<TaskGroupViewModel> _selectedCollection;
+        private int _selectedCollectionIndex;
+
+        private TaskGroupViewModel _selectedGroup;
+        private int _selectedGroupIndex;
 
         #endregion Members
 
@@ -74,7 +84,7 @@ namespace MobileMilk.ViewModels
                 () => !this.IsSyncing && !this.SettingAreNotConfigured);
 
             this.TaskGroupCommand = new DelegateCommand(
-                () => { this.NavigationService.Navigate(new Uri("/Views/TaskGroupsView.xaml", UriKind.Relative)); },
+                () => { this.NavigationService.Navigate(new Uri("/Views/TaskCollectionView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
             this.AppSettingsCommand = new DelegateCommand(
@@ -87,41 +97,96 @@ namespace MobileMilk.ViewModels
         #endregion Constructor(s)
 
         #region Properties
+
+        public ICollectionView DueByCollectionViewSource { get { return this._dueByCollectionViewSource.View; } }
+        public ICollectionView ListCollectionViewSource { get { return this._listCollectionViewSource.View; } }
+        public ICollectionView LocationCollectionViewSource { get { return this._locationCollectionViewSource.View; } }
+
+        public ObservableCollection<TaskGroupViewModel> DueByCollectionViewModels
+        {
+            get { return this._dueByCollectionViewModels; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._dueByCollectionViewModels = value;
+                    this.RaisePropertyChanged(() => this.DueByCollectionViewModels);
+                }
+            }
+        }
+        public ObservableCollection<TaskGroupViewModel> ListCollectionViewModels
+        {
+            get { return this._listCollectionViewModels; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._listCollectionViewModels = value;
+                    this.RaisePropertyChanged(() => this.ListCollectionViewModels);
+                }
+            }
+        }
+        public ObservableCollection<TaskGroupViewModel> LocationCollectionViewModels
+        {
+            get { return this._locationCollectionViewModels; }
+
+            set
+            {
+                if (value != null)
+                {
+                    this._locationCollectionViewModels = value;
+                    this.RaisePropertyChanged(() => this.LocationCollectionViewModels);
+                }
+            }
+        }
         
-        public ICollectionView DueByTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
-        public ICollectionView ListTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
-        public ICollectionView LocationTaskGroupsViewSource { get { return this._dueByTaskGroupsViewSource.View; } }
-
-        public ObservableCollection<TaskGroupViewModel> DueByTaskGroupsViewModels
+        public ICollectionView SelectedCollectionViewSource
         {
-            get { return this._dueByTaskGroupsViewModels; }
+            get { return this._selectedCollectionViewSource; }
 
             set
             {
-                if (value != null)
-                {
-                    this._dueByTaskGroupsViewModels = value;
-                    this.RaisePropertyChanged(() => this.DueByTaskGroupsViewModels);
-                }
+                this._selectedCollectionViewSource = value;
+                this.RaisePropertyChanged(() => this.SelectedCollectionViewSource);
             }
         }
-
         public string SelectedCollectionName { get; set; }
-
-        public List<Group> SelectedTaskGroups
+        public int SelectedCollectionIndex
         {
-            get { return _selectedTaskGroups; }
+            get { return this._selectedCollectionIndex; }
+
+            set
+            {
+                this._selectedCollectionIndex = value;
+                this.HandleCollectionSectionChanged();
+            }
+        }
+
+        public TaskGroupViewModel SelectedGroup
+        {
+            get { return this._selectedGroup; }
+
             set
             {
                 if (value != null)
                 {
-                    this._selectedTaskGroups = value;
-                    this.RaisePropertyChanged(() => this.SelectedTaskGroups);
+                    this._selectedGroup = value;
+                    this.RaisePropertyChanged(() => this.SelectedGroup);
                 }
             }
         }
+        public int SelectedGroupIndex
+        {
+            get { return this._selectedGroupIndex; }
 
-        public int SelectedIndex { get; set; }
+            set
+            {
+                this._selectedGroupIndex = value;
+                this.RaisePropertyChanged(() => this.SelectedGroupIndex);
+            }
+        }
 
         public bool IsSyncing
         {
@@ -168,12 +233,12 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            this.SelectedIndex = Tombstoning.Load<int>("SelectedCollectionIndex");
+            this.SelectedCollectionIndex = Tombstoning.Load<int>("SelectedCollectionIndex");
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedCollectionIndex", this.SelectedIndex);
+            Tombstoning.Save("SelectedCollectionIndex", this.SelectedCollectionIndex);
 
             base.IsBeingDeactivated();
         }
@@ -299,7 +364,7 @@ namespace MobileMilk.ViewModels
             BuildDueByDimensions(tasks);
         }
 
-        private void BuildDueByDimensions(List<Model.Task> tasks)
+        private void BuildDueByDimensions(List<Task> tasks)
         {
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
@@ -329,17 +394,46 @@ namespace MobileMilk.ViewModels
                 new Group {Name = "Next Week", Tasks = dueNextWeekTasks.ToList()}
             };
 
-            this._dueByTaskGroupsViewModels = new ObservableCollection<TaskGroupViewModel>();
+            this._dueByCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var dueByItemViewModels = this._dueByTaskCollection.Select(o =>
                     new TaskGroupViewModel(o.Name, o.Tasks, TaskGroupCommand, this.NavigationService)).ToList();
-            dueByItemViewModels.ForEach(this._dueByTaskGroupsViewModels.Add);
+            dueByItemViewModels.ForEach(this._dueByCollectionViewModels.Add);
 
             // Create collection views
-            this._dueByTaskGroupsViewSource = new CollectionViewSource { Source = this._dueByTaskGroupsViewModels };
+            this._dueByCollectionViewSource = new CollectionViewSource { Source = this._dueByCollectionViewModels };
+            this._dueByCollectionViewSource.View.CurrentChanged += DueByCollectionViewSourceCurrentChanged;
 
-            //TODO: Set Selected Collection info on panorama index change
-            SelectedCollectionName = "Due By";
-            SelectedTaskGroups = this._dueByTaskCollection;
+            HandleCollectionSectionChanged();
+        }
+
+        void DueByCollectionViewSourceCurrentChanged(object sender, EventArgs e)
+        {
+            this.SelectedGroup = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
+        }
+        
+        private void HandleCollectionSectionChanged()
+        {
+            _selectedCollectionViewSource = null;
+            switch (this.SelectedCollectionIndex)
+            {
+                case 1:
+                    SelectedCollectionName = "Due By";
+                    _selectedCollectionViewSource = this.DueByCollectionViewSource;
+                    break;
+                case 2:
+                    SelectedCollectionName = "Lists";
+                    _selectedCollectionViewSource = this.ListCollectionViewSource;
+                    break;
+                case 3:
+                    SelectedCollectionName = "Locations";
+                    _selectedCollectionViewSource = this.LocationCollectionViewSource;
+                    break;
+            }
+
+            if (_selectedCollectionViewSource != null)
+            {
+                this.SelectedGroup = (TaskGroupViewModel) _selectedCollectionViewSource.CurrentItem;
+            }
         }
 
         private void UpdateCommandsForSync()

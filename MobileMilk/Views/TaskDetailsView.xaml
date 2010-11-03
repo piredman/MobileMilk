@@ -10,7 +10,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskGroupViewModel.SelectedTaskViewModel}"
+    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskGroupViewModel.SelectedTask}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
 
@@ -40,7 +40,8 @@
             <!--Pivot item two-->
             <controls:PivotItem Header="Notes">
                 <Grid>
-                    <ListBox ItemsSource="{Binding Notes}" Style="{StaticResource TaskNotesStyle}"
+                    <ListBox ItemsSource="{Binding Notes}" 
+                             Style="{StaticResource TaskNotesStyle}"
                              Visibility="{Binding HasNotes, Converter={StaticResource VisibilityConverter}}" />
                 </Grid>
             </controls:PivotItem>

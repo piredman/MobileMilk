@@ -79,6 +79,10 @@ namespace MobileMilk.Data.Messages
         public string Modified { get; set; }
         [XmlAttribute("title")]
         public string Title { get; set; }
+
+        //TODO: figure out how to deserialize this value
+        //[XmlArrayItem("note", typeof(string))]
+        public string Text { get; set; }
     }
 
     public class RtmTaskResponse

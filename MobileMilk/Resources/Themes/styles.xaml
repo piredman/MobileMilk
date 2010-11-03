@@ -2,75 +2,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:Converters="clr-namespace:MobileMilk.Resources.Converters" 
-    xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:con="clr-namespace:WinMilk.Gui.Controls" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls">
+    xmlns:pag="clr-namespace:MobileMilk.Common" 
+    xmlns:con="clr-namespace:WinMilk.Gui.Controls" 
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls">
 
     <!--Visibility Converter-->
     <Converters:VisibilityConverter x:Key="VisibilityConverter"/>
     <Converters:VisibilityConverter x:Key="NegativeVisibilityConverter" Negative="True"/>
-
-    <DataTemplate x:Key="TaskItemTemplate">
-        <Button>
-            <Button.Template>
-                <ControlTemplate>
-                    <Grid Background="{StaticResource PhoneBackgroundBrush}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="445" />
-                            <ColumnDefinition Width="5"/>
-                            <ColumnDefinition Width="10" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="5"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Column="0" Grid.Row="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                
-                            <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                  Text="{Binding Name}" FontSize="28" />
-                                                  <!--Style="{StaticResource PhoneTextNormalStyle}"
-                                                  Foreground="{StaticResource PhoneAccentBrush}" />-->
-
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
-                                <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
-                            </Grid>
-                        </Grid>
-            
-                        <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2" Grid.Row="1"/>
-                    </Grid>
-                </ControlTemplate>
-            </Button.Template>
-            <Custom:Interaction.Triggers>
-                <Custom:EventTrigger EventName="Click">
-                    <mvvmLightCommand:EventToCommand Command="{Binding TaskCommand}" />
-                </Custom:EventTrigger>
-            </Custom:Interaction.Triggers>
-        </Button>
-    </DataTemplate>
-
-    <!--Style for Task List-->
-    <Style x:Key="TaskListItemStyle" TargetType="ItemsControl">
-        <Setter Property="Margin" Value="0,40,0,0"/>
-        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskItemTemplate}"/>
-        <Setter Property="Height" Value="490"/>
-    </Style>
-
-    <Style x:Key="TaskPopupItemStyle" TargetType="TextBlock">
-        <Setter Property="Margin" Value="24,15,10,15"/>
-        <Setter Property="FontSize" Value="40"/>
-        <Setter Property="FontFamily" Value="Segoe WP SemiLight"/>
-    </Style>
 
     <!--TextBlock to show when there are no items on the list-->
     <ControlTemplate x:Key="NoItemsTextBlock">
@@ -93,70 +32,113 @@
             Text="Connecting to Remember the Milk ..."
             TextWrapping="Wrap"/>
     </ControlTemplate>
-    
-    <!-- Panorama List Item Style -->
-    <DataTemplate x:Key="DueListItemStyle">
-        <Button>
-            <Button.Template>
-                <ControlTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="300"/>
-                            <ColumnDefinition Width="60"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="60"/>
-                        </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Text="{Binding Name}"
-                                   Style="{StaticResource PhoneTextTitle2Style}" />
+    <DataTemplate x:Key="TaskSummaryTemplate">
+        <Grid Background="{StaticResource PhoneBackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="445" />
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="10" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                        <Border Grid.Column="1" Grid.Row="0" Margin="5,5,5,5"
-                                BorderBrush="{StaticResource PhoneBorderBrush}" BorderThickness="2" >
-                            <TextBlock Text="{Binding Count}" TextAlignment="Right" 
-                                   Style="{StaticResource PhoneTextNormalStyle}"
-                                   Foreground="{StaticResource PhoneForegroundBrush}">
-                            </TextBlock>
-                        </Border>
-                    </Grid>
-                </ControlTemplate>
-            </Button.Template>
-            <Custom:Interaction.Triggers>
-                <Custom:EventTrigger EventName="Click">
-                    <mvvmLightCommand:EventToCommand Command="{Binding TaskGroupCommand}" />
-                </Custom:EventTrigger>
-            </Custom:Interaction.Triggers>
-        </Button>
+            <Grid Grid.Column="0" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                        Text="{Binding Name}" FontSize="28" />
+                                        <!--Style="{StaticResource PhoneTextNormalStyle}"
+                                        Foreground="{StaticResource PhoneAccentBrush}" />-->
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
+                    <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
+                </Grid>
+            </Grid>
+
+            <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2" Grid.Row="1"/>
+
+            <Custom:Interaction.Behaviors>
+                <pag:FrameworkElementClickCommand CommandBinding="{Binding TaskCommand}"/>
+            </Custom:Interaction.Behaviors>
+        </Grid>
     </DataTemplate>
 
-    <!--Style for Panorama List-->
-    <Style x:Key="PanoramaListItemStyle" TargetType="ItemsControl">
+    <!--Style for Task List-->
+    <Style x:Key="TaskSummaryStyle" TargetType="ItemsControl">
         <Setter Property="Margin" Value="0,40,0,0"/>
-        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource DueListItemStyle}"/>
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskSummaryTemplate}"/>
         <Setter Property="Height" Value="490"/>
     </Style>
 
     <!-- Panorama List Item Style -->
-    <DataTemplate x:Key="TaskGroupsHeaderTemplate">
+    <DataTemplate x:Key="VerticalTaskGroupsTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="60"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Text="{Binding Name}"
+                                   Style="{StaticResource PhoneTextTitle2Style}" />
+
+            <Border Grid.Column="1" Grid.Row="0" Margin="5,5,5,5"
+                                BorderBrush="{StaticResource PhoneBorderBrush}" BorderThickness="2" >
+                <TextBlock Text="{Binding Count}" TextAlignment="Right" 
+                                   Style="{StaticResource PhoneTextNormalStyle}"
+                                   Foreground="{StaticResource PhoneForegroundBrush}">
+                </TextBlock>
+            </Border>
+            
+            <Custom:Interaction.Behaviors>
+                <pag:FrameworkElementClickCommand CommandBinding="{Binding TaskGroupCommand}"/>
+            </Custom:Interaction.Behaviors>
+        </Grid>
+    </DataTemplate>
+
+    <!--Style for Panorama List-->
+    <Style x:Key="VerticalTaskGroupsStyle" TargetType="ItemsControl">
+        <Setter Property="Margin" Value="0,40,0,0"/>
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource VerticalTaskGroupsTemplate}"/>
+        <Setter Property="Height" Value="490"/>
+    </Style>
+
+    <!-- Panorama List Item Style -->
+    <DataTemplate x:Key="HorizontalTaskGroupsHeaderTemplate">
         <TextBlock Text="{Binding Name}" />
     </DataTemplate>
-    <DataTemplate x:Key="TaskGroupsItemTemplate">
+    <DataTemplate x:Key="HorizontalTaskGroupsItemTemplate">
         <StackPanel Orientation="Vertical">
             <ContentControl Template="{StaticResource NoItemsTextBlock}"
-                                Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
-            <ListBox ItemsSource="{Binding TasksViewSource}" Style="{StaticResource TaskListItemStyle}"
-                            Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                            Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+            <ListBox Style="{StaticResource TaskSummaryStyle}"
+                     ItemsSource="{Binding TasksViewSource}" 
+                     Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
         </StackPanel>
     </DataTemplate>
     
     <!--Style for Panorama List-->
-    <Style x:Key="TaskPivotSectionStyle" TargetType="ItemsControl">
-        <Setter Property="controls:Pivot.HeaderTemplate" Value="{StaticResource TaskGroupsHeaderTemplate}"/>
-        <Setter Property="controls:Pivot.ItemTemplate" Value="{StaticResource TaskGroupsItemTemplate}"/>
+    <Style x:Key="HorizontalTaskGroupsStyle" TargetType="ItemsControl">
+        <Setter Property="controls:Pivot.HeaderTemplate" Value="{StaticResource HorizontalTaskGroupsHeaderTemplate}"/>
+        <Setter Property="controls:Pivot.ItemTemplate" Value="{StaticResource HorizontalTaskGroupsItemTemplate}"/>
     </Style>
 
     <!-- Panorama List Item Style -->
-    <DataTemplate x:Key="TaskNotesDataTemplate">
+    <DataTemplate x:Key="TaskNotesTemplate">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -175,7 +157,7 @@
     <!--Style for Panorama List-->
     <Style x:Key="TaskNotesStyle" TargetType="ItemsControl">
         <Setter Property="Margin" Value="0,40,0,0"/>
-        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskNotesDataTemplate}"/>
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskNotesTemplate}"/>
         <Setter Property="Height" Value="490"/>
     </Style>
     
