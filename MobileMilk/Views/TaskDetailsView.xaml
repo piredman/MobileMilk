@@ -10,7 +10,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskGroupViewModel.Selected}"
+    DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=TaskGroupViewModel.SelectedTaskViewModel}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
 

@@ -24,8 +24,8 @@ namespace MobileMilk.ViewModels
         #region Members
 
         private ObservableCollection<TaskViewModel> _observableItems;
-        private TaskViewModel _selected;
-        private int _selectedIndex;
+        private TaskViewModel _selectedTaskViewModel;
+        private int _selectedTaskViewIndex;
 
         private CollectionViewSource _tasksViewSource;
 
@@ -78,27 +78,27 @@ namespace MobileMilk.ViewModels
             }
         }
 
-        public int SelectedIndex
+        public int SelectedTaskViewIndex
         {
-            get { return this._selectedIndex; }
+            get { return this._selectedTaskViewIndex; }
 
             set
             {
-                this._selectedIndex = value;
+                this._selectedTaskViewIndex = value;
                 this.HandleCurrentSectionChanged();
             }
         }
 
-        public TaskViewModel Selected
+        public TaskViewModel SelectedTaskViewModel
         {
-            get { return this._selected; }
+            get { return this._selectedTaskViewModel; }
 
             set
             {
                 if (value != null)
                 {
-                    this._selected = value;
-                    this.RaisePropertyChanged(() => this.Selected);
+                    this._selectedTaskViewModel = value;
+                    this.RaisePropertyChanged(() => this.SelectedTaskViewModel);
                 }
             }
         }
@@ -109,22 +109,22 @@ namespace MobileMilk.ViewModels
 
         public override void IsBeingActivated()
         {
-            if (this._selected == null)
+            if (this._selectedTaskViewModel == null)
             {
                 var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.Selected = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
+                    this.SelectedTaskViewModel = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
                 }
 
-                this._selectedIndex = Tombstoning.Load<int>("SelectedTaskIndex");
+                this._selectedTaskViewIndex = Tombstoning.Load<int>("SelectedTaskIndex");
             }
         }
 
         public override void IsBeingDeactivated()
         {
-            Tombstoning.Save("SelectedTaskItem", this.Selected);
-            Tombstoning.Save("SelectedTaskIndex", this.SelectedIndex);
+            Tombstoning.Save("SelectedTaskItem", this.SelectedTaskViewModel);
+            Tombstoning.Save("SelectedTaskIndex", this.SelectedTaskViewIndex);
 
             base.IsBeingDeactivated();
         }
@@ -162,27 +162,21 @@ namespace MobileMilk.ViewModels
 
             this._tasksViewSource.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
 
-            this._tasksViewSource.View.CurrentChanged +=
-                (o, e) => this.Selected = (TaskViewModel)this._tasksViewSource.View.CurrentItem;
+            this._tasksViewSource.View.CurrentChanged += View_CurrentChanged;
+                //(o, e) => this.SelectedTaskViewModel = (TaskViewModel)this._tasksViewSource.View.CurrentItem;
 
             // Initialize the selected survey template
             this.HandleCurrentSectionChanged();
         }
 
+        void View_CurrentChanged(object sender, EventArgs e)
+        {
+            this.SelectedTaskViewModel = (TaskViewModel) this._tasksViewSource.View.CurrentItem;
+        }
+
         private void HandleCurrentSectionChanged()
         {
-            ICollectionView currentView = null;
-            switch (this.SelectedIndex)
-            {
-                case 0:
-                    currentView = this.TasksViewSource;
-                    break;
-            }
-
-            if (currentView != null)
-            {
-                this.Selected = (TaskViewModel)currentView.CurrentItem;
-            }
+            this.SelectedTaskViewModel = (TaskViewModel)this.TasksViewSource.CurrentItem;
         }
 
         #endregion Private Methods

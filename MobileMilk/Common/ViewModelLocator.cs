@@ -77,7 +77,7 @@ namespace MobileMilk.Common
 
         public TaskViewModel TaskViewModel
         {
-            get { return this.TaskGroupViewModel.Selected; }
+            get { return this.TaskGroupViewModel.SelectedTaskViewModel; }
         }
 
         #endregion Properties
