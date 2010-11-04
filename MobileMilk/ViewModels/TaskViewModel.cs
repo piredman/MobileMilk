@@ -32,7 +32,7 @@ namespace MobileMilk.ViewModels
         #region Properties
 
         [DataMember]
-        public Model.Task TaskItem { get; set; }
+        public Task TaskItem { get; set; }
 
         [DataMember]
         public string Name { get { return this.TaskItem.Name; } }
@@ -65,9 +65,10 @@ namespace MobileMilk.ViewModels
         {
             get
             {
-                var dueString = "";
+                var dueString = "Whenever";
                 if (this.HasDue)
                 {
+                    dueString = "";
                     var due = this.Due ?? DateTime.MinValue;
                     if (due == DateTime.Today)
                         dueString += "Today";
@@ -87,6 +88,12 @@ namespace MobileMilk.ViewModels
         }
 
         [DataMember]
+        public int Postponed { get { return this.TaskItem.Postponed; } }
+
+        [DataMember]
+        public DateTime? Added { get { return this.TaskItem.Added; } }
+
+        [DataMember]
         public DateTime? Created { get { return this.TaskItem.Created; } }
 
         [DataMember]
@@ -94,15 +101,30 @@ namespace MobileMilk.ViewModels
 
         [DataMember]
         public DateTime? Deleted { get { return this.TaskItem.Deleted; } }
+        
+        [DataMember]
+        public string Url { get { return this.TaskItem.Url; } }
+        public bool HasUrl { get { return !string.IsNullOrEmpty(this.TaskItem.Url); } }
+
+        [DataMember]
+        public DateTime? Estimate { get { return this.TaskItem.Estimate; } }
+        public bool HasEstimate { get { return this.TaskItem.Estimate != null; } }
+
+        [DataMember]
+        public List<string> Tags { get { return this.TaskItem.Tags; } }
+        public string TagsAsString { get { return string.Join(",", this.TaskItem.Tags.ToArray()); } }
+        public bool HasTags { get { return this.TaskItem.Tags.Count != 0; } }
+        public int TagCount { get { return this.TaskItem.Tags.Count; } }
 
         [DataMember]
         public List<Note> Notes { get { return this.TaskItem.Notes; } }
         public bool HasNotes { get { return this.TaskItem.Notes.Count != 0; } }
         public int NoteCount { get { return this.TaskItem.Notes.Count; } }
-        
-        public string TagsAsString { get { return string.Join(",", this.TaskItem.Tags.ToArray()); } }
-        public bool HasTags { get { return this.TaskItem.Tags.Count != 0; } }
-        public int TagCount { get { return this.TaskItem.Tags.Count; } }
+
+        [DataMember]
+        public List<User> Participants { get { return this.TaskItem.Participants; } }
+        public bool HasParticipants { get { return this.TaskItem.Participants.Count != 0; } }
+        public int ParticipantsCount { get { return this.TaskItem.Participants.Count; } }
 
         #endregion Properties
 

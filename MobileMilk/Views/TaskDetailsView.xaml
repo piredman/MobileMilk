@@ -30,21 +30,56 @@
             <controls:PivotItem Header="Task">
                 <Grid>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Name}"/>
-                        <TextBlock Text="{Binding PriorityAsString}"/>
-                        <TextBlock Text="{Binding DueAsString}"/>
-                        <TextBlock Text="{Binding Created}"/>
-                        <TextBlock Text="{Binding TagsAsString}"/>
+                        
+                        <TextBlock Text="Task" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextTitle3Style}"/>
+                        
+                        <TextBlock Text="Tags" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding TagsAsString}" TextWrapping="Wrap" Style="{StaticResource PhoneTextTitle3Style}"/>
+                        
+                        <TextBlock Text="Priority" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding PriorityAsString}" Style="{StaticResource PhoneTextTitle3Style}"/>
+                        
+                        <TextBlock Text="Due" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding DueAsString}" Style="{StaticResource PhoneTextTitle3Style}"/>
+
+                        <TextBlock Text="Postponed" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding Postponed}" Style="{StaticResource PhoneTextTitle3Style}"/>
+
+                        <StackPanel Orientation="Vertical" Visibility="{Binding HasUrl, Converter={StaticResource VisibilityConverter}}">
+                            <TextBlock Text="Url" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                            <TextBlock Text="{Binding Url}" Style="{StaticResource PhoneTextTitle3Style}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Visibility="{Binding HasEstimate, Converter={StaticResource VisibilityConverter}}">
+                            <TextBlock Text="Estimate" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                            <TextBlock Text="{Binding Estimate}" Style="{StaticResource PhoneTextTitle3Style}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Created" Style="{StaticResource PhoneTextGroupHeaderStyle}"/>
+                        <TextBlock Text="{Binding Created}" Style="{StaticResource PhoneTextTitle3Style}"/>
+
                     </StackPanel>
                 </Grid>
             </controls:PivotItem>
 
-            <!--Pivot item two-->
             <controls:PivotItem Header="Notes">
                 <Grid>
+                    <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                    Visibility="{Binding HasNotes, Converter={StaticResource NegativeVisibilityConverter}}" />
                     <ListBox ItemsSource="{Binding Notes}" 
                              Style="{StaticResource TaskNotesStyle}"
                              Visibility="{Binding HasNotes, Converter={StaticResource VisibilityConverter}}" />
+                </Grid>
+            </controls:PivotItem>
+
+            <controls:PivotItem Header="Participants">
+                <Grid>
+                    <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                                    Visibility="{Binding HasParticipants, Converter={StaticResource NegativeVisibilityConverter}}" />
+                    <ListBox ItemsSource="{Binding Participants}" 
+                             Style="{StaticResource TaskParticipantsStyle}"
+                             Visibility="{Binding HasParticipants, Converter={StaticResource VisibilityConverter}}" />
                 </Grid>
             </controls:PivotItem>
         </controls:Pivot>

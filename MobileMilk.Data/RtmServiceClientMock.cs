@@ -20,7 +20,7 @@ namespace MobileMilk.Data
         public IObservable<string> GetAuthorizationUrl()
         {
             var emptyUrl = new Uri("http://localhost").ToString();
-            return (IObservable<string>) emptyUrl;
+            return Observable.Return(emptyUrl);
         }
 
         public IObservable<Authorization> GetAuthorizationToken()

@@ -142,7 +142,9 @@
     <Content Include="Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="SampleData\SampleTaskList.xml" />
+    <Content Include="SampleData\SampleTaskList.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="SplashScreenImage.jpg" />
     <Resource Include="Resources\Images\adatum-logo.png" />
     <Resource Include="Resources\Images\AppBar\appbar.cancel.rest.png" />

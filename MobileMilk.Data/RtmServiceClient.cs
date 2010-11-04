@@ -45,7 +45,7 @@ namespace MobileMilk.Data
         public IObservable<string> GetAuthorizationUrl()
         {
             var url = RtmRequestBuilder.GetFrobRequest(
-                Constants.ApiKey, Constants.SharedSecret);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret);
 
             return HttpClient
                 .RequestTo(url)
@@ -56,7 +56,7 @@ namespace MobileMilk.Data
         public IObservable<Authorization> GetAuthorizationToken()
         {
             var url = RtmRequestBuilder.GetTokenRequest(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationFrob);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationFrob);
 
             return HttpClient
                 .RequestTo(url)
@@ -67,7 +67,7 @@ namespace MobileMilk.Data
         public IObservable<Authorization> GetAuthorization()
         {
             var url = RtmRequestBuilder.GetCheckTokenRequest(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -82,7 +82,7 @@ namespace MobileMilk.Data
         public IObservable<string> CreateTimeline()
         {
             var url = RtmRequestBuilder.GetTimelineRequest(
-                Constants.ApiKey, Constants.SharedSecret);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret);
 
             return HttpClient
                 .RequestTo(url)
@@ -97,7 +97,7 @@ namespace MobileMilk.Data
         public IObservable<List<List>> GetListsList()
         {
             var url = RtmRequestBuilder.GetListsRequest(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -112,7 +112,7 @@ namespace MobileMilk.Data
         public IObservable<List<Location>> GetLocationsList()
         {
             var url = RtmRequestBuilder.GetLocationsRequest(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -127,7 +127,7 @@ namespace MobileMilk.Data
         public IObservable<List<Task>> GetTasksList()
         {
             var url = RtmRequestBuilder.GetTasksRequest(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -151,7 +151,7 @@ namespace MobileMilk.Data
 
             _settingsStore.AuthorizationFrob = response.Frob;
             return RtmRequestBuilder.GetAuthenticationUrl(
-                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationFrob, Permissions.delete);
+                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationFrob, Permissions.delete);
         }
 
         private Authorization ToAuthorization(RtmGetTokenResponse response)

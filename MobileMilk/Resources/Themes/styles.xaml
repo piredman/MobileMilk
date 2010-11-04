@@ -140,12 +140,12 @@
     <!-- Panorama List Item Style -->
     <DataTemplate x:Key="TaskNotesTemplate">
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="{Binding Title}" TextAlignment="Left" 
+            <TextBlock Grid.Row="0" Text="{Binding Text}" TextAlignment="Left" 
                                 Style="{StaticResource PhoneTextTitle3Style}" />
 
             <TextBlock Grid.Row="1" Text="{Binding Modified}" TextAlignment="Right" 
@@ -156,9 +156,24 @@
 
     <!--Style for Panorama List-->
     <Style x:Key="TaskNotesStyle" TargetType="ItemsControl">
-        <Setter Property="Margin" Value="0,40,0,0"/>
         <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskNotesTemplate}"/>
-        <Setter Property="Height" Value="490"/>
+    </Style>
+
+    <!-- Panorama List Item Style -->
+    <DataTemplate x:Key="TaskParticipantsTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding FullName}" TextAlignment="Left" 
+                       Style="{StaticResource PhoneTextTitle3Style}" />
+        </Grid>
+    </DataTemplate>
+
+    <!--Style for Panorama List-->
+    <Style x:Key="TaskParticipantsStyle" TargetType="ItemsControl">
+        <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskParticipantsTemplate}"/>
     </Style>
     
 </ResourceDictionary>
