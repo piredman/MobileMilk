@@ -39,7 +39,7 @@ namespace MobileMilk.Store
             this._isolatedStore = IsolatedStorageSettings.ApplicationSettings;
 
             if (Common.Environment.InEmulator())
-                AuthorizationToken = "b453b7043055672ecc1d2538f956e28b5aaad069";
+                AuthorizationToken = Common.Constants.AuthorizationToken;
         }
 
         #endregion Constructor(s)

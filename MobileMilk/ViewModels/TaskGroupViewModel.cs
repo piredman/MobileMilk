@@ -7,7 +7,6 @@ using System.Windows.Data;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Model;
-using MobileMilk.Store;
 using System.Collections.Generic;
 
 namespace MobileMilk.ViewModels
