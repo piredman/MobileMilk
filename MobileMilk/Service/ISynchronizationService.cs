@@ -2,7 +2,7 @@
 
 namespace MobileMilk.Service
 {
-    public interface IListSynchronizationService
+    public interface ISynchronizationService
     {
         IObservable<TaskCompletedSummary[]> StartSynchronization();
     }

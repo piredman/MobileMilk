@@ -56,6 +56,12 @@
     <Compile Include="List\ListStore.cs" />
     <Compile Include="List\ListStoreLocator.cs" />
     <Compile Include="List\NullListStore.cs" />
+    <Compile Include="Location\ILocationStore.cs" />
+    <Compile Include="Location\ILocationStoreLocator.cs" />
+    <Compile Include="Location\LocationCollection.cs" />
+    <Compile Include="Location\LocationStore.cs" />
+    <Compile Include="Location\LocationStoreLocator.cs" />
+    <Compile Include="Location\NullLocationStore.cs" />
     <Compile Include="Task\ITaskStore.cs" />
     <Compile Include="Task\ITaskStoreLocator.cs" />
     <Compile Include="NullSettingsStore.cs" />
@@ -76,9 +82,7 @@
       <Name>MobileMilk.Model</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Location\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions />

@@ -9,7 +9,8 @@ namespace MobileMilk.Data.Messages
         [XmlAttribute("stat")]
         public string Status { get; set; }
 
-        [XmlElement("locations")]
+        [XmlArray("locations")]
+        [XmlArrayItem("location", typeof(RtmLocationResponse))]
         public List<RtmLocationResponse> Locations { get; set; }
     }
 

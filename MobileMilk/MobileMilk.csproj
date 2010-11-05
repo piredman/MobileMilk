@@ -90,20 +90,18 @@
     <Compile Include="Resources\Converters\VisibilityConverter.cs" />
     <Compile Include="Resources\ThemedResourceLocator.cs" />
     <Compile Include="Service\ApplicationFrameNavigationService.cs" />
-    <Compile Include="Service\IListSynchronizationService.cs" />
-    <Compile Include="Service\ListSynchronizationService.cs" />
     <Compile Include="Service\ExceptionHandling.cs" />
     <Compile Include="Service\ILocationService.cs" />
     <Compile Include="Service\INavigationService.cs" />
     <Compile Include="Common\ViewModel.cs" />
     <Compile Include="Common\ViewModelLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service\ITaskSynchronizationService.cs" />
+    <Compile Include="Service\ISynchronizationService.cs" />
     <Compile Include="Service\LocationService.cs" />
     <Compile Include="Service\TaskCompletedSummary.cs" />
     <Compile Include="Service\TaskCompletedSummaryStrings.cs" />
     <Compile Include="Service\TaskSummaryResult.cs" />
-    <Compile Include="Service\TaskSynchronizationService.cs" />
+    <Compile Include="Service\SynchronizationService.cs" />
     <Compile Include="ViewModels\AppSettingsViewModel.cs" />
     <Compile Include="ViewModels\AuthorizeViewModel.cs" />
     <Compile Include="ViewModels\TaskGroupViewModel.cs" />
@@ -145,6 +143,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="SampleData\SampleListData.xml" />
+    <Content Include="SampleData\SampleLocationData.xml" />
     <Content Include="SampleData\SampleTaskData.xml">
       <SubType>Designer</SubType>
     </Content>

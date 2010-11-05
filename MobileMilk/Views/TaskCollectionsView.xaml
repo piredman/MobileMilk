@@ -71,19 +71,29 @@
 
             <controls:PanoramaItem Header="Due">
                 <Grid>
-                    <ListBox ItemsSource="{Binding DueByCollectionViewSource}" 
-                             SelectedIndex="{Binding SelectedGroupIndex, Mode=TwoWay}" 
+                    <ListBox ItemsSource="{Binding DueByCollectionViewSource}"
+                             SelectedIndex="{Binding DueBySelectedIndex, Mode=TwoWay}" 
                              Style="{StaticResource VerticalTaskGroupsStyle}"
                              Visibility="{Binding DueByCollectionViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
                 </Grid>
             </controls:PanoramaItem>
 
             <controls:PanoramaItem Header="Lists">
-                <Grid/>
+                <Grid>
+                    <ListBox ItemsSource="{Binding ListCollectionViewSource}" 
+                             SelectedIndex="{Binding ListSelectedIndex, Mode=TwoWay}" 
+                             Style="{StaticResource VerticalTaskGroupsStyle}"
+                             Visibility="{Binding ListCollectionViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                </Grid>
             </controls:PanoramaItem>
 
             <controls:PanoramaItem Header="Locations">
-                <Grid/>
+                <Grid>
+                    <ListBox ItemsSource="{Binding LocationCollectionViewSource}" 
+                             SelectedIndex="{Binding LocationSelectedIndex, Mode=TwoWay}" 
+                             Style="{StaticResource VerticalTaskGroupsStyle}"
+                             Visibility="{Binding LocationCollectionViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                </Grid>
             </controls:PanoramaItem>
             
         </controls:Panorama>

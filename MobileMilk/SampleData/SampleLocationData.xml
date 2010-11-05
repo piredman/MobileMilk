@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+  <locations>
+    <location id="392696" name="Apple Store" longitude="-113.615458" latitude="53.524603" zoom="17" address="8882 170 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="392621" name="BestBuy [South]" longitude="-113.4890523" latitude="53.4469183" zoom="17" address="9931 19 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="494364" name="Bubbles [Oliver]" longitude="-113.525192" latitude="53.5462072" zoom="17" address="11828 104 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="496157" name="Calgary Stampede Round-Up Centre" longitude="-114.0536372" latitude="51.038804" zoom="17" address="1410 Olympic Way SE, Calgary, AB, Canada" viewable="1"/>
+    <location id="494380" name="Canadian Tire [Kingsway]" longitude="-113.5242673" latitude="53.56746" zoom="17" address="11839 Kingsway Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="329104" name="CIBC Bank [Oliver]" longitude="-113.5187056" latitude="53.5462436" zoom="17" address="11504 104 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="392626" name="CIBC Bank [South]" longitude="-113.4920096" latitude="53.4783821" zoom="17" address="4230 Gateway Blvd NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326487" name="crazedCoders [EDM]" longitude="-113.4821923" latitude="53.4742653" zoom="17" address="3907 98 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326488" name="crazedCoders [Van]" longitude="-123.1130089" latitude="49.2835065" zoom="17" address="515 W Pender St, Vancouver, BC, Canada" viewable="1"/>
+    <location id="330010" name="Creating Solutions" longitude="-113.590327" latitude="53.519508" zoom="15" address="87 Ave NW &amp; 156 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326486" name="DevFacto Office" longitude="-113.5041209" latitude="53.5409342" zoom="17" address="10665 Jasper Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="392625" name="FedEx Pickup" longitude="-113.4609558" latitude="53.4959818" zoom="17" address="6006 87A St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="494377" name="Future Shop [Downtown]" longitude="-113.5085592" latitude="53.5446961" zoom="17" address="10304 109 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326484" name="Grand Central Manor" longitude="-113.5121777" latitude="53.5430243" zoom="17" address="10904 102 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="392698" name="Home" longitude="-113.5096948" latitude="53.5446282" zoom="17" address="10903 103 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="494383" name="Ikea [South]" longitude="-113.4910913" latitude="53.4418512" zoom="17" address="1311 102 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326475" name="Integrity-Paahi" longitude="-123.1182379" latitude="49.2848286" zoom="17" address="888 Dunsmuir St, Vancouver, BC, Canada" viewable="1"/>
+    <location id="326482" name="Kristy's Place" longitude="-113.5323462" latitude="53.545558" zoom="17" address="10350 122 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="392700" name="London Drugs [Oliver]" longitude="-113.5236383" latitude="53.5462407" zoom="17" address="11704 104 Ave NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="681170" name="MEC" longitude="-113.5354278" latitude="53.5430484" zoom="17" address="12328 102 Ave NW, Edmonton, AB T5N 0L9, Canada" viewable="1"/>
+    <location id="327379" name="Parents Home" longitude="-113.6421071" latitude="53.7969094" zoom="17" address="9611 98A St, Morinville, AB, Canada" viewable="1"/>
+    <location id="494381" name="Save On Foods [Downtown]" longitude="-113.5085486" latitude="53.5426349" zoom="17" address="10180 109 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="287920" name="Shampoo Hair Studio" longitude="-113.50474" latitude="53.544049" zoom="17" address="10265 107 St NW, Edmonton, AB, Canada" viewable="1"/>
+    <location id="326481" name="Solano House" longitude="-113.5323462" latitude="53.545558" zoom="17" address="10350 122 St NW, Edmonton, AB, Canada" viewable="1"/>
+  </locations>
+</rsp>

@@ -25,11 +25,15 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         
         <!--Pivot Control-->
-        <controls:Pivot Title="MobileMilk"
+        <!--<controls:Pivot Title="MobileMilk"
                         SelectedIndex="{Binding SelectedGroupIndex, Mode=TwoWay}" 
                         ItemsSource="{Binding SelectedCollectionViewSource}" 
+                        Style="{StaticResource HorizontalTaskGroupsStyle}" />-->
+
+        <controls:Pivot Title="MobileMilk"
+                        ItemsSource="{Binding SelectedCollectionViewSource}" 
                         Style="{StaticResource HorizontalTaskGroupsStyle}" />
-        
+
     </Grid>
     
 </phone:PhoneApplicationPage>

@@ -38,8 +38,8 @@ namespace MobileMilk.ViewModels
         private readonly IRtmServiceClient _rtmServiceClient;
         private readonly ITaskStoreLocator _taskStoreLocator;
         private readonly IListStoreLocator _listStoreLocator;
-        private readonly ITaskSynchronizationService _taskSynchronizationService;
-        private readonly IListSynchronizationService _listSynchronizationService;
+        private readonly ILocationStoreLocator _locationStoreLocator;
+        private readonly ISynchronizationService _synchronizationService;
         private ITaskStore lastTaskStore;
 
         // Panorama Sources
@@ -57,8 +57,11 @@ namespace MobileMilk.ViewModels
         private bool _isSyncing;
 
         private ICollectionView _selectedCollectionViewSource;
-        private ObservableCollection<TaskGroupViewModel> _selectedCollection;
         private int _selectedCollectionIndex;
+
+        private int _dueBySelectedIndex;
+        private int _listSelectedIndex;
+        private int _locationSelectedIndex;
 
         private TaskGroupViewModel _selectedGroup;
         private int _selectedGroupIndex;
@@ -72,15 +75,15 @@ namespace MobileMilk.ViewModels
             IRtmServiceClient rtmServiceClient,
             ITaskStoreLocator taskStoreLocator,
             IListStoreLocator listStoreLocator,
-            ITaskSynchronizationService taskSynchronizationService,
-            IListSynchronizationService listSynchronizationService)
+            ILocationStoreLocator locationStoreLocator,
+            ISynchronizationService synchronizationService)
             : base(navigationService)
         {
             this._rtmServiceClient = rtmServiceClient;
             this._taskStoreLocator = taskStoreLocator;
             this._listStoreLocator = listStoreLocator;
-            this._taskSynchronizationService = taskSynchronizationService;
-            this._listSynchronizationService = listSynchronizationService;
+            this._locationStoreLocator = locationStoreLocator;
+            this._synchronizationService = synchronizationService;
 
             this.submitErrorInteractionRequest = new InteractionRequest<Notification>();
             this.submitNotificationInteractionRequest = new InteractionRequest<Notification>();
@@ -173,7 +176,6 @@ namespace MobileMilk.ViewModels
         public TaskGroupViewModel SelectedGroup
         {
             get { return this._selectedGroup; }
-
             set
             {
                 if (value != null)
@@ -186,11 +188,41 @@ namespace MobileMilk.ViewModels
         public int SelectedGroupIndex
         {
             get { return this._selectedGroupIndex; }
-
             set
             {
-                this._selectedGroupIndex = value;
-                this.RaisePropertyChanged(() => this.SelectedGroupIndex);
+                if (value != null)
+                {
+                    this._selectedGroupIndex = value;
+                    this.RaisePropertyChanged(() => this.SelectedGroup);
+                }
+            }
+        }
+
+        public int DueBySelectedIndex
+        {
+            get { return this._dueBySelectedIndex; }
+            set
+            {
+                this._dueBySelectedIndex = value;
+                this.RaisePropertyChanged(() => this.DueBySelectedIndex);
+            }
+        }
+        public int ListSelectedIndex
+        {
+            get { return this._listSelectedIndex; }
+            set
+            {
+                this._listSelectedIndex = value;
+                this.RaisePropertyChanged(() => this.ListSelectedIndex);
+            }
+        }
+        public int LocationSelectedIndex
+        {
+            get { return this._locationSelectedIndex; }
+            set
+            {
+                this._locationSelectedIndex = value;
+                this.RaisePropertyChanged(() => this.LocationSelectedIndex);
             }
         }
 
@@ -299,13 +331,7 @@ namespace MobileMilk.ViewModels
 
             this.IsSyncing = true;
 
-            this._taskSynchronizationService
-                    .StartSynchronization()
-                    .ObserveOnDispatcher()
-                    .Subscribe(taskSummaries => this.SyncCompleted(taskSummaries));
-
-
-            this._listSynchronizationService
+            this._synchronizationService
                     .StartSynchronization()
                     .ObserveOnDispatcher()
                     .Subscribe(taskSummaries => this.SyncCompleted(taskSummaries));
@@ -373,14 +399,17 @@ namespace MobileMilk.ViewModels
 
         private void BuildPanoramaDimensions()
         {
-            BuildDueByDimensions();
-            BuildListDimensions();
-        }
-
-        private void BuildDueByDimensions()
-        {
             var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
 
+            BuildDueByDimensions(tasks);
+            BuildListDimensions(tasks);
+            BuildLocationDimensions(tasks);
+
+            HandleCollectionSectionChanged();
+        }
+
+        private void BuildDueByDimensions(List<Task> tasks)
+        {
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
 
@@ -418,15 +447,13 @@ namespace MobileMilk.ViewModels
             this._dueByCollectionViewSource = new CollectionViewSource { Source = this._dueByCollectionViewModels };
             this._dueByCollectionViewSource.View.CurrentChanged += (o, args) => {
                 this.SelectedGroup = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
+                this.SelectedGroupIndex = this._dueByCollectionViewSource.View.CurrentPosition;
             };
-
-            HandleCollectionSectionChanged();
         }
 
-        private void BuildListDimensions()
+        private void BuildListDimensions(List<Task> tasks)
         {
             var lists = this._listStoreLocator.GetStore().GetAllLists();
-            var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
 
             _listCollection = lists.Select(list => new Group {
                 Name = list.Name, Tasks = tasks.Where(task => task.ListId == list.Id).ToList() 
@@ -441,9 +468,30 @@ namespace MobileMilk.ViewModels
             this._listCollectionViewSource = new CollectionViewSource { Source = this._listCollectionViewModels };
             this._listCollectionViewSource.View.CurrentChanged += (o, args) => {
                 this.SelectedGroup = (TaskGroupViewModel)this._listCollectionViewSource.View.CurrentItem;
+                this.SelectedGroupIndex = this._listCollectionViewSource.View.CurrentPosition;
             };
+        }
 
-            HandleCollectionSectionChanged();
+        private void BuildLocationDimensions(List<Task> tasks)
+        {
+            var locations = this._locationStoreLocator.GetStore().GetAllLocations();
+
+            _locationCollection = locations.Select(location => new Group {
+                Name = location.Name,
+                Tasks = tasks.Where(task => task.LocationId == location.Id).ToList()
+            }).ToList();
+
+            this._locationCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
+            var viewModels = this._locationCollection.Select(o =>
+                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+            viewModels.ForEach(this._locationCollectionViewModels.Add);
+
+            // Create collection views
+            this._locationCollectionViewSource = new CollectionViewSource { Source = this._locationCollectionViewModels };
+            this._locationCollectionViewSource.View.CurrentChanged += (o, args) => {
+                this.SelectedGroup = (TaskGroupViewModel)this._locationCollectionViewSource.View.CurrentItem;
+                this.SelectedGroupIndex = this._locationCollectionViewSource.View.CurrentPosition;
+            };
         }
         
         private void HandleCollectionSectionChanged()
@@ -467,7 +515,8 @@ namespace MobileMilk.ViewModels
 
             if (_selectedCollectionViewSource != null)
             {
-                this.SelectedGroup = (TaskGroupViewModel) _selectedCollectionViewSource.CurrentItem;
+                this.SelectedGroup = (TaskGroupViewModel)_selectedCollectionViewSource.CurrentItem;
+                this.SelectedGroupIndex = this._selectedCollectionViewSource.CurrentPosition;
             }
         }
 
@@ -484,12 +533,12 @@ namespace MobileMilk.ViewModels
                 case TaskSummaryResult.Success:
                     switch (summary.Task)
                     {
-                        case TaskSynchronizationService.GetTasksTask:
+                        case SynchronizationService.GetTasksTask:
                             return string.Format(
                                 CultureInfo.InvariantCulture,
                                 "syncronized {0} tasks from RTM",
                                 summary.Context);
-                        case TaskSynchronizationService.SaveTasksTask:
+                        case SynchronizationService.SaveTasksTask:
                             return string.Format(
                                 CultureInfo.InvariantCulture,
                                 "updated {0} tasks with RTM",

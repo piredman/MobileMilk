@@ -110,7 +110,7 @@ namespace MobileMilk.Data
         public IObservable<List<Location>> GetLocations()
         {
             var url = RtmRequestBuilder.GetLocationsRequest(
-                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -207,23 +207,16 @@ namespace MobileMilk.Data
             if (!response.Status.ToLower().Equals("ok"))
                 return null;
 
-            var lists = new List<List>();
-            foreach (var list in response.Lists)
-            {
-                lists.Add(new List {
-                    Id = list.Id,
-                    Name = list.Name,
-                    Deleted = list.Deleted.AsBool(false),
-                    Archived = list.Archived.AsBool(false),
-                    Locked = list.Locked.AsBool(false),
-                    Position = list.Position.AsInt(-1),
-                    Smart = list.Smart.AsBool(false),
-                    //TODO: filer not loading properly
-                    Filter = list.Filter
-                });
-            }
-
-            return lists;
+            return response.Lists.Select(list => new List {
+                Id = list.Id, 
+                Name = list.Name, 
+                Deleted = list.Deleted.AsBool(false), 
+                Archived = list.Archived.AsBool(false), 
+                Locked = list.Locked.AsBool(false), 
+                Position = list.Position.AsInt(-1), 
+                Smart = list.Smart.AsBool(false), 
+                Filter = list.Filter ?? string.Empty
+            }).ToList();
         }
 
         #endregion Lists

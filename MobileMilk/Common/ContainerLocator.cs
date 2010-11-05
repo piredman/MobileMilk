@@ -3,6 +3,7 @@ using System.Windows;
 using Funq;
 using MobileMilk.Service;
 using MobileMilk.Store;
+using MobileMilk.Store.Location;
 using MobileMilk.ViewModels;
 using MobileMilk.Data;
 using System.ComponentModel;
@@ -94,15 +95,17 @@ namespace MobileMilk.Common
                          c.Resolve<ISettingsStore>(),
                          storeName => new ListStore(storeName)));
 
-            this.Container.Register<ITaskSynchronizationService>(
-                c => new TaskSynchronizationService(
-                         c.Resolve<IRtmServiceClient>,
-                         c.Resolve<ITaskStoreLocator>()));
+            this.Container.Register<ILocationStoreLocator>(
+                c => new LocationStoreLocator(
+                         c.Resolve<ISettingsStore>(),
+                         storeName => new LocationStore(storeName)));
 
-            this.Container.Register<IListSynchronizationService>(
-                c => new ListSynchronizationService(
+            this.Container.Register<ISynchronizationService>(
+                c => new SynchronizationService(
                          c.Resolve<IRtmServiceClient>,
-                         c.Resolve<IListStoreLocator>()));
+                         c.Resolve<ITaskStoreLocator>(),
+                         c.Resolve<IListStoreLocator>(),
+                         c.Resolve<ILocationStoreLocator>()));
 
             this.Container.Register(
                 c => new TaskCollectionsViewModel(
@@ -110,8 +113,8 @@ namespace MobileMilk.Common
                     c.Resolve<IRtmServiceClient>(),
                     c.Resolve<ITaskStoreLocator>(),
                     c.Resolve<IListStoreLocator>(),
-                    c.Resolve<ITaskSynchronizationService>(),
-                    c.Resolve<IListSynchronizationService>()));
+                    c.Resolve<ILocationStoreLocator>(),
+                    c.Resolve<ISynchronizationService>()));
             
             this.Container.Register(
                 c => new AuthorizeViewModel(

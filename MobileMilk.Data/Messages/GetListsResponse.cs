@@ -33,7 +33,7 @@ namespace MobileMilk.Data.Messages
         [XmlAttribute("sort_order")]
         public string SortOrder { get; set; }
 
-        [XmlElement("filter")]
+        [XmlElement("filter", IsNullable = true)]
         public string Filter { get; set; }
     }
 }
