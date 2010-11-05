@@ -19,6 +19,9 @@ namespace MobileMilk.Data
         IObservable<Authorization> GetAuthorizationToken();
         IObservable<Authorization> GetAuthorization();
         IObservable<string> CreateTimeline();
-        IObservable<List<Task>> GetTasksList();
+
+        IObservable<List<Task>> GetTasks();
+        IObservable<List<List>> GetLists();
+        IObservable<List<Location>> GetLocations();
     }
 }

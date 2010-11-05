@@ -24,7 +24,7 @@ namespace MobileMilk.ViewModels
     {
         #region Delegates
 
-        public DelegateCommand TaskGroupCommand { get; set; }
+        public DelegateCommand ViewTaskCollectionCommand { get; set; }
         public DelegateCommand StartSyncCommand { get; set; }
         public DelegateCommand AppSettingsCommand { get; set; }
                 
@@ -37,13 +37,15 @@ namespace MobileMilk.ViewModels
 
         private readonly IRtmServiceClient _rtmServiceClient;
         private readonly ITaskStoreLocator _taskStoreLocator;
-        private readonly ITaskSynchronizationService _synchronizationService;
+        private readonly IListStoreLocator _listStoreLocator;
+        private readonly ITaskSynchronizationService _taskSynchronizationService;
+        private readonly IListSynchronizationService _listSynchronizationService;
         private ITaskStore lastTaskStore;
 
         // Panorama Sources
-        private List<Group> _dueByTaskCollection;
-        private List<Group> _listTaskGroup;
-        private List<Group> _locationTaskGroup;
+        private List<Group> _dueByCollection;
+        private List<Group> _listCollection;
+        private List<Group> _locationCollection;
 
         private ObservableCollection<TaskGroupViewModel> _dueByCollectionViewModels;
         private CollectionViewSource _dueByCollectionViewSource;
@@ -69,12 +71,16 @@ namespace MobileMilk.ViewModels
             INavigationService navigationService,
             IRtmServiceClient rtmServiceClient,
             ITaskStoreLocator taskStoreLocator,
-            ITaskSynchronizationService synchronizationService)
+            IListStoreLocator listStoreLocator,
+            ITaskSynchronizationService taskSynchronizationService,
+            IListSynchronizationService listSynchronizationService)
             : base(navigationService)
         {
             this._rtmServiceClient = rtmServiceClient;
             this._taskStoreLocator = taskStoreLocator;
-            this._synchronizationService = synchronizationService;
+            this._listStoreLocator = listStoreLocator;
+            this._taskSynchronizationService = taskSynchronizationService;
+            this._listSynchronizationService = listSynchronizationService;
 
             this.submitErrorInteractionRequest = new InteractionRequest<Notification>();
             this.submitNotificationInteractionRequest = new InteractionRequest<Notification>();
@@ -83,7 +89,7 @@ namespace MobileMilk.ViewModels
                 () => { this.StartSync(); },
                 () => !this.IsSyncing && !this.SettingAreNotConfigured);
 
-            this.TaskGroupCommand = new DelegateCommand(
+            this.ViewTaskCollectionCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/TaskCollectionView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
 
@@ -292,7 +298,14 @@ namespace MobileMilk.ViewModels
                 return;
 
             this.IsSyncing = true;
-            this._synchronizationService
+
+            this._taskSynchronizationService
+                    .StartSynchronization()
+                    .ObserveOnDispatcher()
+                    .Subscribe(taskSummaries => this.SyncCompleted(taskSummaries));
+
+
+            this._listSynchronizationService
                     .StartSynchronization()
                     .ObserveOnDispatcher()
                     .Subscribe(taskSummaries => this.SyncCompleted(taskSummaries));
@@ -360,12 +373,14 @@ namespace MobileMilk.ViewModels
 
         private void BuildPanoramaDimensions()
         {
-            var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
-            BuildDueByDimensions(tasks);
+            BuildDueByDimensions();
+            BuildListDimensions();
         }
 
-        private void BuildDueByDimensions(List<Task> tasks)
+        private void BuildDueByDimensions()
         {
+            var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
+
             var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
             var endOfWeek = DateTime.Now.EndOfWeek(DayOfWeek.Monday);
 
@@ -387,7 +402,7 @@ namespace MobileMilk.ViewModels
                                 task.Due.AsDateTime(DateTime.MaxValue) <= endOfWeek.AddDays(7)) &&
                                (task.Completed == null) && (task.Deleted == null));
 
-            _dueByTaskCollection = new List<Group> {
+            _dueByCollection = new List<Group> {
                 new Group {Name = "Today", Tasks = dueTodayTasks.ToList()},
                 new Group {Name = "Tomorrow", Tasks = dueTomorrowTasks.ToList()},
                 new Group {Name = "This Week", Tasks = dueThisWeekTasks.ToList()},
@@ -395,20 +410,40 @@ namespace MobileMilk.ViewModels
             };
 
             this._dueByCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
-            var dueByItemViewModels = this._dueByTaskCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Tasks, TaskGroupCommand, this.NavigationService)).ToList();
-            dueByItemViewModels.ForEach(this._dueByCollectionViewModels.Add);
+            var viewModels = this._dueByCollection.Select(o =>
+                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+            viewModels.ForEach(this._dueByCollectionViewModels.Add);
 
             // Create collection views
             this._dueByCollectionViewSource = new CollectionViewSource { Source = this._dueByCollectionViewModels };
-            this._dueByCollectionViewSource.View.CurrentChanged += DueByCollectionViewSourceCurrentChanged;
+            this._dueByCollectionViewSource.View.CurrentChanged += (o, args) => {
+                this.SelectedGroup = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
+            };
 
             HandleCollectionSectionChanged();
         }
 
-        void DueByCollectionViewSourceCurrentChanged(object sender, EventArgs e)
+        private void BuildListDimensions()
         {
-            this.SelectedGroup = (TaskGroupViewModel)this._dueByCollectionViewSource.View.CurrentItem;
+            var lists = this._listStoreLocator.GetStore().GetAllLists();
+            var tasks = this._taskStoreLocator.GetStore().GetAllTasks();
+
+            _listCollection = lists.Select(list => new Group {
+                Name = list.Name, Tasks = tasks.Where(task => task.ListId == list.Id).ToList() 
+            }).ToList();
+
+            this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
+            var viewModels = this._listCollection.Select(o =>
+                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+            viewModels.ForEach(this._listCollectionViewModels.Add);
+
+            // Create collection views
+            this._listCollectionViewSource = new CollectionViewSource { Source = this._listCollectionViewModels };
+            this._listCollectionViewSource.View.CurrentChanged += (o, args) => {
+                this.SelectedGroup = (TaskGroupViewModel)this._listCollectionViewSource.View.CurrentItem;
+            };
+
+            HandleCollectionSectionChanged();
         }
         
         private void HandleCollectionSectionChanged()

@@ -11,7 +11,6 @@ namespace MobileMilk.Model
         public bool Archived { get; set; }
         public int Position { get; set; }
         public bool Smart { get; set; }
-
-        public List<string> Filters { get; set; }
+        public string Filter { get; set; }
     }
 }

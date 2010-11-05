@@ -48,7 +48,17 @@ namespace MobileMilk.Data
             throw new NotImplementedException();
         }
 
-        public IObservable<List<Task>> GetTasksList()
+        public IObservable<List<Task>> GetTasks()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<List<List>> GetLists()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<List<Location>> GetLocations()
         {
             throw new NotImplementedException();
         }

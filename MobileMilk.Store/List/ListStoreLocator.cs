@@ -11,34 +11,34 @@ using System.Windows.Shapes;
 
 namespace MobileMilk.Store
 {
-    public class TaskStoreLocator : ITaskStoreLocator
+    public class ListStoreLocator : IListStoreLocator
     {
         private readonly ISettingsStore settingsStore;
-        private readonly Func<string, ITaskStore> taskStoreFactory;
+        private readonly Func<string, IListStore> listStoreFactory;
         private string username;
-        private ITaskStore taskStore;
+        private IListStore listStore;
 
-        public TaskStoreLocator(ISettingsStore settingsStore, Func<string, ITaskStore> taskStoreFactory)
+        public ListStoreLocator(ISettingsStore settingsStore, Func<string, IListStore> listStoreFactory)
         {
             this.settingsStore = settingsStore;
-            this.taskStoreFactory = taskStoreFactory;
+            this.listStoreFactory = listStoreFactory;
         }
 
-        public ITaskStore GetStore()
+        public IListStore GetStore()
         {
             if (string.IsNullOrEmpty(this.settingsStore.UserName))
             {
-                return new NullTaskStore();
+                return new NullListStore();
             }
 
             if (this.settingsStore.UserName != this.username)
             {
                 this.username = this.settingsStore.UserName;
-                var storeName = string.Format("{0}.store", this.username);
-                this.taskStore = this.taskStoreFactory.Invoke(storeName);
+                var storeName = string.Format("{0}.list.store", this.username);
+                this.listStore = this.listStoreFactory.Invoke(storeName);
             }
 
-            return this.taskStore;
+            return this.listStore;
         }
     }
 }

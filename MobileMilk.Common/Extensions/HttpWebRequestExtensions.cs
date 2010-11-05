@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
+using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Microsoft.Phone.Reactive;
 
@@ -19,8 +21,14 @@ namespace MobileMilk.Common.Extensions
                 .Select(
                     response => {
                         using (var responseStream = response.GetResponseStream()) {
+                            var streamReader = new StreamReader(responseStream);
+                            var rawXml = streamReader.ReadToEnd();
+
+                            var stringReader = new StringReader(rawXml);
+                            var xmlReader = XmlReader.Create(stringReader);
+
                             var serializer = new XmlSerializer(typeof(T));
-                            return (T)serializer.Deserialize(responseStream);
+                            return (T)serializer.Deserialize(xmlReader);
                         }
                 });
         }

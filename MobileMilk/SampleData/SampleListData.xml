@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+  <lists>
+    <list id="4717991" name="Inbox" deleted="0" locked="1" archived="0" position="-1" smart="0" sort_order="0"/>
+    <list id="14783351" name="1)New" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(status:incomplete and isRepeating:false and isTagged:false)</filter>
+    </list>
+    <list id="14783361" name="2)Review" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(status:incomplete and isRepeating:false and isTagged:true and not tag:next and not tag:soon and not tagContains:+)</filter>
+    </list>
+    <list id="14783375" name="3)Next" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>((status:incomplete and tag:next) or dueBefore:today or due:today)</filter>
+    </list>
+    <list id="14783406" name="4)Soon" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(status:incomplete and (tag:soon or dueWithin:"1 week of today"))</filter>
+    </list>
+    <list id="14334340" name="!Bucket List" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+bucket-list)</filter>
+    </list>
+    <list id="14821573" name="@Buy" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:buy)</filter>
+    </list>
+    <list id="12802405" name="Download List" deleted="0" locked="0" archived="0" position="0" smart="0" sort_order="0"/>
+    <list id="12894953" name="Family To Do List" deleted="0" locked="0" archived="0" position="0" smart="0" sort_order="0"/>
+    <list id="14821564" name="@Food Plan" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+food)</filter>
+    </list>
+    <list id="14743622" name="!Priorities" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+priority)</filter>
+    </list>
+    <list id="13442108" name="Prj)Condo" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+reno)</filter>
+    </list>
+    <list id="15401029" name="Prj)Dev" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+development)</filter>
+    </list>
+    <list id="15447062" name="Prj)Finance" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:financial or tag:bill)</filter>
+    </list>
+    <list id="15411177" name="Prj)Music" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+music)</filter>
+    </list>
+    <list id="15446782" name="Prj)Read" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+read)</filter>
+    </list>
+    <list id="15401064" name="Prj)Research" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+research)</filter>
+    </list>
+    <list id="15401207" name="@Recipes" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+recipe)</filter>
+    </list>
+    <list id="15446719" name="@RedmanDev" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:+redmandev)</filter>
+    </list>
+    <list id="15400312" name="!Wesley" deleted="0" locked="0" archived="0" position="0" smart="1" sort_order="0">
+      <filter>(tag:wesley)</filter>
+    </list>
+    <list id="4717995" name="Sent" deleted="0" locked="1" archived="0" position="1" smart="0" sort_order="0"/>
+  </lists>
+</rsp>

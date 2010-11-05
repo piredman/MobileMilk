@@ -89,17 +89,29 @@ namespace MobileMilk.Common
                          c.Resolve<ISettingsStore>(),
                          storeName => new TaskStore(storeName)));
 
+            this.Container.Register<IListStoreLocator>(
+                c => new ListStoreLocator(
+                         c.Resolve<ISettingsStore>(),
+                         storeName => new ListStore(storeName)));
+
             this.Container.Register<ITaskSynchronizationService>(
                 c => new TaskSynchronizationService(
                          c.Resolve<IRtmServiceClient>,
                          c.Resolve<ITaskStoreLocator>()));
+
+            this.Container.Register<IListSynchronizationService>(
+                c => new ListSynchronizationService(
+                         c.Resolve<IRtmServiceClient>,
+                         c.Resolve<IListStoreLocator>()));
 
             this.Container.Register(
                 c => new TaskCollectionsViewModel(
                     c.Resolve<INavigationService>(),
                     c.Resolve<IRtmServiceClient>(),
                     c.Resolve<ITaskStoreLocator>(),
-                    c.Resolve<ITaskSynchronizationService>()));
+                    c.Resolve<IListStoreLocator>(),
+                    c.Resolve<ITaskSynchronizationService>(),
+                    c.Resolve<IListSynchronizationService>()));
             
             this.Container.Register(
                 c => new AuthorizeViewModel(

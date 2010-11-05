@@ -29,7 +29,7 @@ namespace MobileMilk.Service
         {
             var getNewTasks = 
                 this._rtmServiceClientFactory()
-                    .GetTasksList()
+                    .GetTasks()
                     .Select(
                         tasks => {
                             return GetTasksListCompleted(tasks);

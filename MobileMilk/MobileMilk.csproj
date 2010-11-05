@@ -90,6 +90,8 @@
     <Compile Include="Resources\Converters\VisibilityConverter.cs" />
     <Compile Include="Resources\ThemedResourceLocator.cs" />
     <Compile Include="Service\ApplicationFrameNavigationService.cs" />
+    <Compile Include="Service\IListSynchronizationService.cs" />
+    <Compile Include="Service\ListSynchronizationService.cs" />
     <Compile Include="Service\ExceptionHandling.cs" />
     <Compile Include="Service\ILocationService.cs" />
     <Compile Include="Service\INavigationService.cs" />
@@ -142,7 +144,8 @@
     <Content Include="Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="SampleData\SampleTaskList.xml">
+    <Content Include="SampleData\SampleListData.xml" />
+    <Content Include="SampleData\SampleTaskData.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="SplashScreenImage.jpg" />

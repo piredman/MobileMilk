@@ -7,7 +7,7 @@ using MobileMilk.Model;
 
 namespace MobileMilk.Store
 {
-    public class TaskStore : ITaskStore
+    public class ListStore : IListStore
     {
         #region Members
 
@@ -15,7 +15,7 @@ namespace MobileMilk.Store
 
         #endregion Members
 
-        public TaskStore(string storeName)
+        public ListStore(string storeName)
         {
             this.storeName = storeName;
             this.Initialize();
@@ -23,14 +23,14 @@ namespace MobileMilk.Store
 
         #region Properies
 
-        public TaskList AllTasks { get; set; }
+        public ListCollection AllLists { get; set; }
 
         public DateTime? LastSyncDate
         {
-            get { return this.AllTasks.LastSyncDate; }
+            get { return this.AllLists.LastSyncDate; }
             set
             {
-                this.AllTasks.LastSyncDate = value;
+                this.AllLists.LastSyncDate = value;
                 this.SaveStore();
             }
         }
@@ -39,54 +39,54 @@ namespace MobileMilk.Store
 
         #region Methods
 
-        public List<Task> GetAllTasks()
+        public List<List> GetAllLists()
         {
-            return this.AllTasks;
+            return this.AllLists;
         }
 
-        public void SaveTasks(IEnumerable<Task> tasks)
+        public void SaveLists(IEnumerable<List> lists)
         {
-            //foreach (var task in tasks)
-            //    task.IsNew = true;
+            //foreach (var list in lists)
+            //    list.IsNew = true;
 
-            //foreach (var task in this.AllTasks)
-            //    task.IsNew = false;
+            //foreach (var list in this.AllLists)
+            //    list.IsNew = false;
 
-            ////Add new tasks to the list
-            //this.AllTasks.AddRange(tasks.Where(
-            //    newTask => !this.AllTasks.Any(task => task.TaskSeriesId == newTask.TaskSeriesId)
+            ////Add new lists to the list
+            //this.AllLists.AddRange(lists.Where(
+            //    newList => !this.AllLists.Any(list => list.ListSeriesId == newList.ListSeriesId)
             //));
 
-            //TODO: merge existing tasks
+            //TODO: merge existing lists
 
-            //TODO: delete removed tasks
+            //TODO: delete removed lists
 
-            //TODO: do not force update tasks all the time
-            this.AllTasks.Clear();
-            this.AllTasks.AddRange(tasks);
+            //TODO: do not force update lists all the time
+            this.AllLists.Clear();
+            this.AllLists.AddRange(lists);
 
             this.SaveStore();
         }
 
-        public Task GetTask(Task task)
+        public List GetList(List list)
         {
-            return this.AllTasks.Where(a => task.Id == a.Id).FirstOrDefault();
+            return this.AllLists.Where(a => list.Id == a.Id).FirstOrDefault();
         }
 
-        public void SaveTask(Task task)
+        public void SaveList(List list)
         {
-            if (!this.AllTasks.Contains(task))
+            if (!this.AllLists.Contains(list))
             {
-                this.AllTasks.Add(task);
+                this.AllLists.Add(list);
             }
 
             this.SaveStore();
         }
 
-        public void DeleteTask(Task task)
+        public void DeleteList(List list)
         {
-            var taskToDelete = this.GetTask(task);
-            this.AllTasks.Remove(taskToDelete);
+            var listToDelete = this.GetList(list);
+            this.AllLists.Remove(listToDelete);
 
             this.SaveStore();
         }
@@ -99,8 +99,8 @@ namespace MobileMilk.Store
                 {
                     using (var fs = new IsolatedStorageFileStream(this.storeName, FileMode.Create, filesystem))
                     {
-                        var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(TaskList));
-                        serializer.WriteObject(fs, this.AllTasks);
+                        var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(ListCollection));
+                        serializer.WriteObject(fs, this.AllLists);
                     }
                 }
             }
@@ -114,22 +114,22 @@ namespace MobileMilk.Store
                 {
                     if (!filesystem.FileExists(this.storeName))
                     {
-                        this.AllTasks = new TaskList();
+                        this.AllLists = new ListCollection();
                     } 
                     else
                     {
                         var resetStore = false;
                         using (var fs = new IsolatedStorageFileStream(this.storeName, FileMode.Open, filesystem))
                         {
-                            var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(TaskList));
+                            var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(ListCollection));
                             try
                             {
-                                this.AllTasks = serializer.ReadObject(fs) as TaskList;
+                                this.AllLists = serializer.ReadObject(fs) as ListCollection;
                             }
                             catch (Exception)
                             {
                                 resetStore = true;
-                                this.AllTasks = new TaskList();
+                                this.AllLists = new ListCollection();
                             }
                         }
 

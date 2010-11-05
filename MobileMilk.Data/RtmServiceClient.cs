@@ -7,8 +7,6 @@ using MobileMilk.Model;
 using MobileMilk.Data.Common;
 using MobileMilk.Data.Messages;
 using MobileMilk.Store;
-using MobileMilk.Common;
-using Convert = MobileMilk.Common.Convert;
 
 namespace MobileMilk.Data
 {
@@ -94,7 +92,7 @@ namespace MobileMilk.Data
 
         #region Lists
 
-        public IObservable<List<List>> GetListsList()
+        public IObservable<List<List>> GetLists()
         {
             var url = RtmRequestBuilder.GetListsRequest(
                 Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
@@ -109,7 +107,7 @@ namespace MobileMilk.Data
 
         #region Locations
 
-        public IObservable<List<Location>> GetLocationsList()
+        public IObservable<List<Location>> GetLocations()
         {
             var url = RtmRequestBuilder.GetLocationsRequest(
                 Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
@@ -124,7 +122,7 @@ namespace MobileMilk.Data
 
         #region Tasks
 
-        public IObservable<List<Task>> GetTasksList()
+        public IObservable<List<Task>> GetTasks()
         {
             var url = RtmRequestBuilder.GetTasksRequest(
                 Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
@@ -212,10 +210,6 @@ namespace MobileMilk.Data
             var lists = new List<List>();
             foreach (var list in response.Lists)
             {
-                var filters = new List<string>();
-                if (null != list.Filters)
-                    filters.AddRange(list.Filters);
-
                 lists.Add(new List {
                     Id = list.Id,
                     Name = list.Name,
@@ -224,7 +218,8 @@ namespace MobileMilk.Data
                     Locked = list.Locked.AsBool(false),
                     Position = list.Position.AsInt(-1),
                     Smart = list.Smart.AsBool(false),
-                    Filters = filters
+                    //TODO: filer not loading properly
+                    Filter = list.Filter
                 });
             }
 

@@ -9,7 +9,8 @@ namespace MobileMilk.Data.Messages
         [XmlAttribute("stat")]
         public string Status { get; set; }
 
-        [XmlElement("lists")]
+        [XmlArray("lists")]
+        [XmlArrayItem("list", typeof(RtmListResponse))]
         public List<RtmListResponse> Lists { get; set; }
     }
 
@@ -29,8 +30,10 @@ namespace MobileMilk.Data.Messages
         public string Position { get; set; }
         [XmlAttribute("smart")]
         public string Smart { get; set; }
+        [XmlAttribute("sort_order")]
+        public string SortOrder { get; set; }
 
         [XmlElement("filter")]
-        public List<string> Filters { get; set; }
+        public string Filter { get; set; }
     }
 }

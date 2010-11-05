@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace MobileMilk.Store
 {
-    public class TaskList : List<Task>
+    public class TaskCollection : List<Task>
     {
-        public TaskList()
+        public TaskCollection()
         {
             this.LastSyncDate = null;
         }
