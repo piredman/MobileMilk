@@ -23,15 +23,11 @@
     
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        
-        <!--Pivot Control-->
-        <!--<controls:Pivot Title="MobileMilk"
-                        SelectedIndex="{Binding SelectedGroupIndex, Mode=TwoWay}" 
-                        ItemsSource="{Binding SelectedCollectionViewSource}" 
-                        Style="{StaticResource HorizontalTaskGroupsStyle}" />-->
 
+        <!--Pivot Control-->
         <controls:Pivot Title="MobileMilk"
-                        ItemsSource="{Binding SelectedCollectionViewSource}" 
+                        ItemsSource="{Binding SelectedCollectionViewSource}"
+                        SelectedIndex="{Binding SelectedGroupIndex, Mode=TwoWay}" 
                         Style="{StaticResource HorizontalTaskGroupsStyle}" />
 
     </Grid>

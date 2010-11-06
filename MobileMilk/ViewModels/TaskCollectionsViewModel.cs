@@ -114,7 +114,6 @@ namespace MobileMilk.ViewModels
         public ObservableCollection<TaskGroupViewModel> DueByCollectionViewModels
         {
             get { return this._dueByCollectionViewModels; }
-
             set
             {
                 if (value != null)
@@ -154,7 +153,6 @@ namespace MobileMilk.ViewModels
         public ICollectionView SelectedCollectionViewSource
         {
             get { return this._selectedCollectionViewSource; }
-
             set
             {
                 this._selectedCollectionViewSource = value;
@@ -165,9 +163,11 @@ namespace MobileMilk.ViewModels
         public int SelectedCollectionIndex
         {
             get { return this._selectedCollectionIndex; }
-
             set
             {
+                if (this._selectedCollectionIndex == value)
+                    return;
+
                 this._selectedCollectionIndex = value;
                 this.HandleCollectionSectionChanged();
             }
@@ -190,11 +190,11 @@ namespace MobileMilk.ViewModels
             get { return this._selectedGroupIndex; }
             set
             {
-                if (value != null)
-                {
-                    this._selectedGroupIndex = value;
-                    this.RaisePropertyChanged(() => this.SelectedGroup);
-                }
+                if (this._selectedGroupIndex == value)
+                    return;
+
+                this._selectedGroupIndex = value;
+                HandleGroupSelectionChanged();
             }
         }
 
@@ -456,7 +456,9 @@ namespace MobileMilk.ViewModels
             var lists = this._listStoreLocator.GetStore().GetAllLists();
 
             _listCollection = lists.Select(list => new Group {
-                Name = list.Name, Tasks = tasks.Where(task => task.ListId == list.Id).ToList() 
+                Name = list.Name, Tasks = tasks.Where( task => 
+                    ((task.ListId == list.Id) && (task.Completed == null) && (task.Deleted == null))
+                ).ToList() 
             }).ToList();
 
             this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
@@ -477,8 +479,9 @@ namespace MobileMilk.ViewModels
             var locations = this._locationStoreLocator.GetStore().GetAllLocations();
 
             _locationCollection = locations.Select(location => new Group {
-                Name = location.Name,
-                Tasks = tasks.Where(task => task.LocationId == location.Id).ToList()
+                Name = location.Name, Tasks = tasks.Where(task => 
+                    ((task.LocationId == location.Id) && (task.Completed == null) && (task.Deleted == null))
+                ).ToList()
             }).ToList();
 
             this._locationCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
@@ -496,27 +499,39 @@ namespace MobileMilk.ViewModels
         
         private void HandleCollectionSectionChanged()
         {
+            var selectedIndex = -1;
             _selectedCollectionViewSource = null;
             switch (this.SelectedCollectionIndex)
             {
-                case 1:
+                case 0:
                     SelectedCollectionName = "Due By";
                     _selectedCollectionViewSource = this.DueByCollectionViewSource;
+                    selectedIndex = this._locationCollectionViewSource.View.CurrentPosition;
                     break;
-                case 2:
+                case 1:
                     SelectedCollectionName = "Lists";
                     _selectedCollectionViewSource = this.ListCollectionViewSource;
+                    selectedIndex = this.ListCollectionViewSource.CurrentPosition;
                     break;
-                case 3:
+                case 2:
                     SelectedCollectionName = "Locations";
                     _selectedCollectionViewSource = this.LocationCollectionViewSource;
+                    selectedIndex = this.LocationCollectionViewSource.CurrentPosition;
                     break;
             }
 
             if (_selectedCollectionViewSource != null)
             {
                 this.SelectedGroup = (TaskGroupViewModel)_selectedCollectionViewSource.CurrentItem;
-                this.SelectedGroupIndex = this._selectedCollectionViewSource.CurrentPosition;
+                this.SelectedGroupIndex = selectedIndex;
+            }
+        }
+
+        private void HandleGroupSelectionChanged()
+        {
+            if (_selectedCollectionViewSource != null)
+            {
+                this._selectedCollectionViewSource.MoveCurrentToPosition(this.SelectedGroupIndex);
             }
         }
 

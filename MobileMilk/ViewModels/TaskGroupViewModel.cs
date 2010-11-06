@@ -66,7 +66,6 @@ namespace MobileMilk.ViewModels
         public ObservableCollection<TaskViewModel> TaskViewModels
         {
             get { return this._observableItems; }
-
             set
             {
                 if (value != null)
@@ -80,9 +79,11 @@ namespace MobileMilk.ViewModels
         public int SelectedTaskIndex
         {
             get { return this._selectedTaskIndex; }
-
             set
             {
+                if (this._selectedTaskIndex == value)
+                    return;
+
                 this._selectedTaskIndex = value;
                 this.HandleCurrentSectionChanged();
             }
@@ -91,7 +92,6 @@ namespace MobileMilk.ViewModels
         public TaskViewModel SelectedTask
         {
             get { return this._selectedTask; }
-
             set
             {
                 if (value != null)

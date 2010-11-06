@@ -6,7 +6,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:mvvmLightCommand="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" xmlns:pag="clr-namespace:MobileMilk.Common" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -41,34 +41,6 @@
                            SelectedIndex="{Binding SelectedCollectionIndex, Mode=TwoWay}"
                            Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
 
-            <controls:PanoramaItem Header="Settings">
-                <Grid x:Name="SettingsOptions" Background="Transparent">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <ScrollViewer Grid.Row="0">
-                        <!--Content Grid-->
-                        <Grid x:Name="ContentGrid">
-                            <Button>
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <TextBlock Height="Auto" Width="Auto" HorizontalAlignment="Left" Margin="12,6,0,0" 
-                                            Name="ConnectionSettings" Text="Connection Details" VerticalAlignment="Top" 
-                                            FontSize="40" />
-                                    </ControlTemplate>
-                                </Button.Template>
-                                <custom:Interaction.Triggers>
-                                    <custom:EventTrigger EventName="Click">
-                                        <mvvmLightCommand:EventToCommand Command="{Binding AppSettingsCommand}" />
-                                    </custom:EventTrigger>
-                                </custom:Interaction.Triggers>
-                            </Button>
-                        </Grid>
-                    </ScrollViewer>
-                </Grid>
-            </controls:PanoramaItem>
-
             <controls:PanoramaItem Header="Due">
                 <Grid>
                     <ListBox ItemsSource="{Binding DueByCollectionViewSource}"
@@ -93,6 +65,27 @@
                              SelectedIndex="{Binding LocationSelectedIndex, Mode=TwoWay}" 
                              Style="{StaticResource VerticalTaskGroupsStyle}"
                              Visibility="{Binding LocationCollectionViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+                </Grid>
+            </controls:PanoramaItem>
+
+            <controls:PanoramaItem Header="Settings">
+                <Grid x:Name="SettingsOptions" Background="Transparent">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer Grid.Row="0">
+                        <!--Content Grid-->
+                        <Grid x:Name="ContentGrid">
+                            <TextBlock Height="Auto" Width="Auto" HorizontalAlignment="Left" Margin="12,6,0,0" 
+                                            Name="ConnectionSettings" Text="Connection Details" VerticalAlignment="Top" 
+                                            FontSize="40" />
+                            
+                            <custom:Interaction.Behaviors>
+                                <pag:FrameworkElementClickCommand CommandBinding="{Binding AppSettingsCommand}"/>
+                            </custom:Interaction.Behaviors>
+                        </Grid>
+                    </ScrollViewer>
                 </Grid>
             </controls:PanoramaItem>
             
