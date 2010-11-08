@@ -432,15 +432,15 @@ namespace MobileMilk.ViewModels
                                (task.Completed == null) && (task.Deleted == null));
 
             _dueByCollection = new List<Group> {
-                new Group {Name = "Today", Tasks = dueTodayTasks.ToList()},
-                new Group {Name = "Tomorrow", Tasks = dueTomorrowTasks.ToList()},
-                new Group {Name = "This Week", Tasks = dueThisWeekTasks.ToList()},
-                new Group {Name = "Next Week", Tasks = dueNextWeekTasks.ToList()}
+                new Group {Name = "Today", Order = 0, Tasks = dueTodayTasks.ToList()},
+                new Group {Name = "Tomorrow", Order = 1, Tasks = dueTomorrowTasks.ToList()},
+                new Group {Name = "This Week", Order = 2, Tasks = dueThisWeekTasks.ToList()},
+                new Group {Name = "Next Week", Order = 3, Tasks = dueNextWeekTasks.ToList()}
             };
 
             this._dueByCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._dueByCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
             viewModels.ForEach(this._dueByCollectionViewModels.Add);
 
             // Create collection views
@@ -456,18 +456,22 @@ namespace MobileMilk.ViewModels
             var lists = this._listStoreLocator.GetStore().GetAllLists();
 
             _listCollection = lists.Select(list => new Group {
-                Name = list.Name, Tasks = tasks.Where( task => 
+                Name = list.Name, Order = list.Smart ? 1 : 0, Tasks = tasks.Where( task => 
                     ((task.ListId == list.Id) && (task.Completed == null) && (task.Deleted == null))
                 ).ToList() 
             }).ToList();
 
             this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._listCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
             viewModels.ForEach(this._listCollectionViewModels.Add);
 
             // Create collection views
             this._listCollectionViewSource = new CollectionViewSource { Source = this._listCollectionViewModels };
+
+            this._listCollectionViewSource.SortDescriptions.Add(new SortDescription("Order", ListSortDirection.Ascending));
+            this._listCollectionViewSource.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+
             this._listCollectionViewSource.View.CurrentChanged += (o, args) => {
                 this.SelectedGroup = (TaskGroupViewModel)this._listCollectionViewSource.View.CurrentItem;
                 this.SelectedGroupIndex = this._listCollectionViewSource.View.CurrentPosition;
@@ -479,14 +483,14 @@ namespace MobileMilk.ViewModels
             var locations = this._locationStoreLocator.GetStore().GetAllLocations();
 
             _locationCollection = locations.Select(location => new Group {
-                Name = location.Name, Tasks = tasks.Where(task => 
+                Name = location.Name, Order = 0, Tasks = tasks.Where(task => 
                     ((task.LocationId == location.Id) && (task.Completed == null) && (task.Deleted == null))
                 ).ToList()
             }).ToList();
 
             this._locationCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._locationCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
             viewModels.ForEach(this._locationCollectionViewModels.Add);
 
             // Create collection views

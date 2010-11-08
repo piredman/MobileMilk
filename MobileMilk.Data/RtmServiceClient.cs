@@ -305,7 +305,8 @@ namespace MobileMilk.Data
                         Deleted = task.Deleted.AsNullableDateTime(null), 
                         Priority = task.Priority.AsInt(0), 
                         Postponed = task.Postponed.AsInt(0), 
-                        Estimate = task.Estimate.AsNullableDateTime(null)
+                        Estimate = task.Estimate.AsNullableDateTime(null),
+                        IsRepeating = rootSeries.Tasks.Count > 0
                     }));
                 }
             }

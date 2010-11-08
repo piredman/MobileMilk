@@ -113,17 +113,17 @@ namespace MobileMilk.ViewModels
         [DataMember]
         public List<string> Tags { get { return this.TaskItem.Tags; } }
         public string TagsAsString { get { return string.Join(",", this.TaskItem.Tags.ToArray()); } }
-        public bool HasTags { get { return this.TaskItem.Tags.Count != 0; } }
+        public bool HasTags { get { return this.TaskItem.HasTags; } }
         public int TagCount { get { return this.TaskItem.Tags.Count; } }
 
         [DataMember]
         public List<Note> Notes { get { return this.TaskItem.Notes; } }
-        public bool HasNotes { get { return this.TaskItem.Notes.Count != 0; } }
+        public bool HasNotes { get { return this.TaskItem.HasNotes; } }
         public int NoteCount { get { return this.TaskItem.Notes.Count; } }
 
         [DataMember]
         public List<User> Participants { get { return this.TaskItem.Participants; } }
-        public bool HasParticipants { get { return this.TaskItem.Participants.Count != 0; } }
+        public bool HasParticipants { get { return this.TaskItem.HasParticipants; } }
         public int ParticipantsCount { get { return this.TaskItem.Participants.Count; } }
 
         #endregion Properties

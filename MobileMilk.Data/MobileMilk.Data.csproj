@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Common\Constants.cs" />
     <Compile Include="Common\HttpClient.cs" />
+    <Compile Include="FilterBuilder.cs" />
     <Compile Include="IRtmServiceClient.cs" />
     <Compile Include="Common\MD5.cs" />
     <Compile Include="Messages\GetLocationResponse.cs" />

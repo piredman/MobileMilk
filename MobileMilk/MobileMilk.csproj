@@ -143,7 +143,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="SampleData\SampleListData.xml" />
-    <Content Include="SampleData\SampleLocationData.xml" />
+    <Content Include="SampleData\SampleLocationData.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="SampleData\SampleTaskData.xml">
       <SubType>Designer</SubType>
     </Content>
