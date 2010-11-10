@@ -11,8 +11,11 @@ namespace MobileMilk.Service
 {
     public class SynchronizationService : ISynchronizationService
     {
+        #region Members
+
         public const string GetTasksTask = "GetNewTasks";
         public const string SaveTasksTask = "SaveTasks";
+        public const string CompleteTaskTask = "CompleteTask";
 
         public const string GetListsTask = "GetNewLists";
         public const string SaveListsTask = "SaveLists";
@@ -24,6 +27,10 @@ namespace MobileMilk.Service
         private readonly ITaskStoreLocator _taskStoreLocator;
         private readonly IListStoreLocator _listStoreLocator;
         private readonly ILocationStoreLocator _locationStoreLocator;
+
+        #endregion Members
+
+        #region Constructor(s)
 
         public SynchronizationService(
                 Func<IRtmServiceClient> rtmServiceClientFactory,
@@ -37,126 +44,159 @@ namespace MobileMilk.Service
             this._locationStoreLocator = locationStoreLocator;
         }
 
+        #endregion Constructor(s)
+
+        #region Methods 
+
         public IObservable<TaskCompletedSummary[]> StartSynchronization()
         {
-            var getTasks = 
-                this._rtmServiceClientFactory()
-                    .GetTasks()
-                    .Select(
-                        tasks => {
-                            return GetTasksListCompleted(tasks);
-                        })
-                    .Catch((Exception exception) => {
-                        if (exception is WebException)
-                        {
-                            var webException = exception as WebException;
-                            var summary = ExceptionHandling.GetSummaryFromWebException(GetTasksTask, webException);
-                            return Observable.Return(summary);
-                        }
-
-                        if (exception is UnauthorizedAccessException)
-                        {
-                            return Observable.Return(new TaskCompletedSummary { Task = GetTasksTask, Result = TaskSummaryResult.AccessDenied });
-                        }
-
-                        throw exception;
-                    });
-
-            var getLists = 
-                this._rtmServiceClientFactory()
-                    .GetLists()
-                    .Select(
-                        lists => {
-                            return GetListsCompleted(lists);
-                        })
-                    .Catch((Exception exception) => {
-                        if (exception is WebException)
-                        {
-                            var webException = exception as WebException;
-                            var summary = ExceptionHandling.GetSummaryFromWebException(GetListsTask, webException);
-                            return Observable.Return(summary);
-                        }
-
-                        if (exception is UnauthorizedAccessException)
-                        {
-                            return Observable.Return(new TaskCompletedSummary { Task = GetListsTask, Result = TaskSummaryResult.AccessDenied });
-                        }
-
-                        throw exception;
-                    });
-
-            var getLocations = 
-                this._rtmServiceClientFactory()
-                    .GetLocations()
-                    .Select(
-                        locations => {
-                            return GetLocationsCompleted(locations);
-                        })
-                    .Catch((Exception exception) => {
-                        if (exception is WebException)
-                        {
-                            var webException = exception as WebException;
-                            var summary = ExceptionHandling.GetSummaryFromWebException(GetListsTask, webException);
-                            return Observable.Return(summary);
-                        }
-
-                        if (exception is UnauthorizedAccessException)
-                        {
-                            return Observable.Return(new TaskCompletedSummary { Task = GetListsTask, Result = TaskSummaryResult.AccessDenied });
-                        }
-
-                        throw exception;
-                    });
-
-            //TODO: Save Tasks back to RTM
-            var saveTasks = Observable.Return(new TaskCompletedSummary { Task = SaveTasksTask, Result = TaskSummaryResult.Success, Context = "0"});
+            var getTasks = GetTasks();
+            var getLists = GetLists();
+            var getLocations = GetLocations();               
             
-            return Observable.ForkJoin(getTasks, getLists, getLocations, saveTasks);
+            return Observable.ForkJoin(getTasks, getLists, getLocations);
         }
 
-        private TaskCompletedSummary GetTasksListCompleted(List<Task> tasks)
+        public IObservable<TaskCompletedSummary> CompleteTask(Task task)
         {
-            var taskStore = this._taskStoreLocator.GetStore();
+            return this._rtmServiceClientFactory()
+                .CompleteTask(task)
+                .Select(commitedTask => {
+                    var taskStore = this._taskStoreLocator.GetStore();
+                    taskStore.SaveTask(commitedTask);
 
-            taskStore.SaveTasks(tasks);
-            if (tasks.Count() > 0)
-                taskStore.LastSyncDate = tasks.Max(task => task.Created ?? DateTime.MinValue);
+                    return new TaskCompletedSummary {
+                        Task = CompleteTaskTask,
+                        Result = TaskSummaryResult.Success,
+                        Context = commitedTask.Id
+                    };
+                })
+                .Catch((Exception exception) => {
+                    if (exception is WebException)
+                    {
+                        var webException = exception as WebException;
+                        var summary = ExceptionHandling.GetSummaryFromWebException(GetTasksTask, webException);
+                        return Observable.Return(summary);
+                    }
 
-            return new TaskCompletedSummary {
-                Task = GetTasksTask,
-                Result = TaskSummaryResult.Success,
-                Context = tasks.Count().ToString()
-            };
+                    if (exception is UnauthorizedAccessException)
+                    {
+                        return Observable.Return(new TaskCompletedSummary { Task = GetTasksTask, Result = TaskSummaryResult.AccessDenied });
+                    }
+
+                    throw exception;
+                });
         }
 
-        private TaskCompletedSummary GetListsCompleted(List<List> lists)
+        #endregion Methods
+
+        #region Private Methods
+
+        private IObservable<TaskCompletedSummary> GetTasks()
         {
-            var listStore = this._listStoreLocator.GetStore();
+            return this._rtmServiceClientFactory()
+                .GetTasks()
+                .Select(
+                    tasks => {
+                        var taskStore = this._taskStoreLocator.GetStore();
 
-            listStore.SaveLists(lists);
-            if (lists.Count() > 0)
-                listStore.LastSyncDate = DateTime.Now;
+                        taskStore.SaveTasks(tasks);
+                        if (tasks.Count() > 0)
+                            taskStore.LastSyncDate = tasks.Max(task => task.Created ?? DateTime.MinValue);
 
-            return new TaskCompletedSummary {
-                Task = GetListsTask,
-                Result = TaskSummaryResult.Success,
-                Context = lists.Count().ToString()
-            };
+                        return new TaskCompletedSummary {
+                            Task = GetTasksTask,
+                            Result = TaskSummaryResult.Success,
+                            Context = tasks.Count().ToString()
+                        };
+                    })
+                .Catch((Exception exception) => {
+                    if (exception is WebException)
+                    {
+                        var webException = exception as WebException;
+                        var summary = ExceptionHandling.GetSummaryFromWebException(GetTasksTask, webException);
+                        return Observable.Return(summary);
+                    }
+
+                    if (exception is UnauthorizedAccessException)
+                    {
+                        return Observable.Return(new TaskCompletedSummary { Task = GetTasksTask, Result = TaskSummaryResult.AccessDenied });
+                    }
+
+                    throw exception;
+                });
         }
 
-        private TaskCompletedSummary GetLocationsCompleted(List<Location> locations)
+        private IObservable<TaskCompletedSummary> GetLists()
         {
-            var locationStore = this._locationStoreLocator.GetStore();
+            return this._rtmServiceClientFactory()
+                .GetLists()
+                .Select(
+                    lists => {
+                        var listStore = this._listStoreLocator.GetStore();
 
-            locationStore.SaveLocations(locations);
-            if (locations.Count() > 0)
-                locationStore.LastSyncDate = DateTime.Now;
+                        listStore.SaveLists(lists);
+                        if (lists.Count() > 0)
+                            listStore.LastSyncDate = DateTime.Now;
 
-            return new TaskCompletedSummary {
-                Task = GetLocationsTask,
-                Result = TaskSummaryResult.Success,
-                Context = locations.Count().ToString()
-            };
+                        return new TaskCompletedSummary {
+                            Task = GetListsTask,
+                            Result = TaskSummaryResult.Success,
+                            Context = lists.Count().ToString()
+                        };
+                    })
+                .Catch((Exception exception) => {
+                    if (exception is WebException)
+                    {
+                        var webException = exception as WebException;
+                        var summary = ExceptionHandling.GetSummaryFromWebException(GetListsTask, webException);
+                        return Observable.Return(summary);
+                    }
+
+                    if (exception is UnauthorizedAccessException)
+                    {
+                        return Observable.Return(new TaskCompletedSummary { Task = GetListsTask, Result = TaskSummaryResult.AccessDenied });
+                    }
+
+                    throw exception;
+                });
         }
+
+        private IObservable<TaskCompletedSummary> GetLocations()
+        {
+            return this._rtmServiceClientFactory()
+                .GetLocations()
+                .Select(
+                    locations => {
+                        var locationStore = this._locationStoreLocator.GetStore();
+
+                        locationStore.SaveLocations(locations);
+                        if (locations.Count() > 0)
+                            locationStore.LastSyncDate = DateTime.Now;
+
+                        return new TaskCompletedSummary {
+                            Task = GetLocationsTask,
+                            Result = TaskSummaryResult.Success,
+                            Context = locations.Count().ToString()
+                        };
+                    })
+                .Catch((Exception exception) => {
+                    if (exception is WebException)
+                    {
+                        var webException = exception as WebException;
+                        var summary = ExceptionHandling.GetSummaryFromWebException(GetListsTask, webException);
+                        return Observable.Return(summary);
+                    }
+
+                    if (exception is UnauthorizedAccessException)
+                    {
+                        return Observable.Return(new TaskCompletedSummary { Task = GetListsTask, Result = TaskSummaryResult.AccessDenied });
+                    }
+
+                    throw exception;
+                });
+        }
+
+        #endregion Private Methods
     }
 }

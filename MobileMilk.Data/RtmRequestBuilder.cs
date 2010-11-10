@@ -53,11 +53,11 @@ namespace MobileMilk.Data
 
         #region Timelines
 
-        public static string GetTimelineRequest(string apiKey, string sharedSecret)
+        public static string GetTimelineRequest(string apiKey, string sharedSecret, string token)
         {
             var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.timelines.create");
-            return BuildRequest(apiKey, sharedSecret, parameters);
+            return BuildRequest(apiKey, sharedSecret, token, parameters);
         }
 
         #endregion Timelines
@@ -90,6 +90,17 @@ namespace MobileMilk.Data
         {
             var parameters = new Dictionary<string, string>();
             parameters.Add("method", "rtm.tasks.getList");
+            return BuildRequest(apiKey, sharedSecret, token, parameters);
+        }
+
+        public static string GetCompleteTaskRequest(string apiKey, string sharedSecret, string token, string timeline, Task task)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters.Add("timeline", timeline);
+            parameters.Add("method", "rtm.tasks.complete");
+            parameters.Add("task_id", task.Id);
+            parameters.Add("taskseries_id", task.TaskSeriesId);
+            parameters.Add("list_id", task.ListId);
             return BuildRequest(apiKey, sharedSecret, token, parameters);
         }
 

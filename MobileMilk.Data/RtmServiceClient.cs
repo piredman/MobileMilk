@@ -65,7 +65,7 @@ namespace MobileMilk.Data
         public IObservable<Authorization> GetAuthorization()
         {
             var url = RtmRequestBuilder.GetCheckTokenRequest(
-                Common.Constants.ApiKey, Common.Constants.SharedSecret, _settingsStore.AuthorizationToken);
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -80,7 +80,7 @@ namespace MobileMilk.Data
         public IObservable<string> CreateTimeline()
         {
             var url = RtmRequestBuilder.GetTimelineRequest(
-                Common.Constants.ApiKey, Common.Constants.SharedSecret);
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken);
 
             return HttpClient
                 .RequestTo(url)
@@ -131,6 +131,19 @@ namespace MobileMilk.Data
                 .RequestTo(url)
                 .GetRest<RtmGetTasksResponse>()
                 .Select(ToTaskList);
+        }
+
+        public IObservable<Task> CompleteTask(Task task)
+        {
+            var url = RtmRequestBuilder.GetCompleteTaskRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken, _timeline, task);
+
+            //TODO: The task completes correctly in RTM but the response does not seem to be caught!
+
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmCompleteTaskResponse>()
+                .Select(ToTask);
         }
 
         #endregion Tasks
@@ -194,7 +207,8 @@ namespace MobileMilk.Data
             if (!response.Status.ToLower().Equals("ok"))
                 return null;
 
-            return response.Timeline;
+            this._timeline = response.Timeline;
+            return this._timeline;
         }
 
         #endregion
@@ -312,6 +326,79 @@ namespace MobileMilk.Data
             }
 
             return taskList;
+        }
+
+        private Task ToTask(RtmCompleteTaskResponse response)
+        {
+            //TODO: handle response failure
+            if (!response.Status.ToLower().Equals("ok"))
+                return null;
+
+            var taskList = new List<Task>();
+            foreach (var list in response.Tasks.List)
+            {
+                if (null == list.TaskSeries)
+                    continue;
+
+                foreach (var series in list.TaskSeries)
+                {
+                    var tags = new List<string>();
+                    if (null != series.Tags)
+                    {
+                        tags.AddRange(series.Tags);
+                    }
+
+                    var participants = new List<User>();
+                    if (null != series.Participants)
+                    {
+                        participants.AddRange(series.Participants.Select(participant => new User {
+                            Id = participant.Id,
+                            UserName = participant.UserName,
+                            FullName = participant.FullName
+                        }));
+                    }
+
+                    var notes = new List<Note>();
+                    if (null != series.Notes)
+                    {
+                        notes.AddRange(series.Notes.Select(note => new Note {
+                            Id = note.Id,
+                            Text = note.Text,
+                            Title = note.Title,
+                            Created = note.Created.AsNullableDateTime(null),
+                            Modified = note.Modified.AsNullableDateTime(null)
+                        }));
+                    }
+
+                    var rootList = list;
+                    var rootSeries = series;
+                    taskList.AddRange(series.Tasks.Select(task => new Task {
+                        ListId = rootList.Id,
+                        TaskSeriesId = rootSeries.Id,
+                        Created = rootSeries.Created.AsNullableDateTime(null),
+                        Modified = rootSeries.Modified.AsNullableDateTime(null),
+                        Name = rootSeries.Name,
+                        Source = rootSeries.Source,
+                        Url = rootSeries.Url,
+                        LocationId = rootSeries.LocationId,
+                        Tags = tags,
+                        Participants = participants,
+                        Notes = notes,
+                        Id = task.Id,
+                        Due = task.Due.AsNullableDateTime(null),
+                        HasDueTime = task.HasDueTime.AsBool(false),
+                        Added = task.Added.AsNullableDateTime(null),
+                        Completed = task.Completed.AsNullableDateTime(null),
+                        Deleted = task.Deleted.AsNullableDateTime(null),
+                        Priority = task.Priority.AsInt(0),
+                        Postponed = task.Postponed.AsInt(0),
+                        Estimate = task.Estimate.AsNullableDateTime(null),
+                        IsRepeating = rootSeries.Tasks.Count > 0
+                    }));
+                }
+            }
+
+            return taskList.FirstOrDefault();
         }
 
         #endregion Tasks

@@ -440,7 +440,8 @@ namespace MobileMilk.ViewModels
 
             this._dueByCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._dueByCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                        this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._dueByCollectionViewModels.Add);
 
             // Create collection views
@@ -466,7 +467,8 @@ namespace MobileMilk.ViewModels
 
             this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._listCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                        this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._listCollectionViewModels.Add);
 
             // Create collection views
@@ -492,7 +494,8 @@ namespace MobileMilk.ViewModels
 
             this._locationCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._locationCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, this.NavigationService)).ToList();
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                        this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._locationCollectionViewModels.Add);
 
             // Create collection views

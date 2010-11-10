@@ -62,5 +62,10 @@ namespace MobileMilk.Data
         {
             throw new NotImplementedException();
         }
+
+        public IObservable<Task> CompleteTask(Task task)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

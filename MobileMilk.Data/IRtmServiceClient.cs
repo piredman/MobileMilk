@@ -23,5 +23,7 @@ namespace MobileMilk.Data
         IObservable<List<Task>> GetTasks();
         IObservable<List<List>> GetLists();
         IObservable<List<Location>> GetLocations();
+
+        IObservable<Task> CompleteTask(Task task);
     }
 }

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Model;
+using MobileMilk.Service;
 
 namespace MobileMilk.ViewModels
 {
@@ -20,12 +21,18 @@ namespace MobileMilk.ViewModels
         #endregion Delegates
 
         #region Members
+
+        private ISynchronizationService _synchronizationService;
+
         #endregion Members
 
-        public TaskViewModel(Model.Task taskItem, DelegateCommand taskCommand, INavigationService navigationService) 
+        public TaskViewModel(Model.Task taskItem, DelegateCommand taskCommand, 
+            INavigationService navigationService, ISynchronizationService synchronizationService) 
             : base(navigationService)
         {
             this.TaskItem = taskItem;
+
+            this._synchronizationService = synchronizationService;
 
             this.TaskCommand = taskCommand;
             this.MarkCompleteCommand = new DelegateCommand(MarkCompleteCommandDelegate);
@@ -141,6 +148,8 @@ namespace MobileMilk.ViewModels
         {
             //TODO: Update RTM that task is completed
             this.TaskItem.Completed = DateTime.Now;
+            this._synchronizationService.CompleteTask(this.TaskItem);
+
             this.RaisePropertyChanged(() => this.Completed);
         }
 

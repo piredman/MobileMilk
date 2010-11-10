@@ -8,6 +8,7 @@ using Microsoft.Practices.Prism.Commands;
 using MobileMilk.Common;
 using MobileMilk.Model;
 using System.Collections.Generic;
+using MobileMilk.Service;
 
 namespace MobileMilk.ViewModels
 {
@@ -22,6 +23,8 @@ namespace MobileMilk.ViewModels
 
         #region Members
 
+        private ISynchronizationService _synchronizationService;
+
         private ObservableCollection<TaskViewModel> _observableItems;
         private TaskViewModel _selectedTask;
         private int _selectedTaskIndex;
@@ -33,15 +36,16 @@ namespace MobileMilk.ViewModels
         #region Constructor(s)
 
         public TaskGroupViewModel(
-            string groupName, int order, List<Task> tasks,
-            DelegateCommand taskGroupCommand,
-            INavigationService navigationService)
+            string groupName, int order, List<Task> tasks, DelegateCommand taskGroupCommand,
+            INavigationService navigationService, ISynchronizationService synchronizationService)
             : base(navigationService)
         {
             this.Name = groupName;
             this.Order = order;
             this.Tasks = tasks;
             this.TaskGroupCommand = taskGroupCommand;
+
+            this._synchronizationService = synchronizationService;
 
             this.TaskCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/TaskDetailsView.xaml", UriKind.Relative)); });
@@ -117,7 +121,8 @@ namespace MobileMilk.ViewModels
                 var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.SelectedTask = new TaskViewModel(tombstoned.TaskItem, TaskCommand, this.NavigationService);
+                    this.SelectedTask = new TaskViewModel(tombstoned.TaskItem, TaskCommand,
+                        this.NavigationService, this._synchronizationService);
                 }
 
                 this._selectedTaskIndex = Tombstoning.Load<int>("SelectedTaskIndex");
@@ -147,7 +152,7 @@ namespace MobileMilk.ViewModels
         {
             this._observableItems = new ObservableCollection<TaskViewModel>();
             var taskListItemViewModels = this.Tasks.Select(t =>
-                    new TaskViewModel(t, TaskCommand, this.NavigationService)).ToList();
+                    new TaskViewModel(t, TaskCommand, this.NavigationService, this._synchronizationService)).ToList();
             taskListItemViewModels.ForEach(this._observableItems.Add);
 
             // Listen for task changes

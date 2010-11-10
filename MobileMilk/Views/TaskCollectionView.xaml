@@ -25,9 +25,13 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
 
         <!--Pivot Control-->
-        <controls:Pivot Title="MobileMilk"
+        <!--TODO: SelectedGroupIndex causing crashes -->
+        <!--<controls:Pivot Title="MobileMilk"
                         ItemsSource="{Binding SelectedCollectionViewSource}"
                         SelectedIndex="{Binding SelectedGroupIndex, Mode=TwoWay}" 
+                        Style="{StaticResource HorizontalTaskGroupsStyle}" />-->
+        <controls:Pivot Title="MobileMilk"
+                        ItemsSource="{Binding SelectedCollectionViewSource}"
                         Style="{StaticResource HorizontalTaskGroupsStyle}" />
 
     </Grid>
