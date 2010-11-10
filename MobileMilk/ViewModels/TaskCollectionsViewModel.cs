@@ -455,11 +455,14 @@ namespace MobileMilk.ViewModels
         {
             var lists = this._listStoreLocator.GetStore().GetAllLists();
 
-            _listCollection = lists.Select(list => new Group {
-                Name = list.Name, Order = list.Smart ? 1 : 0, Tasks = tasks.Where( task => 
-                    ((task.ListId == list.Id) && (task.Completed == null) && (task.Deleted == null))
-                ).ToList() 
-            }).ToList();
+            //TODO: add smart lists back once filtering for tasks is working
+            _listCollection = lists
+                .Where(list => list.Smart == false)
+                .Select(list => new Group {
+                    Name = list.Name, Order = list.Smart ? 1 : 0, Tasks = tasks.Where( task => 
+                        ((task.ListId == list.Id) && (task.Completed == null) && (task.Deleted == null))
+                    ).ToList()
+                }).ToList();
 
             this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._listCollection.Select(o =>
@@ -469,8 +472,7 @@ namespace MobileMilk.ViewModels
             // Create collection views
             this._listCollectionViewSource = new CollectionViewSource { Source = this._listCollectionViewModels };
 
-            this._listCollectionViewSource.SortDescriptions.Add(new SortDescription("Order", ListSortDirection.Ascending));
-            this._listCollectionViewSource.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            this._listCollectionViewSource.View.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
             this._listCollectionViewSource.View.CurrentChanged += (o, args) => {
                 this.SelectedGroup = (TaskGroupViewModel)this._listCollectionViewSource.View.CurrentItem;

@@ -142,7 +142,9 @@
     <Content Include="Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="SampleData\SampleListData.xml" />
+    <Content Include="SampleData\SampleListData.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="SampleData\SampleLocationData.xml">
       <SubType>Designer</SubType>
     </Content>

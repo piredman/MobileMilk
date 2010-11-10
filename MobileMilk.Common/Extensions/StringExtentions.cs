@@ -26,7 +26,7 @@ namespace MobileMilk.Common.Extensions
         {
             bool returnValue;
             if (!bool.TryParse(value, out returnValue))
-                returnValue = defaultValue;
+                returnValue = (value == "1");
 
             return returnValue;
         }

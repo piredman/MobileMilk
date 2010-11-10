@@ -5,7 +5,7 @@
     xmlns:Converters="clr-namespace:MobileMilk.Resources.Converters" 
     xmlns:pag="clr-namespace:MobileMilk.Common" 
     xmlns:con="clr-namespace:WinMilk.Gui.Controls" 
-    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls">
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit">
 
     <!--Visibility Converter-->
     <Converters:VisibilityConverter x:Key="VisibilityConverter"/>
@@ -69,6 +69,12 @@
 
             <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2" Grid.Row="1"/>
 
+            <toolkit:ContextMenuService.ContextMenu>
+                <toolkit:ContextMenu>
+                    <toolkit:MenuItem Header="mark as complete" Command="{Binding MarkCompleteCommand}"/>
+                    <toolkit:MenuItem Header="postpone" Command="{Binding MarkPostponeCommand}"/>
+                </toolkit:ContextMenu>
+            </toolkit:ContextMenuService.ContextMenu>
             <Custom:Interaction.Behaviors>
                 <pag:FrameworkElementClickCommand CommandBinding="{Binding TaskCommand}"/>
             </Custom:Interaction.Behaviors>

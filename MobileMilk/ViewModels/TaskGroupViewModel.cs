@@ -33,13 +33,13 @@ namespace MobileMilk.ViewModels
         #region Constructor(s)
 
         public TaskGroupViewModel(
-            string groupName, int groupType, List<Task> tasks,
+            string groupName, int order, List<Task> tasks,
             DelegateCommand taskGroupCommand,
             INavigationService navigationService)
             : base(navigationService)
         {
             this.Name = groupName;
-            this.GroupType = groupType;
+            this.Order = order;
             this.Tasks = tasks;
             this.TaskGroupCommand = taskGroupCommand;
 
@@ -61,7 +61,7 @@ namespace MobileMilk.ViewModels
         public string Name { get; set; }
 
         [DataMember]
-        public int GroupType { get; set; }
+        public int Order { get; set; }
 
         public int Count { get { return this.Tasks.Count; } }
 

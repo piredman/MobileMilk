@@ -14,6 +14,7 @@ namespace MobileMilk.Data
 
             var value = string.Empty;
             whereClause = AddListFilter(value, tasks);
+            //whereClause += AddLocationFilter(value, tasks);
 
             return whereClause;
         }
@@ -21,6 +22,11 @@ namespace MobileMilk.Data
         private static IEnumerable<Task> AddListFilter(string value, List<Task> tasks)
         {
             return tasks.Where(task => task.ListId == value);
+        }
+
+        private static IEnumerable<Task> AddLocationFilter(string value, List<Task> tasks)
+        {
+            return tasks.Where(task => task.LocationId == value);
         }
     }
 }

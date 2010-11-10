@@ -13,6 +13,8 @@ namespace MobileMilk.ViewModels
     {
         #region Delegates
 
+        public DelegateCommand MarkCompleteCommand { get; set; }
+        public DelegateCommand MarkPostponeCommand { get; set; }
         public DelegateCommand TaskCommand { get; set; }
 
         #endregion Delegates
@@ -24,7 +26,10 @@ namespace MobileMilk.ViewModels
             : base(navigationService)
         {
             this.TaskItem = taskItem;
+
             this.TaskCommand = taskCommand;
+            this.MarkCompleteCommand = new DelegateCommand(MarkCompleteCommandDelegate);
+            this.MarkPostponeCommand = new DelegateCommand(MarkPostponeCommandDelegate);
 
             this.IsBeingActivated();
         }
@@ -131,6 +136,23 @@ namespace MobileMilk.ViewModels
         #region Methods
 
         public override void IsBeingActivated() {}
+
+        public void MarkCompleteCommandDelegate()
+        {
+            //TODO: Update RTM that task is completed
+            this.TaskItem.Completed = DateTime.Now;
+            this.RaisePropertyChanged(() => this.Completed);
+        }
+
+        public void MarkPostponeCommandDelegate()
+        {
+            //TODO: Update RTM that task is postponed
+            this.TaskItem.Postponed += 1;
+            if (this.TaskItem.Due.HasValue) this.TaskItem.Due.Value.AddDays(1);
+
+            this.RaisePropertyChanged(() => this.Postponed);
+            this.RaisePropertyChanged(() => this.Due);
+        }
 
         #endregion Methods
     }
