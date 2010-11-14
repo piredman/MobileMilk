@@ -7,5 +7,6 @@ namespace MobileMilk.Service
     {
         IObservable<TaskCompletedSummary[]> StartSynchronization();
         IObservable<TaskCompletedSummary> CompleteTask(Task task);
+        IObservable<TaskCompletedSummary> PostponeTask(Task task);
     }
 }

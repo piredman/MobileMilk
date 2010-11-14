@@ -139,10 +139,21 @@ namespace MobileMilk.Data
                 Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken, _timeline, task);
 
             //TODO: The task completes correctly in RTM but the response does not seem to be caught!
-
             return HttpClient
                 .RequestTo(url)
-                .GetRest<RtmCompleteTaskResponse>()
+                .GetRest<RtmUpdateTaskResponse>()
+                .Select(ToTask);
+        }
+
+        public IObservable<Task> PostponeTask(Task task)
+        {
+            var url = RtmRequestBuilder.GetPostponeTaskRequest(
+                Constants.ApiKey, Constants.SharedSecret, _settingsStore.AuthorizationToken, _timeline, task);
+
+            //TODO: The task completes correctly in RTM but the response does not seem to be caught!
+            return HttpClient
+                .RequestTo(url)
+                .GetRest<RtmUpdateTaskResponse>()
                 .Select(ToTask);
         }
 
@@ -328,7 +339,7 @@ namespace MobileMilk.Data
             return taskList;
         }
 
-        private Task ToTask(RtmCompleteTaskResponse response)
+        private Task ToTask(RtmUpdateTaskResponse response)
         {
             //TODO: handle response failure
             if (!response.Status.ToLower().Equals("ok"))

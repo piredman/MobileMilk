@@ -30,7 +30,8 @@ namespace MobileMilk.Common.Extensions
                             var serializer = new XmlSerializer(typeof(T));
                             return (T)serializer.Deserialize(xmlReader);
                         }
-                });
+                    }
+                );
         }
 
         public static IObservable<Unit> PostXml<T>(this HttpWebRequest request, T obj)

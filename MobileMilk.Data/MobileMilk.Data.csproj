@@ -58,7 +58,7 @@
     <Compile Include="FilterBuilder.cs" />
     <Compile Include="IRtmServiceClient.cs" />
     <Compile Include="Common\MD5.cs" />
-    <Compile Include="Messages\CompleteTaskResponse.cs" />
+    <Compile Include="Messages\UpdateTaskResponse.cs" />
     <Compile Include="Messages\GetLocationResponse.cs" />
     <Compile Include="Messages\GetListsResponse.cs" />
     <Compile Include="Messages\GetTasksResponse.cs" />

@@ -88,6 +88,37 @@ namespace MobileMilk.Service
                 });
         }
 
+        public IObservable<TaskCompletedSummary> PostponeTask(Task task)
+        {
+            return this._rtmServiceClientFactory()
+                .PostponeTask(task)
+                .Select(commitedTask => {
+                    var taskStore = this._taskStoreLocator.GetStore();
+                    taskStore.SaveTask(commitedTask);
+
+                    return new TaskCompletedSummary {
+                        Task = CompleteTaskTask,
+                        Result = TaskSummaryResult.Success,
+                        Context = commitedTask.Id
+                    };
+                })
+                .Catch((Exception exception) => {
+                    if (exception is WebException)
+                    {
+                        var webException = exception as WebException;
+                        var summary = ExceptionHandling.GetSummaryFromWebException(GetTasksTask, webException);
+                        return Observable.Return(summary);
+                    }
+
+                    if (exception is UnauthorizedAccessException)
+                    {
+                        return Observable.Return(new TaskCompletedSummary { Task = GetTasksTask, Result = TaskSummaryResult.AccessDenied });
+                    }
+
+                    throw exception;
+                });
+        }
+
         #endregion Methods
 
         #region Private Methods

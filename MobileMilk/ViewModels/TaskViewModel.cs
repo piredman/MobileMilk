@@ -146,19 +146,13 @@ namespace MobileMilk.ViewModels
 
         public void MarkCompleteCommandDelegate()
         {
-            //TODO: Update RTM that task is completed
-            this.TaskItem.Completed = DateTime.Now;
             this._synchronizationService.CompleteTask(this.TaskItem);
-
             this.RaisePropertyChanged(() => this.Completed);
         }
 
         public void MarkPostponeCommandDelegate()
         {
-            //TODO: Update RTM that task is postponed
-            this.TaskItem.Postponed += 1;
-            if (this.TaskItem.Due.HasValue) this.TaskItem.Due.Value.AddDays(1);
-
+            this._synchronizationService.PostponeTask(this.TaskItem);
             this.RaisePropertyChanged(() => this.Postponed);
             this.RaisePropertyChanged(() => this.Due);
         }

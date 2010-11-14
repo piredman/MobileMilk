@@ -144,6 +144,12 @@ namespace MobileMilk.ViewModels
             this.RaisePropertyChanged(string.Empty);
         }
 
+        public void Refresh()
+        {
+            this.BuildPivotDimensions();
+            this.RaisePropertyChanged(string.Empty);
+        }
+
         #endregion Methods
 
         #region Private Methods

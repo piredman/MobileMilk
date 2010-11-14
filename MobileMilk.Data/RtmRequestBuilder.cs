@@ -104,6 +104,17 @@ namespace MobileMilk.Data
             return BuildRequest(apiKey, sharedSecret, token, parameters);
         }
 
+        public static string GetPostponeTaskRequest(string apiKey, string sharedSecret, string token, string timeline, Task task)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters.Add("timeline", timeline);
+            parameters.Add("method", "rtm.tasks.postpone");
+            parameters.Add("task_id", task.Id);
+            parameters.Add("taskseries_id", task.TaskSeriesId);
+            parameters.Add("list_id", task.ListId);
+            return BuildRequest(apiKey, sharedSecret, token, parameters);
+        }
+
         #endregion Tasks
 
         #region Private Methods
