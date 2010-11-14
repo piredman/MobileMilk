@@ -25,6 +25,8 @@
     <SilverlightAppEntry>MobileMilk.App</SilverlightAppEntry>
     <ValidateXaml>true</ValidateXaml>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <Utf8Output>true</Utf8Output>
+    <ExpressionBlendVersion>4.0.20901.0</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -134,6 +136,8 @@
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Resources\Icons\vector\basic_shellcommon_vectors.ai" />
+    <None Include="Resources\Icons\vector\License.rtf" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ApplicationIcon.png">
@@ -142,6 +146,70 @@
     <Content Include="Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\Icons\dark\appbar.add.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.back.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.basecircle.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.cancel.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.check.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.close.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.delete.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.download.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.edit.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.favs.addto.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.favs.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.feature.camera.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.feature.email.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.feature.search.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.feature.settings.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.feature.video.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.folder.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.minus.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.new.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.next.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.overflowdots.png" />
+    <Content Include="Resources\Icons\dark\appbar.questionmark.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.refresh.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.save.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.share.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.stop.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.sync.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.transport.ff.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.transport.pause.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.transport.play.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.transport.rew.rest.png" />
+    <Content Include="Resources\Icons\dark\appbar.upload.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.add.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.back.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.basecircle.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.cancel.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.check.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.close.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.delete.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.download.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.edit.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.favs.addto.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.favs.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.feature.camera.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.feature.email.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.feature.search.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.feature.settings.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.feature.video.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.folder.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.minus.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.new.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.next.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.overflowdots.png" />
+    <Content Include="Resources\Icons\light\appbar.questionmark.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.refresh.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.save.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.share.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.stop.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.sync.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.transport.ff.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.transport.pause.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.transport.play.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.transport.rew.rest.png" />
+    <Content Include="Resources\Icons\light\appbar.upload.rest.png" />
     <Content Include="SampleData\SampleListData.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -166,6 +234,11 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="Properties\DesignTimeResources.xaml" Condition="'$(DesignTime)'=='true' OR ('$(SolutionPath)'!='' AND Exists('$(SolutionPath)') AND '$(BuildingInsideVisualStudio)'!='true' AND '$(BuildingInsideExpressionBlend)'!='true')">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
+    </Page>
     <Page Include="Resources\Themes\styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

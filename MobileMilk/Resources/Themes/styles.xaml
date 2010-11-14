@@ -36,7 +36,9 @@
     <DataTemplate x:Key="TaskSummaryTemplate">
         <Grid Background="{StaticResource PhoneBackgroundBrush}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="445" />
+                <ColumnDefinition Width="50" />
+                <!--<ColumnDefinition Width="445" />-->
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="10" />
             </Grid.ColumnDefinitions>
@@ -45,7 +47,12 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0" Grid.Row="1">
+            <Grid Grid.Column="0" Grid.Row="1"
+                  Visibility="{Binding TaskCollectionsViewModel.IsEditing, Converter={StaticResource VisibilityConverter}}" >
+                <CheckBox />
+            </Grid>
+            
+            <Grid Grid.Column="1" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
@@ -67,7 +74,7 @@
                 </Grid>
             </Grid>
 
-            <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2" Grid.Row="1"/>
+            <Rectangle Fill="{Binding PriorityColour}" Grid.Column="3" Grid.Row="1"/>
 
             <toolkit:ContextMenuService.ContextMenu>
                 <toolkit:ContextMenu>

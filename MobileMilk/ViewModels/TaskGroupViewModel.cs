@@ -19,6 +19,10 @@ namespace MobileMilk.ViewModels
         public DelegateCommand TaskGroupCommand { get; set; }
         public DelegateCommand TaskCommand { get; set; }
 
+        public DelegateCommand AddTaskCommand { get; set; }
+        public DelegateCommand EditTasksCommand { get; set; }
+        public DelegateCommand RefreshTasksCommand { get; set; }
+
         #endregion Delegates
 
         #region Members
@@ -37,13 +41,16 @@ namespace MobileMilk.ViewModels
 
         public TaskGroupViewModel(
             string groupName, int order, List<Task> tasks, DelegateCommand taskGroupCommand,
+            DelegateCommand editTasksCommand,
             INavigationService navigationService, ISynchronizationService synchronizationService)
             : base(navigationService)
         {
             this.Name = groupName;
             this.Order = order;
             this.Tasks = tasks;
+
             this.TaskGroupCommand = taskGroupCommand;
+            this.EditTasksCommand = editTasksCommand;
 
             this._synchronizationService = synchronizationService;
 

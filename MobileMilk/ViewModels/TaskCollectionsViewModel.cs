@@ -27,6 +27,10 @@ namespace MobileMilk.ViewModels
         public DelegateCommand ViewTaskCollectionCommand { get; set; }
         public DelegateCommand StartSyncCommand { get; set; }
         public DelegateCommand AppSettingsCommand { get; set; }
+
+        public DelegateCommand AddTaskCommand { get; set; }
+        public DelegateCommand EditTasksCommand { get; set; }
+        public DelegateCommand RefreshTasksCommand { get; set; }
                 
         #endregion Delegates
         
@@ -55,6 +59,7 @@ namespace MobileMilk.ViewModels
         private CollectionViewSource _locationCollectionViewSource;
 
         private bool _isSyncing;
+        private bool _isEditing;
 
         private ICollectionView _selectedCollectionViewSource;
         private int _selectedCollectionIndex;
@@ -99,6 +104,8 @@ namespace MobileMilk.ViewModels
             this.AppSettingsCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/AppSettingsView.xaml", UriKind.Relative)); },
                 () => !this.IsSyncing);
+
+            this.EditTasksCommand = new DelegateCommand(HandleIsEditing);
 
             this.IsBeingActivated();
         }
@@ -262,6 +269,16 @@ namespace MobileMilk.ViewModels
                 var nullStore = (store is NullTaskStore);
 
                 return ((nullStore) || (store.LastSyncDate == null));
+            }
+        }
+
+        public bool IsEditing
+        {
+            get { return this._isEditing; }
+            set
+            {
+                this._isEditing = value;
+                this.RaisePropertyChanged(() => this.IsEditing);
             }
         }
 
@@ -440,7 +457,7 @@ namespace MobileMilk.ViewModels
 
             this._dueByCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._dueByCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, EditTasksCommand,
                         this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._dueByCollectionViewModels.Add);
 
@@ -467,7 +484,7 @@ namespace MobileMilk.ViewModels
 
             this._listCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._listCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, EditTasksCommand,
                         this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._listCollectionViewModels.Add);
 
@@ -494,7 +511,7 @@ namespace MobileMilk.ViewModels
 
             this._locationCollectionViewModels = new ObservableCollection<TaskGroupViewModel>();
             var viewModels = this._locationCollection.Select(o =>
-                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand,
+                    new TaskGroupViewModel(o.Name, o.Order, o.Tasks, ViewTaskCollectionCommand, EditTasksCommand,
                         this.NavigationService, this._synchronizationService)).ToList();
             viewModels.ForEach(this._locationCollectionViewModels.Add);
 
@@ -598,6 +615,11 @@ namespace MobileMilk.ViewModels
                     Content = TaskCompletedSummaryStrings.GetDescriptionForResult(TaskSummaryResult.AccessDenied)
                 },
                 n => afterNotification());
+        }
+
+        private void HandleIsEditing()
+        {
+            this.IsEditing = !this.IsEditing;
         }
 
         #endregion Private Methods

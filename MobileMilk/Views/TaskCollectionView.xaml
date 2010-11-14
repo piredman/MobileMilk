@@ -7,8 +7,7 @@
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" 
-    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:prismInteractionRequest="clr-namespace:Microsoft.Practices.Prism.Interactivity.InteractionRequest;assembly=Microsoft.Practices.Prism.Interactivity" xmlns:prismInteractivity="clr-namespace:Microsoft.Practices.Prism.Interactivity;assembly=Microsoft.Practices.Prism.Interactivity" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -35,5 +34,18 @@
                         Style="{StaticResource HorizontalTaskGroupsStyle}" />
 
     </Grid>
-    
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton Text="Add" IconUri="/Resources/Icons/dark/appbar.add.rest.png" />
+            <shell:ApplicationBarIconButton Text="Edit" IconUri="/Resources/Icons/dark/appbar.check.rest.png" />
+            <shell:ApplicationBarIconButton Text="Refresh" IconUri="/Resources/Icons/dark/appbar.sync.rest.png" />
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+    <Custom:Interaction.Behaviors>
+        <prismInteractivity:ApplicationBarButtonCommand ButtonText="Add" CommandBinding="{Binding AddTaskCommand}"/>
+        <prismInteractivity:ApplicationBarButtonCommand ButtonText="Edit" CommandBinding="{Binding EditTasksCommand}" />
+        <prismInteractivity:ApplicationBarButtonCommand ButtonText="Refresh" CommandBinding="{Binding RefreshTasksCommand}" />
+    </Custom:Interaction.Behaviors>
+
 </phone:PhoneApplicationPage>
