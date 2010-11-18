@@ -35,12 +35,10 @@
 
     <DataTemplate x:Key="TaskSummaryTemplate">
         <Grid Background="{StaticResource PhoneBackgroundBrush}">
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50" />
-                <!--<ColumnDefinition Width="445" />-->
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="10" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="5"/>
@@ -48,34 +46,47 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Column="0" Grid.Row="1"
-                  Visibility="{Binding TaskCollectionsViewModel.IsEditing, Converter={StaticResource VisibilityConverter}}" >
+                  Visibility="Visible">
                 <CheckBox />
             </Grid>
-            
+            <!--<Grid Grid.Column="0" Grid.Row="1"
+                  Visibility="{Binding TaskCollectionsViewModel.IsEditing, Converter={StaticResource VisibilityConverter}}">
+                <CheckBox />
+            </Grid>-->
+
             <Grid Grid.Column="1" Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
-                <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                <Grid.ColumnDefinitions>
+                    <!--<ColumnDefinition Width="445" />-->
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="10" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                         Text="{Binding Name}" FontSize="28" />
-                                        <!--Style="{StaticResource PhoneTextNormalStyle}"
+                    <!--Style="{StaticResource PhoneTextNormalStyle}"
                                         Foreground="{StaticResource PhoneAccentBrush}" />-->
 
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
-                    <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
+                        <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
+                    </Grid>
                 </Grid>
+
+                <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2"/>
             </Grid>
-
-            <Rectangle Fill="{Binding PriorityColour}" Grid.Column="3" Grid.Row="1"/>
-
+            
             <toolkit:ContextMenuService.ContextMenu>
                 <toolkit:ContextMenu>
                     <toolkit:MenuItem Header="mark as complete" Command="{Binding MarkCompleteCommand}"/>
