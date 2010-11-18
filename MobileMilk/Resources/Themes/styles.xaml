@@ -34,7 +34,7 @@
     </ControlTemplate>
 
     <DataTemplate x:Key="TaskSummaryTemplate">
-        <Grid Background="{StaticResource PhoneBackgroundBrush}">
+        <Grid Width="460" Background="{StaticResource PhoneBackgroundBrush}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
