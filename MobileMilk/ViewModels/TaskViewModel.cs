@@ -16,7 +16,8 @@ namespace MobileMilk.ViewModels
 
         public DelegateCommand MarkCompleteCommand { get; set; }
         public DelegateCommand MarkPostponeCommand { get; set; }
-        public DelegateCommand TaskCommand { get; set; }
+        public DelegateCommand ViewTaskCommand { get; set; }
+        public DelegateCommand EditTaskCommand { get; set; }
 
         #endregion Delegates
 
@@ -26,7 +27,7 @@ namespace MobileMilk.ViewModels
 
         #endregion Members
 
-        public TaskViewModel(Model.Task taskItem, DelegateCommand taskCommand, 
+        public TaskViewModel(Task taskItem, DelegateCommand viewTaskCommand,
             INavigationService navigationService, ISynchronizationService synchronizationService) 
             : base(navigationService)
         {
@@ -34,9 +35,10 @@ namespace MobileMilk.ViewModels
 
             this._synchronizationService = synchronizationService;
 
-            this.TaskCommand = taskCommand;
             this.MarkCompleteCommand = new DelegateCommand(MarkCompleteCommandDelegate);
             this.MarkPostponeCommand = new DelegateCommand(MarkPostponeCommandDelegate);
+            this.ViewTaskCommand = viewTaskCommand;
+            this.EditTaskCommand = new DelegateCommand(EditTaskCommandDelegate); ;
 
             this.IsBeingActivated();
         }
@@ -138,6 +140,8 @@ namespace MobileMilk.ViewModels
         public bool HasParticipants { get { return this.TaskItem.HasParticipants; } }
         public int ParticipantsCount { get { return this.TaskItem.Participants.Count; } }
 
+        public bool IsEditing { get { return this.TaskItem.IsEditing;  } }
+
         #endregion Properties
 
         #region Methods
@@ -155,6 +159,12 @@ namespace MobileMilk.ViewModels
             this._synchronizationService.PostponeTask(this.TaskItem);
             this.RaisePropertyChanged(() => this.Postponed);
             this.RaisePropertyChanged(() => this.Due);
+        }
+
+        public void EditTaskCommandDelegate()
+        {
+            this.TaskItem.IsEditing = !this.TaskItem.IsEditing;
+            this.RaisePropertyChanged(() => this.IsEditing);
         }
 
         #endregion Methods

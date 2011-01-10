@@ -40,5 +40,7 @@ namespace MobileMilk.Model
         public DateTime? Deleted { get; set; }
 
         public bool IsNew { get; set; }
+        public bool IsEditing { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

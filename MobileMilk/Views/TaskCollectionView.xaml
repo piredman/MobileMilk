@@ -7,7 +7,7 @@
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:prismInteractionRequest="clr-namespace:Microsoft.Practices.Prism.Interactivity.InteractionRequest;assembly=Microsoft.Practices.Prism.Interactivity" xmlns:prismInteractivity="clr-namespace:Microsoft.Practices.Prism.Interactivity;assembly=Microsoft.Practices.Prism.Interactivity" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
+    xmlns:converters="clr-namespace:MobileMilk.Resources.Converters" xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:prismInteractionRequest="clr-namespace:Microsoft.Practices.Prism.Interactivity.InteractionRequest;assembly=Microsoft.Practices.Prism.Interactivity" xmlns:prismInteractivity="clr-namespace:Microsoft.Practices.Prism.Interactivity;assembly=Microsoft.Practices.Prism.Interactivity" xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:con="clr-namespace:WinMilk.Gui.Controls" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -16,8 +16,108 @@
 
     <!--Resources-->
     <phone:PhoneApplicationPage.Resources>
+        
         <converters:VisibilityConverter x:Key="VisibilityConverter"/>
         <converters:VisibilityConverter x:Key="NegativeVisibilityConverter" Negative="True"/>
+
+        <DataTemplate x:Key="TaskSummaryTemplate">
+            <Grid Width="460" Background="{StaticResource PhoneBackgroundBrush}">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Column="0" Grid.Row="1" Width="25" Visibility="{Binding IsEditing, Converter={StaticResource NegativeVisibilityConverter}}">
+                    <Rectangle Fill="RoyalBlue" />
+                    <Custom:Interaction.Behaviors>
+                        <pag:FrameworkElementClickCommand CommandBinding="{Binding EditTaskCommand}"/>
+                    </Custom:Interaction.Behaviors>
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="1" Visibility="{Binding IsEditing, Converter={StaticResource VisibilityConverter}}">
+                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                </Grid>
+
+                <Grid Grid.Column="1" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <!--<ColumnDefinition Width="445" />-->
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                        Text="{Binding Name}" FontSize="28" />
+                        <!--Style="{StaticResource PhoneTextNormalStyle}"
+                                        Foreground="{StaticResource PhoneAccentBrush}" />-->
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
+                            <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
+                        </Grid>
+                    </Grid>
+
+                    <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2"/>
+
+                    <toolkit:ContextMenuService.ContextMenu>
+                        <toolkit:ContextMenu>
+                            <toolkit:MenuItem Header="mark as complete" Command="{Binding MarkCompleteCommand}"/>
+                            <toolkit:MenuItem Header="postpone" Command="{Binding MarkPostponeCommand}"/>
+                        </toolkit:ContextMenu>
+                    </toolkit:ContextMenuService.ContextMenu>
+                    <Custom:Interaction.Behaviors>
+                        <pag:FrameworkElementClickCommand CommandBinding="{Binding ViewTaskCommand}"/>
+                    </Custom:Interaction.Behaviors>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <!--Style for Task List-->
+        <Style x:Key="TaskSummaryStyle" TargetType="ItemsControl">
+            <Setter Property="Margin" Value="0,40,0,0"/>
+            <Setter Property="ListBox.ItemTemplate" Value="{StaticResource TaskSummaryTemplate}"/>
+            <Setter Property="Height" Value="490"/>
+        </Style>
+        
+        <!-- Panorama List Item Style -->
+        <DataTemplate x:Key="HorizontalTaskGroupsHeaderTemplate">
+            <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+        <DataTemplate x:Key="HorizontalTaskGroupsItemTemplate">
+            <StackPanel Orientation="Vertical">
+                <ContentControl Template="{StaticResource NoItemsTextBlock}"
+                            Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource VisibilityConverter}}" />
+                <!-- TODO: Thinking about making a custom ListBox that takes the parent to allow access to the edit property 
+                     OR maybe I can use VisualState to do this.  I need to access a IsEditing property on the group here or something
+                -->
+                <ListBox Style="{StaticResource TaskSummaryStyle}" 
+                     ItemsSource="{Binding TasksViewSource}" 
+                     Visibility="{Binding TasksViewSource.IsEmpty, Converter={StaticResource NegativeVisibilityConverter}}" />
+            </StackPanel>
+        </DataTemplate>
+        
+        <!--Style for Pivot List-->
+        <Style x:Key="HorizontalTaskGroupsStyle" TargetType="ItemsControl">
+            <Setter Property="controls:Pivot.HeaderTemplate" Value="{StaticResource HorizontalTaskGroupsHeaderTemplate}"/>
+            <Setter Property="controls:Pivot.ItemTemplate" Value="{StaticResource HorizontalTaskGroupsItemTemplate}"/>
+        </Style>
+        
     </phone:PhoneApplicationPage.Resources>
     
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -46,6 +146,6 @@
         <prismInteractivity:ApplicationBarButtonCommand ButtonText="Add" CommandBinding="{Binding AddTaskCommand}"/>
         <prismInteractivity:ApplicationBarButtonCommand ButtonText="Edit" CommandBinding="{Binding EditTasksCommand}" />
         <prismInteractivity:ApplicationBarButtonCommand ButtonText="Refresh" CommandBinding="{Binding RefreshTasksCommand}" />
-    </Custom:Interaction.Behaviors>
+    </Custom:Interaction.Behaviors>   
 
 </phone:PhoneApplicationPage>

@@ -17,10 +17,10 @@ namespace MobileMilk.ViewModels
         #region Delegates
 
         public DelegateCommand TaskGroupCommand { get; set; }
-        public DelegateCommand TaskCommand { get; set; }
+        public DelegateCommand ViewTaskCommand { get; set; }
+        public DelegateCommand EditTaskCommand { get; set; }
 
         public DelegateCommand AddTaskCommand { get; set; }
-        public DelegateCommand EditTasksCommand { get; set; }
         public DelegateCommand RefreshTasksCommand { get; set; }
 
         #endregion Delegates
@@ -41,7 +41,6 @@ namespace MobileMilk.ViewModels
 
         public TaskGroupViewModel(
             string groupName, int order, List<Task> tasks, DelegateCommand taskGroupCommand,
-            DelegateCommand editTasksCommand,
             INavigationService navigationService, ISynchronizationService synchronizationService)
             : base(navigationService)
         {
@@ -50,11 +49,10 @@ namespace MobileMilk.ViewModels
             this.Tasks = tasks;
 
             this.TaskGroupCommand = taskGroupCommand;
-            this.EditTasksCommand = editTasksCommand;
 
             this._synchronizationService = synchronizationService;
 
-            this.TaskCommand = new DelegateCommand(
+            this.ViewTaskCommand = new DelegateCommand(
                 () => { this.NavigationService.Navigate(new Uri("/Views/TaskDetailsView.xaml", UriKind.Relative)); });
 
             Load();
@@ -128,7 +126,7 @@ namespace MobileMilk.ViewModels
                 var tombstoned = Tombstoning.Load<TaskViewModel>("SelectedTaskItem");
                 if (tombstoned != null)
                 {
-                    this.SelectedTask = new TaskViewModel(tombstoned.TaskItem, TaskCommand,
+                    this.SelectedTask = new TaskViewModel(tombstoned.TaskItem, ViewTaskCommand,
                         this.NavigationService, this._synchronizationService);
                 }
 
@@ -165,7 +163,7 @@ namespace MobileMilk.ViewModels
         {
             this._observableItems = new ObservableCollection<TaskViewModel>();
             var taskListItemViewModels = this.Tasks.Select(t =>
-                    new TaskViewModel(t, TaskCommand, this.NavigationService, this._synchronizationService)).ToList();
+                    new TaskViewModel(t, ViewTaskCommand, this.NavigationService, this._synchronizationService)).ToList();
             taskListItemViewModels.ForEach(this._observableItems.Add);
 
             // Listen for task changes

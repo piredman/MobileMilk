@@ -41,6 +41,10 @@
                            SelectedIndex="{Binding SelectedCollectionIndex, Mode=TwoWay}"
                            Visibility="{Binding TasksHaveBeenSynced, Converter={StaticResource VisibilityConverter}}">
 
+            <!--<controls:Panorama.Background>
+                <ImageBrush ImageSource="../PanoramaBackground.jpg"/>
+            </controls:Panorama.Background>-->
+            
             <controls:PanoramaItem Header="Due">
                 <Grid>
                     <ListBox ItemsSource="{Binding DueByCollectionViewSource}"
