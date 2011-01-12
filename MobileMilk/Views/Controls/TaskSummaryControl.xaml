@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="MobileMilk.Views.Controls.TaskSummaryControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:Custom="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:pag="clr-namespace:MobileMilk.Common" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:con="clr-namespace:WinMilk.Gui.Controls" mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="480" d:DesignWidth="480">
+
+    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneChromeBrush}" Width="460" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="0" Grid.Row="1"
+                Visibility="Visible">
+            <CheckBox />
+        </Grid>
+        <!--<Grid Grid.Column="0" Grid.Row="1"
+                Visibility="{Binding TaskCollectionsViewModel.IsEditing, Converter={StaticResource VisibilityConverter}}">
+            <CheckBox />
+        </Grid>-->
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!--<ColumnDefinition Width="445" />-->
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="10" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <con:DynamicTextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Text="{Binding Name}" FontSize="28" />
+                <!--Style="{StaticResource PhoneTextNormalStyle}"
+                                    Foreground="{StaticResource PhoneAccentBrush}" />-->
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding TagsAsString}" TextAlignment="Left" />
+                    <TextBlock Grid.Column="1" Text="{Binding DueAsString}" TextAlignment="Right" />
+                </Grid>
+            </Grid>
+
+            <Rectangle Fill="{Binding PriorityColour}" Grid.Column="2"/>
+        </Grid>
+
+        <toolkit:ContextMenuService.ContextMenu>
+            <toolkit:ContextMenu>
+                <toolkit:MenuItem Header="mark as complete" Command="{Binding MarkCompleteCommand}"/>
+                <toolkit:MenuItem Header="postpone" Command="{Binding MarkPostponeCommand}"/>
+            </toolkit:ContextMenu>
+        </toolkit:ContextMenuService.ContextMenu>
+        <Custom:Interaction.Behaviors>
+            <pag:FrameworkElementClickCommand CommandBinding="{Binding TaskCommand}"/>
+        </Custom:Interaction.Behaviors>
+    </Grid>
+</UserControl>
