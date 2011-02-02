@@ -1,30 +1,27 @@
 MobileMilk README
 =================
 
-*** All Git Commands ARE case sensitive
+*** All Git Commands ARE case sensitive ***
 
 
-Common Commands
----------------
+Get Latest
+-----------------
+$ git pull [SSH or HTTPS Repository Address]
 
-Clone the library
-
-$ git clone [https or ssh address]
-
-Getting Latest
-$ git pull
-
-Commiting Changes
-
+Commit
+-----------------
 $ git add .
 $ git commit -a -m 'some comment'
+$ git push [SSH or HTTPS Repository Address]
 
+
+SETUP
+=========================
 
 Adding your Global Config
 -------------------------
 $ git config --global user.name "Your Name"
 $ git config --global user.email you@yourdomain.com
-
 
 Generating an SSH Key
 ---------------------
@@ -34,3 +31,6 @@ Generating an SSH Key
 
 tutorial:  http://help.github.com/msysgit-key-setup/
 
+Clone Repository
+----------------
+$ git clone [SSH or HTTPS Repository Address]
