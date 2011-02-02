@@ -1,0 +1,36 @@
+MobileMilk README
+=================
+
+*** All Git Commands ARE case sensitive
+
+
+Common Commands
+---------------
+
+Clone the library
+
+$ git clone [https or ssh address]
+
+Getting Latest
+$ git pull
+
+Commiting Changes
+
+$ git add .
+$ git commit -a -m 'some comment'
+
+
+Adding your Global Config
+-------------------------
+$ git config --global user.name "Your Name"
+$ git config --global user.email you@yourdomain.com
+
+
+Generating an SSH Key
+---------------------
+1.  $ ssh-keygen -t rsa -C "email.address.com"
+2.  Copy the contents of the generated id_rsa.pub file to the SSH Public Keys on github
+3.  $ ssh git@github.com
+
+tutorial:  http://help.github.com/msysgit-key-setup/
+
